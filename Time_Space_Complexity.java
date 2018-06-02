@@ -360,6 +360,148 @@ LeetCode:
         return sb.toString();
     }
 	
+
+350.
+	Time complexity should be O(nlogn);
+	Space complexity should be O(n);	
+	//use array and sort it
+	public int[] intersect(int[] nums1, int[] nums2) {
+        if (nums1.length == 0 || nums2.length == 0) return new int[0];
+        //get the special cases done
+		
+        ArrayList<Integer> list = new ArrayList<>();
+        Arrays.sort(nums1);
+        Arrays.sort(nums2);
+        int pointer1 = 0;
+        int pointer2 = 0;
+        
+        while (pointer1 < nums1.length && pointer2 < nums2.length) {
+            if (nums1[pointer1] == nums2[pointer2]) {
+                list.add(nums1[pointer1]);
+                pointer1 ++;
+                pointer2 ++;
+            }
+            else if (nums1[pointer1] < nums2[pointer2]) {
+                pointer1 ++;
+            }
+            else {
+                pointer2 ++;
+            }
+        }
+        
+        int[] res = new int[list.size()];
+        for (int i = 0; i < list.size(); i ++) {
+            res[i] = list.get(i);
+			//Integer wrapper class is converted to int
+        }
+        return res;
+    }
+	
+	Time complexity should be O(n);
+	Space complexity should be O(n);	
+	//use hashmap
+	public int[] intersect(int[] nums1, int[] nums2) {
+        int len1 = nums1.length, len2 = nums2.length;
+        if (len1 == 0 || len2 == 0) return new int[0];
+        
+        ArrayList<Integer> list;
+            
+        if (len1 < len2) {
+            list = new ArrayList<>(len1);
+            Map<Integer, Integer> map = new HashMap<>(len2);
+            
+            for (int each : nums2) {
+                map.put(each, map.getOrDefault(each, 0) + 1);
+            }
+            for (int each : nums1) {
+                if (map.containsKey(each)) {
+                    list.add(each);
+                    int temp = map.get(each);
+                    temp --;
+                    if (temp == 0) map.remove(each);
+                    else map.put(each, temp);
+                }
+            }
+        }
+        else {
+            list = new ArrayList<>(len2);
+            Map<Integer, Integer> map = new HashMap<>(len1);
+            
+            for (int each : nums1) {
+                map.put(each, map.getOrDefault(each, 0) + 1);
+            }
+            for (int each : nums2) {
+                if (map.containsKey(each)) {
+                    list.add(each);
+                    int temp = map.get(each);
+                    temp --;
+                    if (temp == 0) map.remove(each);
+                    else map.put(each, temp);
+                }
+            }
+        }
+
+        int[] res = new int[list.size()];
+        for (int i = 0; i < list.size(); i ++) {
+            res[i] = list.get(i);
+			//Integer wrapper class is converted to int
+        }
+        return res;
+        
+    }
+	
+	3. What if elements of nums2 are stored on disk, and the memory is
+	limited such that you cannot load all elements into the memory at
+	once?
+	
+	If only nums2 cannot fit in memory, put all elements of nums1 into a HashMap, read chunks of array that fit into the memory, and record the intersections.
+
+	If both nums1 and nums2 are so huge that neither fit into the memory, sort them individually (external sort), then read 2 elements from each array at a time in memory, record intersections.	
+
+	
+166.
+	 public String fractionToDecimal(int numerator, int denominator) {
+        if (numerator == 0) {
+            return "0";
+        }
+        StringBuilder res = new StringBuilder();
+        // "+" or "-"
+        res.append(((numerator > 0) ^ (denominator > 0)) ? "-" : "");
+        long num = Math.abs((long)numerator);
+        long den = Math.abs((long)denominator);
+        
+        // integral part
+        res.append(num / den);
+        num %= den;
+        if (num == 0) {
+            return res.toString();
+        }
+        
+        // fractional part
+        res.append(".");
+        HashMap<Long, Integer> map = new HashMap<Long, Integer>();
+        map.put(num, res.length());
+		//put index one step before
+        while (num != 0) {
+            num *= 10;
+			
+            res.append(num / den);
+            num %= den;
+			//these two steps are good
+            if (map.containsKey(num)) {
+                int index = map.get(num);
+                res.insert(index, "(");
+                res.append(")");
+                break;
+            }
+            else {
+                map.put(num, res.length());
+            }
+        }
+		//every time does one calculation
+        return res.toString();
+    }
+	
 	
 	
 
