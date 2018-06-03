@@ -502,11 +502,294 @@ LeetCode:
         return res.toString();
     }
 	
+380.
+	//use two hashmap 
+	class RandomizedSet {
+
+    int count;
+    Map<Integer, Integer> index;
+    Map<Integer, Integer> content;
+        
+    /** Initialize your data structure here. */
+    public RandomizedSet() {
+        index = new HashMap<>(50);
+        content = new HashMap<>(50);
+        count = 0;
+    }
+    
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    public boolean insert(int val) {
+        if (!content.containsKey(val)) {
+            count ++;
+            content.put(val, count);
+            index.put(count, val);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    public boolean remove(int val) {
+        if (!content.containsKey(val)) {
+            return false;
+        }
+        else {
+            int temp = content.get(val);
+            if (temp != count) {
+                int num = index.get(count);
+                content.remove(val);
+                index.remove(count);
+                content.put(num, temp);
+                index.put(temp, num);
+            }
+            else {
+                content.remove(val);
+                index.remove(count);
+            }
+            count --;
+            return true;
+        }
+    }
+    
+    /** Get a random element from the set. */
+    public int getRandom() {
+        Random random = new Random();
+        return index.get( random.nextInt(count) + 1 );
+		//random .nextInt(int a), from 0 (inclusive) to a (exclusive)
+    }
+}
+
+381.
+	//duplicate, use one set as value of map
+	class RandomizedCollection {
+
+    List<Integer> nums;
+    Map<Integer, Set<Integer>> map;
+    java.util.Random random;
+
+    /** Initialize your data structure here. */
+    public RandomizedCollection() {
+        nums = new ArrayList<>();
+        map = new HashMap<>();
+        random = new java.util.Random();
+    }
+
+    /** Inserts a value to the collection. Returns true if the collection did not already contain the specified element. */
+    public boolean insert(int val) {
+        boolean doesContain = map.containsKey(val);
+        if(!doesContain) map.put(val, new HashSet<>());
+        map.get(val).add(nums.size());
+        nums.add(val);
+        return !doesContain;
+    }
+
+    /** Removes a value from the collection. Returns true if the collection contained the specified element. */
+    public boolean remove(int val) {
+        if(!map.containsKey(val)) return false;
+        if(!map.get(val).contains(nums.size()-1)) {
+            int currPos = map.get(val).iterator().next();
+            int lastVal = nums.get(nums.size() - 1);
+            map.get(lastVal).remove(nums.size() - 1);
+            map.get(lastVal).add(currPos);
+            map.get(val).remove(currPos);
+            map.get(val).add(nums.size() - 1);
+            nums.set(currPos, lastVal);
+        }
+        map.get(val).remove(nums.size()-1);
+        if(map.get(val).isEmpty()) map.remove(val);
+        nums.remove(nums.size()-1);
+        return true;
+    }
+
+    /** Get a random element from the collection. */
+    public int getRandom() {
+        return nums.get(random.nextInt(nums.size()));
+    }
+}
+
+340.
+	Time complexity should be O(s.length)?;
+	Space complexity should be O(s.length);
+	public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        char[] arr = s.toCharArray();
+        Map<Character, Integer> map = new HashMap<>();
+        int slow = 0, quick = 0, record = 0;
+        while (map.size() <= k && quick < arr.length) {
+            
+            map.put(arr[quick], quick);
+            
+            if (map.size() > k) {
+                record = Math.max(record, quick - slow);
+                
+                slow = arr.length;
+                for (char each : map.keySet()) {
+                    slow = Math.min(map.get(each), slow);
+                }
+                for (char each : map.keySet()) {
+                    if (slow == map.get(each)) {
+                        map.remove(each);
+						//When you remove, you change the map!
+						//Set is also changed! leads to exception!
+                        break;
+                    }
+                }
+                
+                slow ++;
+            }
+            else if (map.size() <= k) {
+                record = Math.max(record, quick + 1 - slow);
+				//for cases which never reach size() == k or its
+				//size is k
+            }
+            
+            quick ++;
+        }
+        
+        return record;
+    }
+	
+	//Another method
+	public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        int[] count = new int[256];
+        int num = 0, i = 0, res = 0;
+        for (int j = 0; j < s.length(); j++) {
+            if (count[s.charAt(j)]++ == 0) num++;
+			//Use the array to judge the num
+            if (num > k) {
+                while (--count[s.charAt(i++)] > 0);
+                num--;
+            }
+            res = Math.max(res, j - i + 1);
+        }
+        return res;
+    }
+	
+	 public static void main (String[] args) {
+        int[] count = new int[2];
+        if (count[1] ++ == 0) System.out.println("Good");
+        System.out.println(count[1]);
+		//++ Or -- is behind, judge first, then calculate
+
+        if (++ count[1] == 1) System.out.println("Good2");
+        System.out.println(count[1]);
+		//++ Or -- is before, calculate first, then judge
+
+        if (-- count[1] == 1) System.out.println("Good3");
+        System.out.println(count[1]);
+
+        if (count[1] -- == 1) System.out.println("Good4");
+        System.out.println(count[1]);
+    }
 	
 	
+632.
+	Time complexity should be O(list.length.sum log k)?;
+	Space complexity should be O(k);
+	public int[] smallestRange(List<List<Integer>> nums) {
+        int k = nums.size();
+        int[] pointers = new int[k];
+        
+        PriorityQueue<int[]> pq = new PriorityQueue<>(k, (int[] a, int[] b) -> (a[0] - b[0]));
+        
+        int[] record = new int[2];
+        int max = 0;
+        
+        for (int i = 0; i < k; i ++) {
+            int temp = nums.get(i).get(0);
+            max = Math.max(temp, max);
+            pq.offer(new int[]{temp, i});
+        }
+        record[0] = pq.peek()[0];
+        record[1] = max;
+        int len = record[1] - record[0];
 
+        while (true) {
+            int[] temp = pq.poll();
+            int index = temp[1];
+            
+            pointers[index] ++;
+            if (pointers[index] >= nums.get(index).size()) break;
+            int tempint = nums.get(index).get(pointers[index]);
+            max = Math.max(max, tempint);
+            pq.offer(new int[]{tempint, index});
 
+            temp = pq.peek();
+            if (len > max - temp[0] || len == max - temp[0] && record[0] > temp[0]) {
+                record[0] = temp[0];
+                record[1] = max;
+                len = max - temp[0];
+            }
+        }
+        
+        return record;
+    }
 
+447.
+	//This Question might have some problems!!!
+	Time complexity:  O(n^2)
+	Space complexity: O(n)
+	public int numberOfBoomerangs(int[][] points) {
+        int res = 0;
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i=0; i<points.length; i++) {
+            for(int j=0; j<points.length; j++) {
+                if(i == j)
+                    continue;
+
+                int d = getDistance(points[i], points[j]);                
+                map.put(d, map.getOrDefault(d, 0) + 1);
+            }
+
+            for(int val : map.values()) {
+                res += val * (val-1);
+            }            
+            map.clear();
+        }
+
+        return res;
+    }
+
+    private int getDistance(int[] a, int[] b) {
+        int dx = a[0] - b[0];
+        int dy = a[1] - b[1];
+
+        return dx*dx + dy*dy;
+    }
+
+645.
+	Time complexity is O(n);
+	Space complexity is O(n);
+	public int[] findErrorNums(int[] nums) {
+        int[] record = new int[nums.length + 1];
+        int res = 0;
+        for (int i = 0; i < nums.length; i ++) {
+            if (++ record[nums[i]] == 2) res = nums[i];
+        }
+        int another = 1;
+        while (record[another] != 0) {
+            another ++;
+        }
+        return new int[]{res, another};
+    }
+	
+	Time complexity is O(n);
+	Space complexity is O(1);
+	public static int[] findErrorNums(int[] nums) {
+		int[] res = new int[2];
+		for (int i : nums) {
+			if (nums[Math.abs(i) - 1] < 0) res[0] = Math.abs(i);
+		else nums[Math.abs(i) - 1] *= -1;
+		}
+		for (int i=0;i<nums.length;i++) {
+			if (nums[i] > 0) res[1] = i+1;
+		}
+		return res;
+	}
+	
+	
 
 	
 	
