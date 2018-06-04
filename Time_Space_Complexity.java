@@ -789,6 +789,308 @@ LeetCode:
 		return res;
 	}
 	
+67.
+	Time complexity is O(max(a.length, b.length));
+	Space complexity is O(max(a.length, b.length));
+	public String addBinary(String a, String b) {
+        String res = "";
+        int pointerA = a.length() - 1;
+        int pointerB = b.length() - 1;
+        if (pointerA < 0 || pointerB < 0) return a + b;
+        
+        int overflow = 0;
+        while (pointerA >= 0 && pointerB >= 0) {
+            int temp = a.charAt(pointerA) - '0' + b.charAt(pointerB) - '0' + overflow;
+			//must -'0', for 0 != '0'
+            if (temp < 2) {
+                overflow = 0;
+                res = temp + res;
+            }
+            else {
+                overflow = 1;
+                res = ((temp == 2) ? 0 : 1) + res;
+            }
+            pointerA --;
+            pointerB --;
+        }
+        while (pointerA >= 0) {
+            int temp = a.charAt(pointerA) - '0' + overflow;
+            if (temp < 2) {
+                overflow = 0;
+                res =  a.substring(0, pointerA) + temp + res;
+                break;
+            }
+            else {
+                overflow = 1;
+                res = 0 + res;
+            }
+            pointerA --;
+        }
+        while (pointerB >= 0) {
+            int temp = b.charAt(pointerB) - '0' + overflow;
+            if (temp < 2) {
+                overflow = 0;
+                res =  b.substring(0, pointerB) + temp + res;
+                break;
+            }
+            else {
+                overflow = 1;
+                res = 0 + res;
+            }
+            pointerB --;
+        }
+        return (overflow == 1) ? overflow + res : res;
+    }
+	//Better method
+	public String addBinary(String a, String b) {
+        StringBuilder sb = new StringBuilder();
+        int i = a.length() - 1, j = b.length() -1, carry = 0;
+        while (i >= 0 || j >= 0) {
+            int sum = carry;
+            if (j >= 0) sum += b.charAt(j--) - '0';
+            if (i >= 0) sum += a.charAt(i--) - '0';
+            sb.append(sum % 2);
+            carry = sum / 2;
+			//Good thinking here
+        }
+        if (carry != 0) sb.append(carry);
+        return sb.reverse().toString();
+		//reverse() method
+    }
+	
+273.
+	private final String[] LESS_THAN_20 = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    private final String[] TENS = {"", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    private final String[] THOUSANDS = {"", "Thousand", "Million", "Billion"};
+    
+    public String numberToWords(int num) {
+        if (num == 0) return "Zero";
+
+        int i = 0;
+        String words = "";
+
+        while (num > 0) {
+            if (num % 1000 != 0)
+                words = helper(num % 1000) +THOUSANDS[i] + " " + words;
+            num /= 1000;
+            i++;
+        }
+
+        return words.trim();
+    }
+
+    private String helper(int num) {
+        if (num == 0)
+            return "";
+        else if (num < 20)
+            return LESS_THAN_20[num] + " ";
+        else if (num < 100)
+            return TENS[num / 10] + " " + helper(num % 10);
+        else
+            return LESS_THAN_20[num / 100] + " Hundred " + helper(num % 100);
+    }
+	
+	//Another Method
+	private final String[] belowTen = new String[] {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
+    private final String[] belowTwenty = new String[] {"Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
+    private final String[] belowHundred = new String[] {"", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"};
+    
+    public String numberToWords(int num) {
+        if (num == 0) return "Zero";
+        return helper(num); 
+    }
+    
+    private String helper(int num) {
+        String result = new String();
+        if (num < 10) result = belowTen[num];
+        else if (num < 20) result = belowTwenty[num -10];
+        else if (num < 100) result = belowHundred[num/10] + " " + helper(num % 10);
+        else if (num < 1000) result = helper(num/100) + " Hundred " +  helper(num % 100);
+        else if (num < 1000000) result = helper(num/1000) + " Thousand " +  helper(num % 1000);
+        else if (num < 1000000000) result = helper(num/1000000) + " Million " +  helper(num % 1000000);
+        else result = helper(num/1000000000) + " Billion " + helper(num % 1000000000);
+        return result.trim();
+    }
+	
+13.
+	//Ugly Method!
+	public int romanToInt(String s) {
+        if (s.length() == 0) return 0;
+        int res = 0;
+        int i = 0;
+        char[] arr = s.toCharArray();
+        while (i < arr.length) {
+            if (arr[i] == 'I' && i + 1 < arr.length && arr[i + 1] == 'V') {
+                res += 4;
+                i ++;
+            }
+            else if (arr[i] == 'I' && i + 1 < arr.length && arr[i + 1] == 'X') {
+                res += 9;
+                i ++;
+            }
+            else if (arr[i] == 'I') res += 1;
+            else if (arr[i] == 'V') res += 5;
+            else if (arr[i] == 'X' && i + 1 < arr.length && arr[i + 1] == 'L') {
+                res += 40;
+                i ++;
+            }
+            else if (arr[i] == 'X' && i + 1 < arr.length && arr[i + 1] == 'C') {
+                res += 90;
+                i ++;
+            }
+            else if (arr[i] == 'X') res += 10;
+            else if (arr[i] == 'L') res += 50;
+            else if (arr[i] == 'C' && i + 1 < arr.length && arr[i + 1] == 'D') {
+                res += 400;
+                i ++;
+            }
+            else if (arr[i] == 'C' && i + 1 < arr.length && arr[i + 1] == 'M') {
+                res += 900;
+                i ++;
+            }
+            else if (arr[i] == 'C') res += 100;
+            else if (arr[i] == 'D') res += 500;
+            else if (arr[i] == 'M') res += 1000;
+            i ++;
+        }
+        return res;
+    }
+	
+	//Good Method
+	public int romanToInt(String s) {
+		 int sum=0;
+		if(s.indexOf("IV")!=-1){sum-=2;}
+		if(s.indexOf("IX")!=-1){sum-=2;}
+		if(s.indexOf("XL")!=-1){sum-=20;}
+		if(s.indexOf("XC")!=-1){sum-=20;}
+		if(s.indexOf("CD")!=-1){sum-=200;}
+		if(s.indexOf("CM")!=-1){sum-=200;}
+		//Only can happen one time in Roma number!
+		
+		char c[]=s.toCharArray();
+		int count=0;
+		
+	   for(;count<=s.length()-1;count++){
+		   if(c[count]=='M') sum+=1000;
+		   if(c[count]=='D') sum+=500;
+		   if(c[count]=='C') sum+=100;
+		   if(c[count]=='L') sum+=50;
+		   if(c[count]=='X') sum+=10;
+		   if(c[count]=='V') sum+=5;
+		   if(c[count]=='I') sum+=1;
+		   
+	   }
+	   
+	   return sum;
+    }	
+	
+12.
+	//Similar to the last one
+	private final String[] LESS_THAN_10 = new String[]{"","I","II","III","IV","V","VI","VII","VIII","IX"};
+    private final String[] TENS = new String[]{"","X","XX","XXX","XL","L","LX","LXX","LXXX","XC"};
+    private final String[] HUNDREDS = new String[]{"","C","CC","CCC","CD","D","DC","DCC","DCCC","CM"};
+    
+    public String intToRoman(int num) {
+        String res = "";
+        for (int i = 1; i <= num / 1000; i ++) {
+            res += "M";
+        }
+        num %= 1000;
+        return res + helper(num);
+    }
+    
+    private String helper(int num) {
+        String temp = "";
+        if (num >= 100) {
+            return HUNDREDS[num / 100] + helper(num % 100);
+        }
+        else if (num >= 10) {
+            return TENS[num / 10] + helper(num % 10);
+        }
+        else {
+            return LESS_THAN_10[num];
+        }
+    }
+	
+	//Another Method
+	//More Advance
+	public static String intToRoman(int num) {
+    String M[] = {"", "M", "MM", "MMM"};
+    String C[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+    String X[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+    String I[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+    return M[num/1000] + C[(num%1000)/100] + X[(num%100)/10] + I[num%10];
+}
+
+14.
+	public String longestCommonPrefix(String[] strs) {
+        int pointer = 0;
+        String res = "";
+        if (strs.length == 0 || strs[0].length() == 0) return res;
+        char temp = strs[0].charAt(pointer);
+        
+        while (true) {
+            int index = 0;
+            while (index < strs.length) {
+                if (pointer >= strs[index].length()) return res;
+                if (temp != strs[index].charAt(pointer)) return res;
+                index ++;
+            }
+            res += temp;
+            pointer ++;
+            if (pointer >= strs[0].length()) break;
+            temp = strs[0].charAt(pointer);
+        }
+        
+        return res;
+    }
+	//Better method
+	//Sort the array first, then compare the first and the last
+	public String longestCommonPrefix(String[] strs) {
+        StringBuilder result = new StringBuilder();
+        
+        if (strs!= null && strs.length > 0){
+        
+            Arrays.sort(strs);
+            
+            char [] a = strs[0].toCharArray();
+            char [] b = strs[strs.length-1].toCharArray();
+            
+            for (int i = 0; i < a.length; i ++){
+                if (b.length > i && b[i] == a[i]){
+                    result.append(b[i]);
+                }
+                else {
+                    return result.toString();
+                }
+            }
+        return result.toString();
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 
 	
