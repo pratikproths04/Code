@@ -1067,6 +1067,185 @@ LeetCode:
         return result.toString();
     }
 	
+6.	?why null
+	public String convert(String s, int numRows) {
+        if (numRows == 1) return s;
+        String[] res = new String[numRows];
+        Arrays.fill(res,"");
+		//must have!
+		//Or there will be null at first
+        char[] arr = s.toCharArray();
+        
+        int flag = 0, index = 0;
+        for (int i = 0; i < arr.length; i ++) {
+            res[index] += "" + arr[i];
+            if (flag == 0 && index < numRows - 1) {
+                index ++;
+            }
+            else if (flag == 0 && index == numRows - 1) {
+                flag = 1;
+                index --;
+            }
+            else if (flag == 1 && index > 0) {
+                index --;
+            }
+            else {
+                flag = 0;
+                index ++;
+            }
+        }
+        
+        String result = "";
+        for (String each : res) {
+            result += each;
+        }
+        return result;
+    }
+	//StringBuilder might be quicker
+	//StringBuilder[]
+	
+151.
+	public String reverseWords(String s) {
+        String result = "";
+        Scanner in = new Scanner(s);   
+        ArrayList<String> list = new ArrayList<>();
+        while (in.hasNext()) {
+            list.add(in.next());
+        }
+        
+        for (int i = list.size() - 1; i >= 0; i--) {
+            result += list.get(i) + " ";
+        }
+        
+        return result.trim();
+    }
+	
+	public String reverseWords(String s) {
+		String[] words = s.trim().split(" +");
+		//+ means at least 1, so in this case " +" means at least one space
+		Collections.reverse(Arrays.asList(words));
+		return String.join(" ", words);
+	}
+
+17.
+	//pretty normal DFS
+	private final String[] MAPPING = new String[]{"","","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"}; 
+    
+    public List<String> letterCombinations(String digits) {
+        List<String> list = new ArrayList<>();
+        if (digits == null || digits.length() == 0) {return list;}
+        helper(list, new StringBuilder(), digits, 0);
+        return list;
+    }
+    
+    private void helper(List<String> list, StringBuilder sb, String digits, int start) {
+        int len = sb.length();
+        if (len == digits.length()) list.add(sb.toString());
+        else {
+            String temp = MAPPING[digits.charAt(start) - '0'];
+            for (int i = 0; i < temp.length(); i ++) {
+                sb.append(temp.charAt(i));
+                helper(list, sb, digits, start + 1);
+                sb.setLength(len);
+            }
+        }
+    }
+	
+	//Actually, this is BFS 
+	public List<String> letterCombinations(String digits) {
+		LinkedList<String> ans = new LinkedList<String>();
+		if(digits.isEmpty()) return ans;
+		String[] mapping = new String[] {"0", "1", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+		ans.add("");
+		while(ans.peek().length()!=digits.length()){
+			String remove = ans.remove();
+			String map = mapping[digits.charAt(remove.length())-'0'];
+			for(char c: map.toCharArray()){
+				ans.addLast(remove+c);
+				//add to the last!
+				//this step and the remove step consists
+				//the group of one round of BFS
+			}
+		}
+		return ans;
+	}
+	
+22.
+	//DFS solution
+	public List<String> generateParenthesis(int n) {
+        List<String> list = new ArrayList<>();
+        helper(list, 0,0,new StringBuilder(), n);
+        return list;
+    }
+    
+    private void helper(List<String> list, int left, int right, StringBuilder sb, int n) {
+        int len = sb.length();
+        if (len == n * 2) list.add(sb.toString());
+        else {
+            if (left < n) helper(list, left + 1, right, sb.append('('), n);
+            sb.setLength(len);
+            if (left > 0 && right < left) helper(list, left, right + 1, sb.append(')'), n);
+            sb.setLength(len);
+        }
+    }
+	
+10.
+	//NB!!!
+	//DP!!! can you believe that?
+	//Three conditions
+	1, If p.charAt(j) == s.charAt(i) :  dp[i][j] = dp[i-1][j-1];
+	2, If p.charAt(j) == '.' : dp[i][j] = dp[i-1][j-1];
+	3, If p.charAt(j) == '*': 
+	   here are two sub conditions:
+				   1   if p.charAt(j-1) != s.charAt(i) : dp[i][j] = dp[i][j-2]  //in this case, a* only counts as empty
+				   2   if p.charAt(i-1) == s.charAt(i) or p.charAt(i-1) == '.':
+								  dp[i][j] = dp[i-1][j]    //in this case, a* counts as multiple a 
+							   or dp[i][j] = dp[i][j-1]   // in this case, a* counts as single a
+							   or dp[i][j] = dp[i][j-2]   // in this case, a* counts as empty
+						   
+	public boolean isMatch(String s, String p) {
+
+        if (s == null || p == null) {
+            return false;
+        }
+        boolean[][] dp = new boolean[s.length()+1][p.length()+1];
+        dp[0][0] = true;
+        for (int i = 0; i < p.length(); i++) {
+            if (p.charAt(i) == '*' && dp[0][i-1]) {
+                dp[0][i+1] = true;
+            }
+        }
+		//This initial condition is so good!!!
+        for (int i = 0 ; i < s.length(); i++) {
+            for (int j = 0; j < p.length(); j++) {
+                if (p.charAt(j) == '.') {
+                    dp[i+1][j+1] = dp[i][j];
+                }
+                if (p.charAt(j) == s.charAt(i)) {
+                    dp[i+1][j+1] = dp[i][j];
+                }
+                if (p.charAt(j) == '*') {
+                    if (p.charAt(j-1) != s.charAt(i) && p.charAt(j-1) != '.') {
+                        dp[i+1][j+1] = dp[i+1][j-1];
+                    } else {
+                        dp[i+1][j+1] = (dp[i+1][j] || dp[i][j+1] || dp[i+1][j-1]);
+                    }
+                }
+            }
+        }
+        return dp[s.length()][p.length()];
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
