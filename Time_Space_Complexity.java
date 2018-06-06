@@ -1236,13 +1236,135 @@ LeetCode:
         return dp[s.length()][p.length()];
     }
 	
+
+Practice Q4:
+	class Node {
+		int val;
+		Node next;
+		
+		public Node (int n) {
+			val = n;
+			next = null;
+		}
+		public Node (int n, Node one) {
+			val = n;
+			next = one;
+		}
+	}
+
+	//no dummy node
+	public Node insertSortedLinkedList(Node head, int n) {
+		if (head == null || head.val >= n) {
+				return new Node(n, head);
+		}
+		else {
+			Node prev = head;
+			while (prev.next != null && prev.next.val < n) {
+				prev = prev.next;
+			}
+			Node add = new Node(n, prev.next);
+			prev.next = add;
+			return head;
+		}
+	}
 	
+Practice Q5:
+	//no dummy node
+	public Node mergeTwoLinkedList(Node head1, Node head2) {
+		if (head1 == null) return head2;
+		if (head2 == null) return head1;
+		//corner case!
+		Node res;
+		if (head1.val < head2.val) {
+			res = head1;
+			head1 = head1.next;
+		}
+		else {
+			res = head2;
+			head2 = head2.next;
+		}
+		Node cur = res;
+		while (head1 != null && head2 != null) {
+			if (head1.val < head2.val) {
+				cur.next = head1;
+				head1 = head1.next;
+			}
+			else {
+				cur.next = head2;
+				head2 = head2.next;
+			}
+			cur = cur.next;
+		}
+		if (head1 == null) {
+			cur.next = head2;
+		}
+		else {
+			cur.next = head1;
+		}
+		return res;
+	}
 	
+	//recursion
+	public Node mergeTwoLinkedList(Node head1, Node head2) {
+		if (head1 == null) return head2;
+		if (head2 == null) return head1;
+		
+		if (head1.val < head2.val) {
+			head1.next = mergeTwoLinkedList(head1.next, head2);
+			return head1;
+		}
+		else {
+			head2.next = mergeTwoLinkedList(head1, head2.next);
+			return head2;
+		}
+	}
 	
+Practice Q7:
+	public Node pairMerge(Node head1, Node head2) {
+		if (head1 == null) return head2;
+		if (head2 == null) return head1;
+		
+		Node dummy = new Node(0);
+		Node cur = dummy;
+		while (head1 != null && head2 != null) {
+			cur.next = head1;
+			head1 = head1.next;
+			cur = cur.next;
+			
+			cur.next = head2;
+			head2 = head2.next;
+			cur = cur.next;
+		}
+		cur.next = head2;
+		return dummy.next;
+	}
 	
-	
-	
-	
+Practice Q9:
+	public Node partitionList(Node head) {
+		if (head == null) return head;
+		
+		Node dummy1 = new Node(0);
+		Node dummy2 = new Node(0);
+		
+		Node cur1 = dummy1;
+		Node cur2 = dummy2;
+		
+		while (head != null) {
+			if (head.val < 3) {
+				cur1.next = head;
+				cur1 = cur1.next;
+			}
+			else {
+				cur2.next = head;
+				cur2 = cur2.next;
+			}
+			head = head.next;
+		}
+		cur1.next = dummy2.next;
+		cur2.next = null;
+		// do not forget to break the second one!!!
+		return dummy1.next;
+	}
 	
 	
 	
