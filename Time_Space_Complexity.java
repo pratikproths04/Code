@@ -1367,7 +1367,56 @@ Practice Q9:
 	}
 	
 	
+657.
+	Time complexity is O(n.length)
+	Space complexity is O(1)
+	public boolean judgeCircle(String moves) {
+        int x = 0, y = 0;
+        for (char each : moves.toCharArray()) {
+            if (each == 'U') {
+                y ++;
+            }
+            else if (each == 'D') {
+                y --;
+            }
+            else if (each == 'L') {
+                x --;
+            }
+            else if (each == 'R') {
+                x ++;
+            }
+        }
+        return x == 0 && y == 0;
+    }
 	
+557. reverseWords
+	Time complexity is O(n)
+	Space complexity is O(n)
+	public String reverseWords(String s) {
+        if (s == null || s.length() == 0) return s;
+        String[] arr = s.split(" ");
+        for (int i = 0; i < arr.length; i ++) {
+            arr[i] = new StringBuilder(arr[i]).reverse().toString();
+        }
+        return String.join(" ", arr);
+    }
+	
+
+383. random note 
+	construct using array to map
+	Time complexity is O(a.length + b.length)
+	Space complexity is O(1)?
+	public boolean canConstruct(String ransomNote, String magazine) {
+        int[] map = new int[26];
+        for (char each : magazine.toCharArray()) {
+            map[each - 'a'] ++;
+        }
+        for (char each : ransomNote.toCharArray()) {
+            if (map[each - 'a'] == 0) return false;
+            map[each - 'a'] --;
+        }
+        return true;
+    }
 	
 	
 	
