@@ -1419,7 +1419,81 @@ Practice Q9:
     }
 	
 	
-	
+320.
+	Time complexity should be O(2^n);
+	Space complexity should be O(2^n);
+	//choose o from the original string, then 1, then 2, then 3, ... that is 2^n
+
+79.
+	Time complexity should be O(mn);
+	Space complexity should be O(mn);
+	//Remmember to clear the visited path if you have tried one path and it failed
+	//In this way can use less space and less time
+
+234.
+	Time complexity should be O(n);
+	Space complexity should be O(n);	
+	//Pay attention to the wrapper class Integer instead of int
+	//When comparing the number, use (int) to convert first
+
+819.
+	Time complexity should be O(length);
+	Space complexity should be O(length);
+	//String toLowerCase() is use by each.toLowerCase()
+	//Character toLowerCase() is use by Character.toLowerCase(each)
+	//split:
+	//	there are 12 characters with special meanings: 
+	//		the backslash \, the caret ^, the dollar sign $, 
+	//		the period or dot ., the vertical bar or pipe symbol |, 
+	//		the question mark ?, the asterisk or star  *, the plus sign +, 
+	//		the opening parenthesis (, the closing parenthesis ), 
+	//		and the opening square bracket [, the opening curly brace {, 
+	//		These special characters are often called "metacharacters".	
+	//"Bob. " split("\\.| ") return
+	//		"Bob" ""
+
+
+43.
+	Time complexity should be O(num1.length + num2.length);
+	Space complexity should be O(num1.length + num2.length);
+	public String multiply(String num1, String num2) {
+        if (num1.equals("0") || num2.equals("0")) return "0";
+        int len1 = num1.length();
+        int len2 = num2.length();
+        int[] sequnce = new int[len1 + len2 - 1];
+        
+        for (int i = len2 - 1; i >= 0; i --) {
+            for (int j = len1 - 1; j >= 0; j --) {
+                sequnce[i + j] += (num2.charAt(i) - '0') * (num1.charAt(j) - '0');
+            }
+        }
+        
+        for (int i = sequnce.length - 1; i >= 1; i --) {
+            sequnce[i - 1] += sequnce[i] / 10;
+            sequnce[i] = sequnce[i] % 10;
+        }
+        //Do not have to care about the first number in the array
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sequnce.length; i ++) {
+            sb.append(sequnce[i]);
+        }
+        
+        return sb.toString();
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+		
 	
 	
 	
