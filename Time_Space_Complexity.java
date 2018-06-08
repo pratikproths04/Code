@@ -1484,22 +1484,340 @@ Practice Q9:
     }
 
 
+345.
+	Time complexity should be O(n);
+	Space complexity should be O(n);
+	//standard two pointer solution!!!
+	private final Set<Character> set = new HashSet<>(Arrays.asList('a','e','i','o','u','A','O','E','I','U'));
+    //pretty good!!!
+    //Array.asList() to convert to a list<>
+    //list is a collection and can use the set constructor
+    //use collection in the constructor, then you can not use the capacity
+
+    public String reverseVowels(String s) {
+        if (s == null || s.length() <= 1) return s;
+        char[] arr = s.toCharArray();
+        int left = 0;
+        int right = arr.length - 1;
+        
+        while (left < right) {
+            while (left < arr.length && !set.contains(arr[left])) {
+                left ++;
+            }
+            while (right > 0 && !set.contains(arr[right])) {
+                right --;
+            }
+            if (left < right) {
+                char temp = arr[left];
+                arr[left] = arr[right];
+                arr[right] = temp;
+            }
+            left ++;
+            right --;
+        }
+        //may be use a single while loop can decrease the time
+        
+        return new String(arr);
+        //String constructor!!!
+        //can not use StringBuilder constructor here
+    }
 
 
+    //another good solution, using less time!
+    public  String reverseVowels(String s) {
+        char[] ch = s.toCharArray();
+        int i=0,j=s.length()-1;
+        while(i<=j){
+            if(isVowels(ch[i]) && isVowels(ch[j])){
+                swap(ch,i,j);
+                i++;
+                j--;
+            }else if (!isVowels(ch[i])){
+                i++;
+            }else {
+                j--;
+            }
+        }
+        return new String(ch);
+    }
+    public  boolean isVowels(char c){
+        return c=='a'||c=='e'||c=='i'||c=='o'||c=='u'||c=='A'||c=='E'||c=='I'||c=='O'||c=='U';
+    }
+    //it does not use a set
+    public  void swap(char[] ch,int i,int j){
+        char t = ch[i];
+        ch[i]=ch[j];
+        ch[j]=t;
+    }
 
 
+32.
+	//end at position i and length
+	public int longestValidParentheses(String s) {
+        int[] dp = new int[s.length()];
+        int result = 0;
+        int leftCount = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(') {
+                leftCount++;
+            } else if (leftCount > 0){
+                dp[i] = dp[i - 1] + 2;
+                dp[i] += (i - dp[i]) >= 0 ? dp[i - dp[i]] : 0;
+                result = Math.max(result, dp[i]);
+                leftCount--;
+            }
+        }
+        return result;
+    }
+
+    //use stack to do, calculate the gap
+    //store the index of characters
+    public int longestValidParentheses(String s) {
+        LinkedList<Integer> stack = new LinkedList<>();
+        int result = 0;
+        stack.push(-1);
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == ')' && stack.size() > 1 && s.charAt(stack.peek()) == '(') {
+                stack.pop();
+                result = Math.max(result, i - stack.peek());
+            } else {
+                stack.push(i);
+            }
+        }
+        return result;
+    }
 
 
+125.
+	public boolean isPalindrome(String s) {
+        
+        if (s == null || s.length() == 0) return true;
+        int left = 0, right = s.length() - 1;
+        
+        while (left < right) {
+            if (!Character.isLetterOrDigit(s.charAt(left))) left ++;
+            //use of Character.isLetterOrDigit()
+            else if (!Character.isLetterOrDigit(s.charAt(right))) right --;
+            else if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) return false;
+            else {
+                left ++;
+                right --;
+            }
+        }
+        
+        return true;
+    }
 
 
+    //another good method
+    public boolean isPalindrome(String s) {
+        int i = 0;
+        int j = s.length() - 1;
+        char[] c = s.toCharArray();
+        while (i < j) {
+            while (i < s.length() && !valid(c[i])) i++;
+            while (j >= 0 && !valid(c[j])) j--;
+            if (i < j && Character.toLowerCase(c[i]) != Character.toLowerCase(c[j])) {
+                return false;
+            }
+            i++;
+            j--;
+        }
+        return true;
+    }
+    
+    public boolean valid(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               (c >= '0' && c <= '9');
+    }
+    //good thinking to write this function
+		
 
+165.
+	public int compareVersion(String version1, String version2) {
+	    String[] levels1 = version1.split("\\.");
+	    String[] levels2 = version2.split("\\.");
+	    
+	    int length = Math.max(levels1.length, levels2.length);
+	    for (int i=0; i<length; i++) {
+	    	Integer v1 = i < levels1.length ? Integer.parseInt(levels1[i]) : 0;
+	    	Integer v2 = i < levels2.length ? Integer.parseInt(levels2[i]) : 0;
+	    	//Integer wrapper class
+	    	//must use compareTo() method to compare
+	    	int compare = v1.compareTo(v2);
+	    	if (compare != 0) {
+	    		return compare;
+	    	}
+	    }
+	    
+	    return 0;
+	}	
+
+	//do not use Integer class, just use int
+	//the time can be less spent 
+	public int compareVersion(String version1, String version2) {
+        String[] levels1 = version1.split("\\.");
+        String[] levels2 = version2.split("\\.");
+
+        int length = Math.max(levels1.length, levels2.length);
+        for (int i=0; i<length; i++) {
+            int v1 = i < levels1.length ? Integer.parseInt(levels1[i]) : 0;
+            //Good thinking at different length!
+            int v2 = i < levels2.length ? Integer.parseInt(levels2[i]) : 0;
+            if (v1 != v2) return (v1 > v2) ? 1 : -1;
+        }
+
+        return 0;
+    }
 		
 	
 	
+30.
+	//sliding window
+	//pointer + window + map record
+	//In this one, we also use remmember the start index of the window
+	//the use of count instead of compare map every time is brilliant!
+	/*
+		A time & space O(n) solution
+		Run a moving window for wordLen times.
+		Each time we keep a window of size windowLen (= wordLen * numWord), each step length is wordLen.
+		So each scan takes O(sLen / wordLen), totally takes O(sLen / wordLen * wordLen) = O(sLen) time.
+		
+		One trick here is use count to record the number of exceeded occurrences of word in current window
+	*/
+    public static List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> res = new ArrayList<>();
+        if(words == null || words.length == 0 || s.length() == 0) return res;
+        int wordLen = words[0].length();
+        int numWord = words.length;
+        int windowLen = wordLen * numWord;
+        int sLen = s.length();
+        HashMap<String, Integer> map = new HashMap<>();
+        for(String word : words) map.put(word, map.getOrDefault(word, 0) + 1);
+
+        for(int i = 0; i < wordLen; i++) {  // Run wordLen scans
+            HashMap<String, Integer> curMap = new HashMap<>();
+            for(int j = i, count = 0, start = i; j + wordLen <= sLen; j += wordLen) {  // Move window in step of wordLen
+                // count: number of exceeded occurences in current window
+                // start: start index of current window of size windowLen
+                if(start + windowLen > sLen) break;
+                String word = s.substring(j, j + wordLen);
+                if(!map.containsKey(word)) {
+                    curMap.clear();
+                    count = 0;
+                    start = j + wordLen;
+                }
+                else {
+                    if(j == start + windowLen) { // Remove previous word of current window
+                        String preWord = s.substring(start, start + wordLen);
+                        start += wordLen;
+                        int val = curMap.get(preWord);
+                        if(val == 1) curMap.remove(preWord);
+                        else curMap.put(preWord, val - 1);
+                        if(val - 1 >= map.get(preWord)) count--;  // Reduce count of exceeded word
+                    }
+                    // Add new word
+                    curMap.put(word, curMap.getOrDefault(word, 0) + 1);
+                    if(curMap.get(word) > map.get(word)) count++;  // More than expected, increase count
+                    // Check if current window valid
+                    if(count == 0 && start + windowLen == j + wordLen) {
+                        res.add(start);
+                    }
+                }
+            }
+        }
+        return res;
+    }
 	
-	
-	
-	
+
+93.
+	//How to calculate the time complexity?
+	public List<String> restoreIpAddresses(String s) {
+        List<String> list = new ArrayList<>();
+        helper(list, new StringBuilder(), s, 0, 0);
+        return list;
+    }
+    
+    private void helper(List<String> list, StringBuilder sb, String s, int start, int counter) {
+        int len = sb.length();
+        if (len == s.length() + 4 && counter == 4) {
+            sb.setLength(len - 1);
+            list.add(sb.toString());
+        }
+        else if (counter < 4) {
+            for (int tryLen = 1; tryLen <= 3 && start + tryLen <= s.length(); tryLen ++) {
+                String temp = s.substring(start, start + tryLen);
+                if (Integer.parseInt(temp) > 255) continue;
+                if (temp.charAt(0) == '0' && temp.length() > 1) continue;
+                helper(list, sb.append(temp + "."), s, start + tryLen, counter + 1);
+                sb.setLength(len);
+            }
+        }
+    }
+
+
+214.
+	/*
+	This problem's core is to find out the longest palindrome prefix of s, 
+	so how to do so? @xcv58 's solution find a j which is not the longest, 
+	but the loop of calculating j :
+	for (int i = s.length() - 1; i >= 0; i--) {
+	if (s.charAt(i) == s.charAt(j)) { j += 1; }
+	}
+	can promise that j is longer than the longest palindrome prefix of s, 
+	and j is equals to the length of longest palindrome prefix of s only when 
+	s is palindrome itself. 
+	so we must recursively call shortestPalindrome to get result of mid.
+	*/
+	public String shortestPalindrome(String s) {
+        int j = 0;
+        for (int i = s.length() - 1; i >= 0; i--) {
+            if (s.charAt(i) == s.charAt(j)) { j += 1; }
+        }
+        if (j == s.length()) { return s; }
+        String suffix = s.substring(j);
+        return new StringBuffer(suffix).reverse().toString() + shortestPalindrome(s.substring(0, j)) + suffix;
+    }
+    /*
+	The idea is to use two anchors j and i to compare the 
+	String from beginning and end.
+	If j can reach the end, the String itself is Palindrome. 
+	Otherwise, we divide the String by j, and get mid = s.substring(0, j) 
+	and suffix.
+
+	We reverse suffix as beginning of result and recursively call 
+	shortestPalindrome to get result of mid then appedn suffix to get result.
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	
 	
