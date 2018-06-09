@@ -1791,6 +1791,189 @@ Practice Q9:
     */
 
 
+58.
+	public int lengthOfLastWord(String s) {
+        if (s == null || s.length() == 0) return 0;
+        String[] arr = s.split(" +");
+        if (arr.length == 0) return 0;
+        return arr[arr.length - 1].length();
+    }
+
+    //use system's function
+    public int lengthOfLastWord(String s) {
+		s = s.trim();
+	    int lastIndex = s.lastIndexOf(' ') + 1;
+	    return s.length() - lastIndex;        
+	}
+
+
+
+44.
+	Time complexity should be O(n*m);
+	Space complexity should be O(n*m);	
+	public boolean isMatch(String s, String p) {
+        int slen = s.length();
+        int plen = p.length();
+        
+        if (slen != 0 && plen == 0) return false;
+        if (slen == 0 && plen == 0) return true;
+        if (slen == 0 && plen != 0) {
+            for (int i = 0; i < plen; i ++) {
+                if (p.charAt(i) != '*') return false;
+            }
+            return true;
+        }
+        
+        boolean[][] dp = new boolean[slen + 1][plen + 1];
+        
+        dp[0][0] = true;
+        int initial = 1;
+        while (initial <= plen && p.charAt(initial -1) == '*') {
+            dp[0][initial] = true;
+            initial ++;
+        }
+        //all the initial cases
+        //especially when p's first character is '*'
+        
+        for (int len1 = 1; len1 <= slen; len1 ++) {
+            for (int len2 = 1; len2 <= plen; len2 ++) {
+                if (s.charAt(len1 - 1) == p.charAt(len2 - 1) || p.charAt(len2 - 1) == '?') {
+                    dp[len1][len2] = dp[len1 - 1][len2 - 1];
+                }
+                else if (p.charAt(len2 - 1) == '*') {
+                    for (int k = 0; k <= len1; k ++) {
+                        if (dp[k][len2 - 1]) {
+                            dp[len1][len2] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return dp[slen][plen];
+    }
+
+
+87.
+	Time complexity should be ?;
+	Space complexity should be ?;	
+	//great solution
+	//recursive is still a chanllenge to me
+	public boolean isScramble(String s1, String s2) {
+        if (s1.equals(s2)) return true; 
+        
+        int[] letters = new int[26];
+        for (int i=0; i<s1.length(); i++) {
+            letters[s1.charAt(i)-'a']++;
+            letters[s2.charAt(i)-'a']--;
+        }
+        for (int i=0; i<26; i++) if (letters[i]!=0) return false;
+    
+        for (int i=1; i<s1.length(); i++) {
+            if (isScramble(s1.substring(0,i), s2.substring(0,i)) 
+             && isScramble(s1.substring(i), s2.substring(i))) return true;
+            if (isScramble(s1.substring(0,i), s2.substring(s2.length()-i)) 
+             && isScramble(s1.substring(i), s2.substring(0,s2.length()-i))) return true;
+        }
+        return false;
+    }
+
+
+681.
+	//NO COMMENT!
+	//FUCK GOOGLE!!!
+	public String nextClosestTime(String time) {
+        char[] timechar = time.toCharArray();
+        int hour = Integer.parseInt(time.substring(0,2));
+        int min = Integer.parseInt(time.substring(3));
+        
+        String recordMinlarge = "";
+        String recordMinsmall = "";
+        String recordHourlarge = "";
+        String recordHoursmall = "";
+        
+        for (int i = 0; i < timechar.length; i ++) {
+            if (timechar[i] == ':') continue;
+            for (int j = 0; j < timechar.length; j ++) {
+                if (timechar[j] == ':') continue;
+                recordMinlarge = bigger(timechar[i], timechar[j], min, 60, recordMinlarge);
+                recordMinsmall = smaller(timechar[i], timechar[j], min, 60, recordMinsmall);
+                recordHourlarge = bigger(timechar[i], timechar[j], hour, 24, recordHourlarge);
+                recordHoursmall = smaller(timechar[i], timechar[j], hour, 24, recordHoursmall);
+            }
+        }
+        
+        if (!recordMinlarge.equals("")) return time.substring(0,3) + recordMinlarge;
+        else if (!recordHourlarge.equals("") && !recordMinsmall.equals("")) return recordHourlarge + ":" + recordMinsmall;
+        else if (!recordHoursmall.equals("") && !recordMinsmall.equals("")) return recordHoursmall + ":" + recordMinsmall;
+        else return time;
+    }
+    
+    private String bigger(char a, char b, int comp, int limit, String change) {
+        int temp = (a - '0') * 10 + (b - '0');
+        if (temp > comp && temp < limit && change.equals("")) {
+            change = "" + a + b;
+        }
+        else if (temp > comp && temp < limit && temp < Integer.parseInt(change)) {
+            change = "" + a + b;
+        }
+        return change;
+    }
+    
+    private String smaller(char a, char b, int comp, int limit, String change) {
+        int temp = (a - '0') * 10 + (b - '0');
+        if (temp < comp && temp < limit && change.equals("")) {
+            change = "" + a + b;
+        }
+        else if (temp < comp && temp < limit && temp < Integer.parseInt(change)) {
+            change = "" + a + b;
+        }
+        return change;
+    }
+
+    //another method
+    public String nextClosestTime(String time) {
+        char[] result = time.toCharArray();
+        char[] digits = new char[] {result[0], result[1], result[3], result[4]};
+        Arrays.sort(digits);
+        
+        // find next digit for HH:M_
+        result[4] = findNext(result[4], (char)('9' + 1), digits);  // no upperLimit for this digit, i.e. 0-9
+        if(result[4] > time.charAt(4)) return String.valueOf(result);  // e.g. 23:43 -> 23:44
+        
+        // find next digit for HH:_M
+        result[3] = findNext(result[3], '5', digits);
+        if(result[3] > time.charAt(3)) return String.valueOf(result);  // e.g. 14:29 -> 14:41
+        
+        // find next digit for H_:MM
+        result[1] = result[0] == '2' ? findNext(result[1], '3', digits) : findNext(result[1], (char)('9' + 1), digits);
+        if(result[1] > time.charAt(1)) return String.valueOf(result);  // e.g. 02:37 -> 03:00 
+        
+        // find next digit for _H:MM
+        result[0] = findNext(result[0], '2', digits);
+        return String.valueOf(result);  // e.g. 19:59 -> 11:11
+    }
+    
+    /** 
+     * find the next bigger digit which is no more than upperLimit. 
+     * If no such digit exists in digits[], return the minimum one i.e. digits[0]
+     * @param current the current digit
+     * @param upperLimit the maximum possible value for current digit
+     * @param digits[] the sorted digits array
+     * @return 
+     */
+    private char findNext(char current, char upperLimit, char[] digits) {
+        //System.out.println(current);
+        if(current == upperLimit) {
+            return digits[0];
+        }
+        int pos = Arrays.binarySearch(digits, current) + 1;
+        while(pos < 4 && (digits[pos] > upperLimit || digits[pos] == current)) { // traverse one by one to find next greater digit
+            pos++;
+        }
+        return pos == 4 ? digits[0] : digits[pos];
+    }
 
 
 
