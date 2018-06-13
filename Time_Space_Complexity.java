@@ -1977,14 +1977,97 @@ Practice Q9:
 
 
 
+//Lesson5: 6/11
+//Java's List
+	class ListNode<K, T> { //generics
+		T val;
+		K key;
+		ListNode next;
+		ListNode prev;
+
+		//constructor
+		ListNode(T val) {
+			this.val = val;
+			next = null;
+			prev = null;
+		}
+
+		ListNode() { //overloading
+			this(0); 
+			//this represents object itself
+			//use its method here, constructor above
+		}
+	}
 
 
+//Java's LinkedList
+//double linkedlist
+	class LinkedList<T> {
+		//fields
+		private ListNode<T> head;//Pay attention to this!! general type
+		private ListNode<T> tail;
+		private int size;
+
+		//methods
+		LinkedList() {
+			size = 0;
+			head = null;
+			tail = null;
+		}
+
+		E getVal(int val)// may be general type, throw exception 
+		{
+			if (head == null || val < 0 || val >= size) {
+				return -1;// throw new exception?
+			}
+			ListNode dummy = new ListNode();
+			dummy.next = head;
+			for (int i = 0; i <= val; i ++) {
+				dummy = dummy.next;
+			}
+			return dummy.val;
+		}
+
+		void addHead(E val) {
+			size ++;
+			if (head == null) {
+				head = new ListNode(val);
+				tail = head;
+			}
+			else {
+				ListNode dummy = new ListNode(val);
+				dummy.next = head;
+				head.prev = dummy;// head may be null
+				head = dummy;
+			}
+		}
+		//double linkedlist
+		//add link in two directions 
+
+		void addTail(E val) {
+			size ++;
+			if (tail == null) {
+				head = new ListNode(val);
+				tail = head;
+			}
+			else {
+				ListNode dummy = new ListNode(val);
+				dummy.prev = tail;
+				tail.next = dummy;
+				tail = dummy;
+			}
+		}
+
+		int getSize() {
+			return size;
+		}
+
+	}
 
 
-
-
-
-
+	List<Integer> list = new ArrayList<>();
+	((ArrayList) list).myMethod();
+	casting polymorphism
 
 
 
