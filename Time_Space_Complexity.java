@@ -1976,36 +1976,566 @@ Practice Q9:
     }
 
 
+//6/12
+	public class newQueue<E> { //generics type
+		//fields
+		private Stack<E> stack1;
+		private Stack<E> stack2;
+
+		//methods
+		public newQueue() {
+			stack1 = new Stack<E>();
+			stack2 = new Stack<E>();
+		}
+
+		public void offer(E val) {
+			stack1.push(val);
+		}
+
+		public E poll() {
+			move();
+			return stack2.isEmpty() ? null : stack2.pop();
+		}
+
+		public E peek() {
+			move();
+			return stack2.isEmpty() ? null : stack2.peek();
+		}
+
+		private void move() {
+			if (stack2.isEmpty()) {
+				while (!stack1.isEmpty()) {
+					stack2.push(stack1.pop());
+				}
+			}
+		}
+		//repeat part, set up addictional funciton
+	}
 
 
+2.
+	//time complexity O(max(l1.length,l2.length))
+	//space complexity O(1)? Is this right?
+	public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        if (l1 == null) return l2;
+        if (l2 == null) return l1;
+        
+        ListNode numA = l1;
+        ListNode numB = l2;
+        ListNode prevA = l1;
+        ListNode prevB = l2;
+        int overflow = 0;
+        
+        while (numA != null && numB != null) {
+            numA.val = numA.val + numB.val + overflow;
+            overflow = numA.val / 10;
+            numA.val %= 10;
+            prevA = numA;
+            prevB = numB;
+            numA = numA.next;
+            numB = numB.next;
+        }
+        //corner cases: 
+        //[1] [9,9]
+        //[9,9] [1]
+        //[5][5]
+        
+        while (overflow != 0 || numB != null) {
+            if (numB != null) {
+                prevA.next = numB;
+                numB.val += overflow;
+                overflow = numB.val / 10;
+                numB.val %= 10;
+                numA = numB;
+                prevA = numA;
+                numB = null;
+                //do not forget the prevA, it is important
+            }
+            else if (numA != null && overflow != 0) {
+                numA.val += overflow;
+                overflow = numA.val / 10;
+                numA.val %= 10;
+                prevA = numA;
+                //do not forget the prevA, it is important
+            }
+            else if (numA == null && overflow != 0) {
+                prevA.next = new ListNode(overflow);
+                numA = prevA.next;
+                overflow = 0;
+            }
+            numA = numA.next;
+        }
+        
+        return l1;
+    }
+
+    //another good method
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode ln1 = l1, ln2 = l2, head = null, node = null;
+        int carry = 0, remainder = 0, sum = 0;
+        head = node = new ListNode(0);
+        
+        while(ln1 != null || ln2 != null || carry != 0) {//the final stop conditions
+            sum = (ln1 != null ? ln1.val : 0) + (ln2 != null ? ln2.val : 0) + carry;
+            carry = sum / 10;
+            remainder = sum % 10;
+            node = node.next = new ListNode(remainder);
+            //sum, carry, reminder seperate
+            //add new node each time, create a new one
+            ln1 = (ln1 != null ? ln1.next : null);
+            ln2 = (ln2 != null ? ln2.next : null);
+        }
+        return head.next;
+    }
 
 
+21. 
+	//time complexity O(l1.length+l2.length)
+	//space complexity O(l1.length+l2.length)
+	public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode pointer = dummy;
+        
+        while (l1 != null || l2 != null) {
+            if (l1 != null && l2 != null && l1.val > l2.val || l1 == null) {
+                pointer.next = new ListNode(l2.val);
+                l2 = l2.next;
+                pointer = pointer.next;
+                // can not use break here directly,for creating new Link
+                // instead of using old ones
+            }
+            else {
+                pointer.next = new ListNode(l1.val);
+                l1 = l1.next;
+                pointer = pointer.next;
+            }
+        }
+        
+        return dummy.next;
+    }
 
 
+    //another method, use recursion
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2){
+		if(l1 == null) return l2;
+		if(l2 == null) return l1;
+		if(l1.val < l2.val){
+			l1.next = mergeTwoLists(l1.next, l2);
+			return l1;
+		} 
+		else {
+			l2.next = mergeTwoLists(l1, l2.next);
+			return l2;
+		}
+	}
 
 
+23.
+	//time complexity O(nlogk)
+	//space complexity O(k + all the length)
+	public ListNode mergeKLists(ListNode[] lists) {
+        ListNode dummy = new ListNode(0);
+        ListNode pointer = dummy;
+        if (lists == null || lists.length == 0) return dummy.next;
+        //corner case!!! If lists.length == 0
+        PriorityQueue<int[]> pq = new PriorityQueue<>(lists.length, ((int[] a, int[] b)->a[1] - b[1]));
+        //priorityqueue can have both comparator and capacity
+        for (int i = 0; i < lists.length; i ++) {
+            if (lists[i] == null) continue;
+            pq.offer(new int[]{i, lists[i].val});
+        }
+        
+        while (!pq.isEmpty()) {
+            int[] temp = pq.poll();
+            pointer.next = new ListNode(temp[1]);
+            if (lists[temp[0]].next != null) {
+                lists[temp[0]] = lists[temp[0]].next;
+                pq.offer(new int[]{temp[0], lists[temp[0]].val});
+            }
+            pointer = pointer.next;
+        }
+        
+        return dummy.next;
+    }
+
+    //another method
+    public ListNode mergeKLists(List<ListNode> lists) {
+        if (lists==null||lists.size()==0) return null;
+        
+        PriorityQueue<ListNode> queue= new PriorityQueue<ListNode>(lists.size(),new Comparator<ListNode>(){
+            @Override
+            public int compare(ListNode o1,ListNode o2){
+                if (o1.val<o2.val)
+                    return -1;
+                else if (o1.val==o2.val)
+                    return 0;
+                else 
+                    return 1;
+            }
+        });
+        //another comparator writing method
+        
+        ListNode dummy = new ListNode(0);
+        ListNode tail=dummy;
+        
+        for (ListNode node:lists)
+            if (node!=null)
+                queue.add(node);
+            
+        while (!queue.isEmpty()){
+            tail.next=queue.poll();
+            //It becomes multiple LinkedList, out of the array
+            //Think them as different LinkedList
+            tail=tail.next;
+            
+            if (tail.next!=null)
+                queue.add(tail.next);
+            //KEY!!!
+        }
+        return dummy.next;
+	    }
+	}
 
 
+148.
+	//time complexity O(nlogn)
+	//space complexity O(1)
+	public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null) return head;
+        else {
+            ListNode right = sortList(returnMid(head));
+            ListNode left = sortList(head);
+            return mergeSortedLinkedList(left, right);
+        }
+    }
+    
+    private ListNode returnMid(ListNode head) {
+        int counter = 0;
+        ListNode pointer = head;
+        if (pointer == null) return null;
+        while (pointer != null) {
+            pointer = pointer.next;
+            counter ++;
+        }
+        for (int i = 0; i < counter / 2 - 1; i ++) {
+            head = head.next;
+        }
+        pointer = head.next;
+        //pay attention to this relationship
+        //here pointer is the [counter/2] index
+        //before it, there are counter/2 ListNodes
+        head.next = null;
+        return pointer;
+    }
+    
+    
+    private ListNode mergeSortedLinkedList(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode pointer = dummy;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                pointer.next = l1;
+                l1 = l1.next;
+            }
+            else {
+                pointer.next = l2;
+                l2 = l2.next;
+            }
+            pointer = pointer.next;
+        }
+        if (l1 != null) pointer.next = l1;
+        else pointer.next = l2;
+        return dummy.next;
+    }
 
 
+328.
+	//time complexity O(n)
+	//space complexity O(1), in place operation
+	public ListNode oddEvenList(ListNode head) {
+        if (head != null) {
+            ListNode odd = head, even = head.next, evenstart = even;
+            while (odd.next != null && even.next != null) {
+            	//pay attention to the judge condition:
+            	//if we want to have odd.next.next, we must assure odd.next != null
+            	//so is for even.next.next
+            	//start corner condition is also inside these judgement condition
+                odd.next = odd.next.next;
+                even.next = even.next.next;
+                odd = odd.next;
+                even = even.next;
+                //do not have to worry about these two
+                //they must exist if the first two exists
+            }
+            odd.next = evenstart;
+        }
+        return head;
+    }
 
 
+346.
+	class MovingAverage {
+	    private int size;
+	    private int counter;
+	    private double sum;
+	    private Queue<Integer> data;
 
+	    /** Initialize your data structure here. */
+	    public MovingAverage(int size) {
+	        this.size = size;
+	        counter = 0;
+	        sum = 0;
+	        data = new LinkedList<>();
+	    }
+	    
+	    public double next(int val) {
+	        if (counter < size) {
+	            data.add(val);
+	            sum += val;
+	            counter ++;
+	            return sum / counter;
+	        }
+	        else {
+	            int temp = data.poll();
+	            data.add(val);
+	            sum = sum - temp + val;
+	            return sum / counter;
+	        }
+	    }
+	}
 
-
-
-
-
-
-
-
-
-
+	//another method, use array
+	//use index to keep tracking the oldest number
+	//every time call next, increment the index, so that index points to the oldest
+	public class MovingAverage {
+	    private int [] window;
+	    private int n, insert;
+	    private long sum;
+	    
+	    /** Initialize your data structure here. */
+	    public MovingAverage(int size) {
+	        window = new int[size];
+	        insert = 0;
+	        sum = 0;
+	    }
+	    
+	    public double next(int val) {
+	        if (n < window.length)  n++;
+	        sum -= window[insert];
+	        sum += val;
+	        window[insert] = val;
+	        insert = (insert + 1) % window.length;
+	        
+	        return (double)sum / n;
+	    }
+	}
 	
 	
-	
-	
-	
+24.
+	//time complexity is O(n)
+	//space complexity is O(1)
+	public ListNode swapPairs(ListNode head) {
+        if (head == null || head.next == null) return head;
+        int temp = 0;
+        ListNode pair1 = head;
+        ListNode pair2 = head.next;
+        
+        while (pair1 != null && pair2 != null && pair2.next != null) {
+            temp = pair1.val;
+            pair1.val = pair2.val;
+            pair2.val = temp;
+            pair1 = pair1.next.next;
+            pair2 = pair2.next.next;
+        }
+        
+        if (pair2 != null && pair2.next == null) {
+            temp = pair1.val;
+            pair1.val = pair2.val;
+            pair2.val = temp;
+        }
+        
+        return head;
+    }	
+
+
+    //another method, with recursion
+    public ListNode swapPairs(ListNode head) {
+        if ((head == null)||(head.next == null))
+            return head;
+        ListNode n = head.next;
+        head.next = swapPairs(head.next.next);
+        n.next = head;
+        return n;
+    }
+
+
+19.
+	//time complexity is O(n)
+	//space complexity is O(1)
+	public ListNode removeNthFromEnd(ListNode head, int n) {
+        if (head == null) return head;
+        ListNode first = head;
+        for (int i = 0; i < n; i ++) {
+            if (first != null) first = first.next;
+            else return head;
+        }
+        ListNode dummy = new ListNode(0);
+        ListNode pointer = dummy;
+        pointer.next = head;
+        //use a dummy node, can make things easier
+        
+        while (first != null) {
+            first = first.next;
+            pointer = pointer.next;
+        }
+        pointer.next = pointer.next.next;
+        
+        return dummy.next;
+    }
+
+
+142.
+	//666!
+	public ListNode detectCycle(ListNode head) {
+        ListNode fast = head;
+        ListNode slow = head;
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) {
+                ListNode slow2 = head;
+                while (slow2 != slow) {
+                    slow2 = slow2.next;
+                    slow = slow.next;
+                }
+                return slow2;
+            }
+            
+        }
+        return null;
+    }
+
+
+160.
+	//intersection start node of LinkedList
+	//run in O(n) time and use only O(1) memory.
+	public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if (headA == null || headB == null) return null;
+        ListNode moveA = headA;
+        ListNode moveB = headB;
+        boolean visited = false;
+        while (moveA != moveB) {
+            if (moveA.next != null) moveA = moveA.next;
+            else if (!visited) {
+                moveA = headB;
+                visited = true;
+            }
+            else return null;
+            if (moveB.next != null) moveB = moveB.next;
+            else moveB = headA;
+        }
+        return moveA;
+    }
+
+
+621.
+	//time is O(n), space is O(1)
+	public int leastInterval(char[] tasks, int n) {
+        int[] map = new int[26];
+        for (char each : tasks) {
+            map[each - 'A'] ++;
+        }
+        int max = 0, maxnum = 0;
+        for (int each : map) {
+            if (each == max) {
+                maxnum ++;
+            }
+            else if (each > max) {
+                maxnum = 1;
+                max = each;
+            }
+        }
+        
+        int temp = 0;
+        if (maxnum - 1 > n) {
+            temp = max * maxnum;
+        }
+        else {
+            temp = (max - 1) * (n + 1) + maxnum;
+        }
+        //calculate the frame size
+
+        return Math.max(temp, tasks.length);
+        //select larger one
+    }
+
+    //another similar solution
+    // (c[25] - 1) * (n + 1) + 25 - i  is frame size
+	// when inserting chars, the frame might be "burst", 
+	// then tasks.length takes precedence
+	// when 25 - i > n, the frame is already full at construction, 
+	// the following is still valid.
+	public class Solution {
+	    public int leastInterval(char[] tasks, int n) {
+
+	        int[] c = new int[26];
+	        for(char t : tasks){
+	            c[t - 'A']++;
+	        }
+	        Arrays.sort(c);
+	        int i = 25;
+	        while(i >= 0 && c[i] == c[25]) i--;
+
+	        return Math.max(tasks.length, (c[25] - 1) * (n + 1) + 25 - i);
+	    }
+	}
+
+	/*
+	Examples:
+
+	AAAABBBEEFFGG 3
+
+	here X represents a space gap:
+
+	Frame: "AXXXAXXXAXXXA"
+	insert 'B': "ABXXABXXABXXA" <--- 'B' has higher frequency than the other characters, insert it first.
+	insert 'E': "ABEXABEXABXXA"
+	insert 'F': "ABEFABEXABFXA" <--- each time try to fill the k-1 gaps as full or evenly as possible.
+	insert 'G': "ABEFABEGABFGA"
+	AACCCBEEE 2
+
+	3 identical chunks "CE", "CE CE CE" <-- this is a frame
+	insert 'A' among the gaps of chunks since it has higher frequency than 'B' ---> "CEACEACE"
+	insert 'B' ---> "CEABCEACE" <----- result is tasks.length;
+	AACCCDDEEE 3
+
+	3 identical chunks "CE", "CE CE CE" <--- this is a frame.
+	Begin to insert 'A'->"CEA CEA CE"
+	Begin to insert 'B'->"CEABCEABCE" <---- result is tasks.length;
+	ACCCEEE 2
+
+	3 identical chunks "CE", "CE CE CE" <-- this is a frame
+	Begin to insert 'A' --> "CEACE CE" <-- result is (c[25] - 1) * (n + 1) + 25 -i = 2 * 3 + 2 = 8
+	*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	
 	
