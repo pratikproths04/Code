@@ -1976,6 +1976,78 @@ Practice Q9:
     }
 
 
+//Java's LinkedList
+//double linkedlist
+	class LinkedList<T> {
+		//fields
+		private ListNode<T> head;//Pay attention to this!! general type
+		private ListNode<T> tail;
+		private int size;
+
+		//methods
+		LinkedList() {
+			size = 0;
+			head = null;
+			tail = null;
+		}
+
+		E getVal(int val)// may be general type, throw exception 
+		{
+			if (head == null || val < 0 || val >= size) {
+				return -1;// throw new exception?
+			}
+			ListNode dummy = new ListNode();
+			dummy.next = head;
+			for (int i = 0; i <= val; i ++) {
+				dummy = dummy.next;
+			}
+			return dummy.val;
+		}
+
+		void addHead(E val) {
+			size ++;
+			if (head == null) {
+				head = new ListNode(val);
+				tail = head;
+			}
+			else {
+				ListNode dummy = new ListNode(val);
+				dummy.next = head;
+				head.prev = dummy;// head may be null
+				head = dummy;
+			}
+		}
+		//double linkedlist
+		//add link in two directions 
+
+		void addTail(E val) {
+			size ++;
+			if (tail == null) {
+				head = new ListNode(val);
+				tail = head;
+			}
+			else {
+				ListNode dummy = new ListNode(val);
+				dummy.prev = tail;
+				tail.next = dummy;
+				tail = dummy;
+			}
+		}
+
+		int getSize() {
+			return size;
+		}
+
+	}
+
+
+	List<Integer> list = new ArrayList<>();
+	((ArrayList) list).myMethod();
+	casting polymorphism
+
+
+
+
 //6/12
 	public class newQueue<E> { //generics type
 		//fields
@@ -2458,69 +2530,6 @@ Practice Q9:
         return moveA;
     }
 
-//Java's LinkedList
-//double linkedlist
-	class LinkedList<T> {
-		//fields
-		private ListNode<T> head;//Pay attention to this!! general type
-		private ListNode<T> tail;
-		private int size;
-
-<<<<<<< HEAD
-		//methods
-		LinkedList() {
-			size = 0;
-			head = null;
-			tail = null;
-		}
-
-		E getVal(int val)// may be general type, throw exception 
-		{
-			if (head == null || val < 0 || val >= size) {
-				return -1;// throw new exception?
-			}
-			ListNode dummy = new ListNode();
-			dummy.next = head;
-			for (int i = 0; i <= val; i ++) {
-				dummy = dummy.next;
-			}
-			return dummy.val;
-		}
-
-		void addHead(E val) {
-			size ++;
-			if (head == null) {
-				head = new ListNode(val);
-				tail = head;
-			}
-			else {
-				ListNode dummy = new ListNode(val);
-				dummy.next = head;
-				head.prev = dummy;// head may be null
-				head = dummy;
-			}
-		}
-		//double linkedlist
-		//add link in two directions 
-
-		void addTail(E val) {
-			size ++;
-			if (tail == null) {
-				head = new ListNode(val);
-				tail = head;
-			}
-			else {
-				ListNode dummy = new ListNode(val);
-				dummy.prev = tail;
-				tail.next = dummy;
-				tail = dummy;
-			}
-		}
-
-		int getSize() {
-			return size;
-		}
-=======
 621.
 	//time is O(n), space is O(1)
 	public int leastInterval(char[] tasks, int n) {
@@ -2600,14 +2609,7 @@ Practice Q9:
 	3 identical chunks "CE", "CE CE CE" <-- this is a frame
 	Begin to insert 'A' --> "CEACE CE" <-- result is (c[25] - 1) * (n + 1) + 25 -i = 2 * 3 + 2 = 8
 	*/
->>>>>>> cf2d3b83e65642059b06248d316a8aee50beb458
-
-	}
-
-
-	List<Integer> list = new ArrayList<>();
-	((ArrayList) list).myMethod();
-	casting polymorphism
+	
 
 
 
