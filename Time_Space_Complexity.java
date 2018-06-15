@@ -3396,6 +3396,475 @@ Practice Q9:
     }
 
 
+//6/15
+    //classical binary search:
+    public int binarySearch(int[] nums, int target) {
+    	if (nums == null || nums.length == 0) return -1;
+    	//edge cases, do not forget
+    	int left = 0;
+    	int right = nums.length - 1;
+    	int mid;
+    	//mid outside
+    	//if inside, log(n) space complexity of mid
+    	//if not garbage collection, but ok in java
+    	while (left <= right) {
+    		mid = left + (right - left) / 2;
+    		if (nums[mid] == target) return mid;
+    		else if (nums[mid] < target) left = mid + 1;
+    		//must have +1 and -1 or infinit loop
+    		//in edge case of length == 1
+    		else right = mid - 1;
+    	}
+    	return -1;
+    }
+    //result (right, left)
+
+    //another way of binary search
+    public int binarySearch(int[] nums, int target) {
+    	if (nums == null || nums.length == 0) return -1;
+    	int left = 0, right = nums.length - 1;
+    	//if nums.length == 1, edge case
+    	//must use nums.length - 1
+    	int mid;
+    	while (left + 1 < right) {
+    		mid = left + (right - left) / 2;
+    		//overflow of Integer
+    		//int mid = left + (right - left) / 2;
+    		if (nums[mid] == target) return mid;
+    		else if (nums[mid] < target) left = mid;
+    		else right = mid;
+    	}
+    	if (nums[left] == target) return left;
+    	else if (nums[right] == target) return right;
+    	else return -1;
+    }
+    //result (left, right)
+
+
+69.
+	//using binary search
+	time complexity is O(n)
+	//first expolential for the binary size of the array
+	//then the binary search using the logn;
+	space complexity is O(1)
+	public int mySqrt(int x) {
+        if (x == 0 || x == 1) return x;
+        
+        int left = 0, right = x;
+        int mid;
+        while (left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (x / mid == mid && x % mid == 0) return mid;
+            else if (x / mid == mid && x % mid > 0 || x / mid > mid) left = mid;
+            else right = mid;
+        }
+        
+        return left;
+    }
+
+
+74.
+	time complexity is O(logn + logm)
+	space complexity is O(1)
+	//this way of binary search can:
+	//if left is moved, the left is smaller than target
+	//if right is moved, the right is larger than target
+	//change with the changing terms
+	public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix.length == 0 || matrix[0].length == 0) return false;
+        //edge case 1: no rows or no columns
+        
+        int left = 0, right = matrix.length - 1, mid;
+        while (matrix.length != 1 && left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (matrix[mid][0] == target) return true;
+            else if (matrix[mid][0] < target) left = mid;
+            else right = mid;
+        }
+        if (matrix[left][0] == target || matrix[right][0] == target) return true;
+        //edge case 2: on the left side of one column
+        if (matrix[left][0] > target) return false;
+        //edge case 3: the first row's first element is larger than target
+        
+        int row = (matrix[right][0] < target) ? right : left;
+        //edge case 4: the last row's first element is smaller than target
+        left = 0;
+        right = matrix[0].length - 1;     
+        while (left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (matrix[row][mid] == target) return true;
+            else if (matrix[row][mid] > target) right = mid;
+            else left = mid;
+        }
+        if (matrix[row][left] == target || matrix[row][right] == target) return true;
+        //final stage: check the left element and the right element
+
+        return false;
+    }
+
+
+240.
+	//use divide and conquer and binary search
+	time complexity is O((n*m)^log_4 3)
+	space complexity is O(1)
+	public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix.length == 0 || matrix[0].length == 0) return false;
+        return helper(matrix, target, 0, matrix.length - 1, 0, matrix[0].length - 1);
+    }
+    
+    private boolean helper(int[][] matrix, int target, int up, int down, int left, int right) {
+        if (matrix[up][left] == target || matrix[down][right] == target || 
+            matrix[up][right] == target || matrix[down][left] == target) return true;
+        else if (up >= down - 1 && left >= right - 1 || 
+                 matrix[up][left] > target || matrix[down][right] < target) return false;
+        //edge cases: when down - up <= 1 and right - left <= 1
+        else {
+            int midrow = up + (down - up) / 2;
+            int midcol = left + (right - left) / 2;
+            return helper(matrix, target, up, midrow, left, midcol) || helper(matrix, target, up, midrow, midcol, right) ||
+                helper(matrix, target, midrow, down, left, midcol) || helper(matrix, target, midrow, down, midcol, right);
+        }
+        //recursion
+    }
+
+    //another method
+    time complexity is O(m + n)
+    space complexity is O(1)
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if(matrix == null || matrix.length < 1 || matrix[0].length <1) {
+            return false;
+        }
+        int col = matrix[0].length-1;
+        int row = 0;
+        while(col >= 0 && row <= matrix.length-1) {
+            if(target == matrix[row][col]) {
+                return true;
+            } else if(target < matrix[row][col]) {
+                col--;
+            } else if(target > matrix[row][col]) {
+                row++;
+            }
+        }
+        return false;
+    }
+
+
+162.
+	time complexity is O(logn)
+	space complexity is O(1)
+	public int findPeakElement(int[] nums) {
+        if (nums.length == 1 || nums[0] > nums[1]) return 0;
+        //edge case 1: one element
+        //edge case 2: the first element is a peak
+        if (nums[nums.length - 1] > nums[nums.length - 2]) return nums.length - 1;
+        //edge case 3: the last element is a peak
+        
+        int left = 0, right = nums.length - 1, mid;
+        while (left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (mid > 0 && mid < nums.length - 1 && nums[mid] > nums[mid - 1] && nums[mid] > nums[mid + 1]) return mid;
+            //test mid
+            else if (mid == 0 && nums[mid] <= nums[mid + 1]) left = mid;
+            else if (nums[mid] >= nums[mid - 1] && nums[mid] <= nums[mid + 1]) left = mid;
+            //move left to mid if the mid is on the up slope
+            else right = mid;
+            //move right to mid if the mid is on the down slope
+        }
+        return (nums[left] < nums[right]) ? right : left;   
+        //post-processing    
+    }
+
+    //another method
+    public int findPeakElement(int[] nums) {
+        int l = 0;
+        int r = nums.length - 1;
+        while (l <= r) {
+            int mid = (r - l) / 2 + l;
+            if ((mid == 0 || nums[mid] > nums[mid - 1]) && (mid == nums.length - 1 || nums[mid] > nums[mid + 1])) return mid;
+            //this judgment is too good!
+            //it covers three possible cases
+            if (mid == 0 || nums[mid] > nums[mid - 1]) {
+                l = mid + 1;
+            } else {
+                r = mid - 1;
+            }
+        }
+        return l;
+    }
+
+
+302.
+	//using DFS
+	time complexity is O(nums of '1')
+	space complexity is O(mn)
+	private int[][] move = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+    private int[] area = new int[]{Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE};
+    
+    public int minArea(char[][] image, int x, int y) {
+        if (image.length == 0 || image[0].length == 0) return 0;
+        
+        boolean[][] visited = new boolean[image.length][image[0].length];
+        helper(image, x, y, visited);
+        return (area[2] - area[0] + 1) * (area[3] - area[1] + 1);
+    }
+    
+    private void helper(char[][] image, int x, int y, boolean[][] visited) {
+        if (x < 0 || x >= image.length || y < 0 || y >= image[0].length || visited[x][y] || image[x][y] == '0') return;
+        area[0] = Math.min(area[0], x);
+        area[1] = Math.min(area[1], y);
+        area[2] = Math.max(area[2], x);
+        area[3] = Math.max(area[3], y);
+        visited[x][y] = true;
+        for(int[] each : move) {
+            helper(image, x + each[0], y + each[1], visited);
+        }
+    }
+
+    //using binary search
+    public int minArea(char[][] image, int x, int y) {
+	    int left = leftmost(image, 0, y, true);
+	    int right = rightmost(image, y, image[0].length - 1, true);
+	    int top = leftmost(image, 0, x, false);
+	    int bottom = rightmost(image, x, image.length - 1, false);
+	    return (right - left + 1) * (bottom - top + 1);
+	}
+
+	int leftmost(char[][] image, int min, int max, boolean horizontal) {
+	    int l = min, r = max;
+	    while (l < r) {
+	        int mid = l + (r - l) / 2;
+	        if (!hasBlack(image, mid, horizontal)) {
+	            l = mid + 1;
+	        } else {
+	            r = mid;
+	        }
+	    }
+	    return l;
+	}
+
+	int rightmost(char[][] image, int min, int max, boolean horizontal) {
+	    int l = min, r = max;
+	    while (l < r) {
+	        int mid = l + (r - l + 1) / 2;
+	        if (!hasBlack(image, mid, horizontal)) {
+	            r = mid - 1;
+	        } else {
+	            l = mid;
+	        }
+	    }
+	    return r;
+	}
+
+	boolean hasBlack(char[][] image, int mid, boolean horizontal) {
+	    if (horizontal) {
+	        for (int i = 0; i < image.length; i++) {
+	            if (image[i][mid] == '1') {
+	                return true;
+	            }
+	        }
+	    } else {
+	        for (int j = 0; j < image[0].length; j++) {
+	            if (image[mid][j] == '1') {
+	                return true;
+	            }
+	        }
+	    }
+	    return false;
+	}
+
+	//more concise way
+	public int minArea(char[][] image, int x, int y) {
+	    int m = image.length, n = image[0].length;
+	    int colMin = binarySearch(image, true, 0, y, 0, m, true);
+	    int colMax = binarySearch(image, true, y + 1, n, 0, m, false);
+	    int rowMin = binarySearch(image, false, 0, x, colMin, colMax, true);
+	    int rowMax = binarySearch(image, false, x + 1, m, colMin, colMax, false);
+	    return (rowMax - rowMin) * (colMax - colMin);
+	}
+
+	public int binarySearch(char[][] image, boolean horizontal, int lower, int upper, int min, int max, boolean goLower) {
+	    while(lower < upper) {
+	        int mid = lower + (upper - lower) / 2;
+	        boolean inside = false;
+	        for(int i = min; i < max; i++) {
+	            if((horizontal ? image[i][mid] : image[mid][i]) == '1') {
+	                inside = true; 
+	                break;
+	            }
+	        }
+	        //for-loop is the hasblack function
+	        if(inside == goLower) {
+	            upper = mid;
+	        } else {
+	            lower = mid + 1;
+	        }
+	    }
+	    return lower;
+	}
+
+
+354.
+	time complexity is O(n^2)
+	space complexity is O(n)
+	//using dp
+	public int maxEnvelopes(int[][] envelopes) {
+        if (envelopes.length <= 1) return envelopes.length;
+        
+        Arrays.sort(envelopes, new sortingComparator());
+        //the correct way to write comparator in sort
+        //can with and without type
+        int res = 1;
+        int[] dp = new int[envelopes.length];
+        for (int i = 0; i < envelopes.length; i ++) {
+            if (i == 0) dp[i] = 1;
+            else {
+                dp[i] = 1;
+                for (int j = 0; j < i; j ++) {
+                    if (envelopes[j][0] < envelopes[i][0] && envelopes[j][1] < envelopes[i][1]) dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+                res = Math.max(res, dp[i]);
+            }
+        }
+        
+        return res;
+    }
+    
+    private class sortingComparator implements Comparator <int[]> {
+    	//using private class, implements comparator with type!!!
+        public int compare(int[] a, int[] b) {
+            if (a[0] - b[0] != 0) return a[0] - b[0];
+            else return a[1] - b[1];
+        }
+    }
+
+    //another way, dp with binary search
+    //???
+    public int maxEnvelopes(int[][] envelopes) {
+	    if(envelopes == null || envelopes.length == 0 
+	       || envelopes[0] == null || envelopes[0].length != 2)
+	        return 0;
+	    Arrays.sort(envelopes, new Comparator<int[]>(){
+	        public int compare(int[] arr1, int[] arr2){
+	            if(arr1[0] == arr2[0])
+	                return arr2[1] - arr1[1];
+	            else
+	                return arr1[0] - arr2[0];
+	       } 
+	    });
+	    //another way of writing the comparator
+	    //here you have to write type inside the sort()
+	    int dp[] = new int[envelopes.length];
+	    int len = 0;
+	    for(int[] envelope : envelopes){
+	        int index = Arrays.binarySearch(dp, 0, len, envelope[1]);
+	        //arrays.binarySearch
+	        //binarySearch(int/long[] a, int fromIndex, int toIndex//inclusive, int/long key)
+	        //index of the search key, if it is contained in the array; 
+	        //otherwise, (-(insertion point) - 1). 
+	        //The insertion point is defined as the point at which the key would be inserted into 
+	        //the array: the index of the first element greater than the key, 
+	        //or a.length if all elements in the array are less than the specified key.
+	        if(index < 0)
+	            index = -(index + 1);
+	        dp[index] = envelope[1];
+	        if(index == len)
+	            len++;
+	    }
+	    return len;
+	}
+
+
+225.
+	//using one queue
+	class MyStack {
+	    private Queue<Integer> queue;
+	    private int nums;
+	    
+	    /** Initialize your data structure here. */
+	    public MyStack() {
+	        queue = new LinkedList<>();
+	        nums = 0;
+	    }
+	    
+	    /** Push element x onto stack. */
+	    public void push(int x) {
+	        queue.offer(x);
+	        if (!empty()) {
+	            for (int i = 0; i < nums; i ++) {
+	                queue.offer(queue.poll());
+	            }
+	        }
+	        nums ++;
+	    }
+	    
+	    /** Removes the element on top of the stack and returns that element. */
+	    public int pop() {
+	        nums --;
+	        return queue.poll();
+	    }
+	    
+	    /** Get the top element. */
+	    public int top() {
+	        return queue.peek();
+	    }
+	    
+	    /** Returns whether the stack is empty. */
+	    public boolean empty() {
+	        return nums == 0;
+	    }
+	}
+
+	//using a deque
+	//nothing to say
+	//completely cheating method!!!
+	class MyStack {
+	    private Deque<Integer> deque;
+	    private int nums;
+	    
+	    /** Initialize your data structure here. */
+	    public MyStack() {
+	        deque = new LinkedList<>();
+	        nums = 0;
+	    }
+	    
+	    /** Push element x onto stack. */
+	    public void push(int x) {
+	        deque.offerLast(x);
+	        nums ++;
+	    }
+	    
+	    /** Removes the element on top of the stack and returns that element. */
+	    public int pop() {
+	        nums --;
+	        return deque.pollLast();
+	    }
+	    
+	    /** Get the top element. */
+	    public int top() {
+	        return deque.peekLast();
+	    }
+	    
+	    /** Returns whether the stack is empty. */
+	    public boolean empty() {
+	        return nums == 0;
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
