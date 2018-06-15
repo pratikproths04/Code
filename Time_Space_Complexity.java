@@ -2611,6 +2611,193 @@ Practice Q9:
 	*/
 	
 
+//6/13
+
+155.
+	class MinStack {
+
+	    private Node head;
+	    
+	    /** initialize your data structure here. */
+	    public MinStack() {
+	        head = null;
+	    }
+	    
+	    public void push(int x) {
+	        if (head == null) {
+	            head = new Node(x, x);
+	        }
+	        else {
+	            head = new Node(x, Math.min(x, head.min), head);
+	        }
+	    }
+	    
+	    public void pop() {
+	        head = head.next;
+	    }
+	    
+	    public int top() {
+	        return head.val;
+	    }
+	    
+	    public int getMin() {
+	        return head.min;
+	    }
+	    
+	    private class Node {
+	    	//use a private class to record value and min before it
+	        private int min;
+	        private int val;
+	        private Node next;
+	        
+	        public Node(int val, int min) {
+	            this(val, min, null);
+	        }
+	        
+	        public Node(int val, int min, Node next) {
+	            this.val = val;
+	            this.min = min;
+	            this.next = next;
+	        }
+	    }
+	}
+
+
+	//another good method
+	class MinStack {
+	    int min = Integer.MAX_VALUE;
+	    Stack<Integer> stack = new Stack<Integer>();
+	    public void push(int x) {
+	        // only push the old minimum value when the current 
+	        // minimum value changes after pushing the new value x
+	        if(x <= min){          
+	            stack.push(min);
+	            min=x;
+	        }
+	        stack.push(x);
+	        //every time comes to a min value
+	        //store the second min value before it!!!
+	    }
+
+	    public void pop() {
+	        // if pop operation could result in the changing of the current minimum value, 
+	        // pop twice and change the current minimum value to the last minimum value.
+	        if(stack.pop() == min) min=stack.pop();
+	    }
+
+	    public int top() {
+	        return stack.peek();
+	    }
+
+	    public int getMin() {
+	        return min;
+	    }
+	}
+
+
+42.
+	Time complexity is O(n);
+	Space complexity is O(1);
+	public int trap(int[] height) {
+        int highest = 0;
+        for (int i = 0; i < height.length; i ++) {
+            if (height[i] > height[highest]) highest = i;
+        }
+        int sum = 0;
+        int high = 0;
+        
+        //key is to tranverse from two end
+        for (int i = 0; i < highest; i ++) {
+            if (high < height[i]) high = height[i];
+            sum += high;
+        }
+        high = 0;
+        for (int i = height.length - 1; i >= highest; i --) {
+            if (high < height[i]) high = height[i];
+            sum += high;
+        }
+        for (int each : height) {
+            sum -= each;
+        }
+        return sum;
+    }
+
+    //another good method, two pointers
+    public int trap(int[] A) {
+	    if (A.length < 3) return 0;
+	    
+	    int ans = 0;
+	    int l = 0, r = A.length - 1;
+	    
+	    // find the left and right edge which can hold water
+	    while (l < r && A[l] <= A[l + 1]) l++;
+	    while (l < r && A[r] <= A[r - 1]) r--;
+	    
+	    while (l < r) {
+	        int left = A[l];
+	        int right = A[r];
+	        if (left <= right) {
+	            // add volum until an edge larger than the left edge
+	            while (l < r && left >= A[++l]) {
+	                ans += left - A[l];
+	            }
+	        } else {
+	            // add volum until an edge larger than the right volum
+	            while (l < r && A[--r] <= right) {
+	                ans += right - A[r];
+	            }
+	        }
+	    }
+	    return ans;
+	}
+
+
+150.
+	Time complexity is O(n);
+	Space complexity is O(n);
+	public int evalRPN(String[] tokens) {
+        Stack<Integer> stack = new Stack<>();
+        int res = 0;
+        for (String each : tokens) {
+            if (judge(each)) {
+                res = calculation(stack, each);
+                stack.push(res);
+            }
+            else {
+                res = Integer.parseInt(each);
+                stack.push(res);
+            }
+        }
+        
+        return res;
+    }
+    
+    private boolean judge(String token) {
+        return token.equals("+") || token.equals("-") || token.equals("/") || token.equals("*");
+    }
+    
+    private int calculation(Stack<Integer> stack, String token) {
+        int a = stack.pop(), b = stack.pop(), temp;
+        if (token.equals("+")) {
+            temp = b + a;
+        }
+        else if (token.equals("-")) {
+            temp = b - a;
+        }
+        else if (token.equals("*")) {
+            temp = b * a;
+        }
+        else {
+            temp = b / a;
+        }
+        return temp;
+    }
+
+
+
+
+
+
 
 
 
