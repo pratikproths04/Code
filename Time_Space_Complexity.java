@@ -2802,6 +2802,503 @@ Practice Q9:
 
 
 
+//6/14
+85.
+	//build on the basic of 84, using stack
+	//thinking about diagram
+	time complexity is O(n*m);
+	space complexity is O(n*m); 
+	public int maximalRectangle(char[][] matrix) {
+        int maxarea = 0;
+        if (matrix.length == 0 || matrix[0].length == 0) return 0;
+        
+        int[][] heights = new int[matrix.length][matrix[0].length];
+        for (int i = 0; i < matrix.length; i ++) {
+            for (int j = 0; j < matrix[0].length; j ++) {
+                if (i == 0) heights[i][j] = (matrix[i][j] == '1') ? 1 : 0;
+                else heights[i][j] = (matrix[i][j] == '1') ? (heights[i - 1][j] + 1) : 0;
+            }
+        }
+        
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0; i < heights.length; i ++) {
+            stack.clear();
+            for (int j = 0; j <= heights[0].length; j ++) {
+                int compare = (j < heights[0].length) ? heights[i][j] : 0;
+                while (!stack.isEmpty() && heights[i][stack.peek()] > compare) {
+                    int temp = stack.pop();
+                    maxarea = Math.max(maxarea, heights[i][temp] * ((stack.isEmpty()) ? j : (j - 1 - stack.peek())));
+                }
+                stack.push(j);
+            }
+        }
+        
+        return maxarea;
+    }
+
+
+
+173.
+	//constructor takes O(n)
+	//all the other method takes O(1), use O(1) memory
+	public class BSTIterator {
+	    
+	    Queue<Integer> queue;
+
+	    public BSTIterator(TreeNode root) {
+	        queue = new LinkedList<>();
+	        helper(root);
+	    }
+
+	    /** @return whether we have a next smallest number */
+	    public boolean hasNext() {
+	        return queue.peek() != null;
+	    }
+
+	    /** @return the next smallest number */
+	    public int next() {
+	        return queue.poll();
+	    }
+	    
+	    private void helper(TreeNode root) {
+	        if (root == null) return;
+	        helper(root.left);
+	        queue.add(root.val);
+	        helper(root.right);        
+	    }
+	}
+
+
+316.
+	time complexity is O(n);
+	space complexity is O(26);
+	//use stringbuilder as stack here
+	//only store one element, the most left one if possible
+	public String removeDuplicateLetters(String s) {
+        int[] map = new int[26];
+        boolean[] visited = new boolean[26];
+        for (char each : s.toCharArray()) {
+            map[each - 'a'] ++;
+        }
+        //count character show times
+        
+        StringBuilder sb = new StringBuilder();
+        //use as a stack
+        //char in stack in possible increase order
+        int len = 0;
+        //store len for accelerate
+        for (char each : s.toCharArray()) {
+            map[each - 'a'] --;
+            if (visited[each - 'a']) continue;
+            //keep the left most char
+            //continue if visited that char
+            
+            while (len > 0 && each < sb.charAt(len - 1) && map[sb.charAt(len - 1) - 'a'] > 0) {
+                visited[sb.charAt(len - 1) - 'a'] = false;
+                len --;
+                sb.setLength(len);                
+            }
+            //char has in hand
+            //pop the char in the stringbuiler 
+            //if we have more times left for that char
+            
+            sb.append(each);
+            len ++;
+            visited[each - 'a'] = true;
+            //append the char in hand
+            //increase the len and change the array visited
+        }
+        
+        return sb.toString();
+    }
+
+
+224.
+	//not a good method
+	public int calculate(String s) {
+        if (s.length() == 0) return 0;
+
+        Stack<String> store = new Stack<>();
+        Stack<String> calcu = new Stack<>();
+        
+        int res = 0;
+        for (int left = 0, len = 1; left + len <= s.length(); ) {
+            char temp = s.charAt(left + len - 1);
+            if (temp == ' ' && len == 1) left ++;
+            else if (temp == '(' || temp == '+' || temp == '-') {
+                store.push(s.substring(left, left + len));
+                left += len;
+                len = 1;
+            }
+            else if (temp == ')') {
+                while (!store.peek().equals("(")) {
+                    calcu.push(store.pop());
+                }
+                res = helper(calcu);
+                store.pop();
+                store.push("" + res);
+                left += len;
+                len = 1;
+            }
+            else if (left + len == s.length() || judge(s.charAt(left + len))) {
+                store.push(s.substring(left, left + len));
+                left += len;
+                len = 1;
+            }
+            else {
+                len ++;
+            }
+        }
+
+        while (!store.isEmpty()) {
+            calcu.push(store.pop());
+        }
+        res = helper(calcu);
+        
+        return res;
+    }
+    
+    private int helper(Stack<String> calcu) {
+        int res = 0;
+        while (!calcu.isEmpty()) {
+            String temp = calcu.pop();
+            if (!temp.equals("+") && !temp.equals("-")) res = Integer.parseInt(temp);
+            else if (temp.equals("+")) {
+                res += Integer.parseInt(calcu.pop());
+            }
+            else {
+                res -= Integer.parseInt(calcu.pop());
+            }
+        }
+        return res;
+    }
+    
+    private boolean judge(char a) {
+        return a == ' ' || a == '+' || a == '-' || a == '(' || a == ')';
+    }
+
+
+    //another method
+    public static int calculate(String s) {
+		int len = s.length(), sign = 1, result = 0;
+		Stack<Integer> stack = new Stack<Integer>();
+		for (int i = 0; i < len; i++) {
+			if (Character.isDigit(s.charAt(i))) {
+				int sum = s.charAt(i) - '0';
+				while (i + 1 < len && Character.isDigit(s.charAt(i + 1))) {
+					sum = sum * 10 + s.charAt(i + 1) - '0';
+					i++;
+				}
+				result += sum * sign;
+				//calculate when no braket
+			} else if (s.charAt(i) == '+')
+				sign = 1;
+			else if (s.charAt(i) == '-')
+				sign = -1;
+			//use int sign to record '+' & '-'
+			else if (s.charAt(i) == '(') {
+				stack.push(result);
+				stack.push(sign);
+				result = 0;
+				sign = 1;
+			//comes to '(', put result now in stack
+			} else if (s.charAt(i) == ')') {
+				result = result * stack.pop() + stack.pop();
+			}
+			//calculate inside bracket, put it in result
+
+		}
+		return result;
+	}
+
+
+232.
+	//quite basic, I have nothing to say
+	class MyQueue {
+
+	    private Stack<Integer> stack1;
+	    private Stack<Integer> stack2;
+	    /** Initialize your data structure here. */
+	    public MyQueue() {
+	        stack1 = new Stack<>();
+	        stack2 = new Stack<>();
+	    }
+	    
+	    /** Push element x to the back of queue. */
+	    public void push(int x) {
+	        stack1.push(x);
+	    }
+	    
+	    /** Removes the element from in front of queue and returns that element. */
+	    public int pop() {
+	        move();
+	        return stack2.pop();
+	    }
+	    
+	    /** Get the front element. */
+	    public int peek() {
+	        move();
+	        return stack2.peek();
+	    }
+	    
+	    /** Returns whether the queue is empty. */
+	    public boolean empty() {
+	        return stack1.isEmpty() && stack2.isEmpty();    
+	    }
+	    
+	    private void move() {
+	        if (stack2.isEmpty()){
+	            while (!stack1.isEmpty()) stack2.push(stack1.pop());
+	        }            
+	    }
+	}
+
+
+341.
+	/**
+	 * // This is the interface that allows for creating nested lists.
+	 * // You should not implement it, or speculate about its implementation
+	 * public interface NestedInteger {
+	 *
+	 *     // @return true if this NestedInteger holds a single integer, rather than a nested list.
+	 *     public boolean isInteger();
+	 *
+	 *     // @return the single integer that this NestedInteger holds, if it holds a single integer
+	 *     // Return null if this NestedInteger holds a nested list
+	 *     public Integer getInteger();
+	 *
+	 *     // @return the nested list that this NestedInteger holds, if it holds a nested list
+	 *     // Return null if this NestedInteger holds a single integer
+	 *     public List<NestedInteger> getList();
+	 * }
+	 */
+	public class NestedIterator implements Iterator<Integer> {
+	    
+	    private Queue<Integer> queue;
+
+	    public NestedIterator(List<NestedInteger> nestedList) {
+	        queue = new LinkedList<>();
+	        helper(nestedList);
+	    }
+
+	    @Override
+	    public Integer next() {
+	        return queue.poll();
+	    }
+
+	    @Override
+	    public boolean hasNext() {
+	        return queue.peek() != null;
+	        //queue.peek() or .poll() return null if empty
+	    }
+	    
+	    private void helper(List<NestedInteger> nestedList) {
+	        for (NestedInteger each : nestedList) {
+	            if (each.isInteger()) queue.add(each.getInteger());
+	            else {
+	                helper(each.getList());
+	            }
+	        }
+	    }
+	}
+	//the key is to understanc that
+	//give a list of elements, whose class is NestedInteger
+	//the NestedInteger can be seen as a list of NestedInteger or an Integer
+	//use recursion to get all numbers, store them in the queue
+
+	//another method using stack
+	//use hasNext() before using next()
+	//this method considers that, only open the list which they are going to use
+	public class NestedIterator implements Iterator<Integer> {
+	    Stack<NestedInteger> stack = new Stack<>();
+	    public NestedIterator(List<NestedInteger> nestedList) {
+	        for(int i = nestedList.size() - 1; i >= 0; i--) {
+	            stack.push(nestedList.get(i));
+	        }
+	    }
+
+	    @Override
+	    public Integer next() {
+	        return stack.pop().getInteger();
+	    }
+
+	    @Override
+	    public boolean hasNext() {
+	        while(!stack.isEmpty()) {
+	            NestedInteger curr = stack.peek();
+	            if(curr.isInteger()) {
+	                return true;
+	            }
+	            stack.pop();
+	            for(int i = curr.getList().size() - 1; i >= 0; i--) {
+	                stack.push(curr.getList().get(i));
+	            }
+	        }
+	        return false;
+	    }
+	}
+
+
+394.
+	//need more practice on this topic, stack and bracket
+	//corner cases: 
+	//upperCase: "3[a]2[b4[F]c]"
+	//number and character: "3[a2[c]]"
+	public String decodeString(String s) {
+        if (s.length() == 0) return "";
+        
+        Stack<String> stack = new Stack<>();
+        StringBuilder sb = new StringBuilder();
+        String temp = "";
+        for (int i = 0; i < s.length(); i ++) {
+            if (s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - '0' < 10) {
+                while (i < s.length() && s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - '0' < 10) {
+                    temp = temp + s.charAt(i);
+                    i ++;
+                }
+                stack.push(temp);
+                i --;
+                temp = "";
+            }
+            else if (s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - 'A' >= 0) {
+                while (i < s.length() && s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - 'A' >= 0) {
+                    temp = temp + s.charAt(i);
+                    i ++;
+                }
+                stack.push(temp);
+                i --;
+                temp = "";
+            }
+            //char: 0,1,2 ... 9, A,B,C... Z, a, b, c ...
+            else if (s.charAt(i) == ']') {
+                while (!stack.peek().equals("[")) {
+                    sb.insert(0, stack.pop());
+                }
+                String repeat = sb.toString();
+                sb.setLength(0);
+                stack.pop();
+                int count = Integer.parseInt(stack.pop());
+                for (int j = 0; j < count; j ++) {
+                    sb.append(repeat);
+                }
+                stack.push(sb.toString());
+                sb.setLength(0);
+            }
+            else {
+                stack.push("[");
+            }
+        }
+        
+        while (!stack.isEmpty()) {
+            sb.insert(0, stack.pop());
+            //use insert to the index you want
+        }
+        return sb.toString();
+    }
+
+    //another method
+    public String decodeString(String s) {
+        String res = "";
+        Stack<Integer> countStack = new Stack<>();
+        Stack<String> resStack = new Stack<>();
+        //two stacks, store number and string
+        int idx = 0;
+        while (idx < s.length()) {
+            if (Character.isDigit(s.charAt(idx))) {
+            	//isDight() method
+                int count = 0;
+                while (Character.isDigit(s.charAt(idx))) {
+                    count = 10 * count + (s.charAt(idx) - '0');
+                    idx++;
+                }
+                countStack.push(count);
+            }
+            else if (s.charAt(idx) == '[') {
+                resStack.push(res);
+                res = "";
+                idx++;
+            }
+            else if (s.charAt(idx) == ']') {
+                StringBuilder temp = new StringBuilder (resStack.pop());
+                //store
+                int repeatTimes = countStack.pop();
+                for (int i = 0; i < repeatTimes; i++) {
+                    temp.append(res);
+                    //plus repeat
+                }
+                res = temp.toString();
+                idx++;
+            }
+            else {
+                res += s.charAt(idx++);
+            }
+        }
+        return res;
+    }
+
+
+83.
+	time complexity is O(n);
+	space complexity is O(n);
+	public ListNode deleteDuplicates(ListNode head) {
+        if (head == null || head.next == null) return head;
+        
+        Set<Integer> set = new HashSet<>();
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        
+        while (dummy.next != null) {
+            if (!set.contains(dummy.next.val)) {
+                set.add(dummy.next.val);
+                dummy = dummy.next;
+            }
+            else {
+                dummy.next = dummy.next.next;
+            }
+        }
+        
+        return head;
+    }
+
+
+203.
+	//dummy node is really good
+	time complexity is O(n);
+	space complexity is O(1);
+	public ListNode removeElements(ListNode head, int val) {
+        ListNode dummy = new ListNode(0);
+        ListNode pointer = dummy;
+        dummy.next = head;
+        
+        while (pointer.next != null) {
+            if (pointer.next.val == val) {
+                pointer.next = pointer.next.next;
+            }
+            else {
+                pointer = pointer.next;
+            }
+        }
+        
+        return dummy.next;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
