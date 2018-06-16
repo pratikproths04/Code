@@ -3851,13 +3851,91 @@ Practice Q9:
 	}
 
 
+817.
+	time complexity is O(n + G.length)
+	space complexity is O(G.length)
+	public int numComponents(ListNode head, int[] G) {
+        if (head.next == null) return 1;
+        
+        Set<Integer> set = new HashSet<>(G.length);
+        //pay attention here
+        //cannot use Arrays.asList(G) directly
+        //function thinks you are creating a list<int[]> instead of list<Integer>
+        for (int each : G) {
+            set.add(each);
+        }
+        while (head.next != null) {
+            if (set.contains(head.next.val)) set.remove(head.val);
+            head = head.next;
+        }
+        
+        return set.size();
+    }
 
 
+147.
+	//inplement insertion sort on LinkedList
+	public ListNode insertionSortList(ListNode head) {
+        if (head == null || head.next == null) return head;
+        
+        ListNode dummy = new ListNode(0), pointer = dummy, pointerrecord = head;
+        dummy.next = head;
+        //use of dummy head!!!
+        
+        while (head.next != null) {
+            if (head.val > head.next.val) {
+                pointerrecord = head.next;
+                head.next = head.next.next;
+                while (pointer.next.val < pointerrecord.val) {
+                    pointer = pointer.next;
+                }
+                pointerrecord.next = pointer.next;
+                pointer.next = pointerrecord;
+                pointer = dummy;
+            }
+            else {
+                head = head.next;                
+            }
+            //here, do not move head if you are in the first situation!!!
+        }
+        
+        return dummy.next;
+    }
 
 
+92.
+	//only one pass
+	time complexity is O(n)
+	space complexity is O(n)
+	public ListNode reverseBetween(ListNode head, int m, int n) {
+        if (head.next == null) return head;
+        ListNode dummy = new ListNode(0), pointer = dummy, move = dummy;
+        
+        for (int index = 1; head != null; index ++) {
+        	//end condition is head != null
+        	//if head != null, head.next always exits
+            ListNode newNode = new ListNode(head.val);
+            if (index == m) {
+                pointer = move;
+                newNode.next = pointer.next;
+                pointer.next = newNode;
+                move = newNode;
+            }
+            else if (index > m && index <= n) {
+                newNode.next = pointer.next;
+                pointer.next = newNode;
+            }
+            else {
+                move.next = newNode;
+                move = move.next;
+            }
+            //three different cases
 
-
-
+            head = head.next;
+        }
+        //use of dummy node
+        return dummy.next;
+    }
 
 
 
