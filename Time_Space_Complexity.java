@@ -3938,6 +3938,197 @@ Practice Q9:
     }
 
 
+//6/16
+    //use two stack instead of node
+    //one more method can use only one stack
+    public class MinStack{
+    	private Stack<Integer> stack1;
+    	private Stack<Integer> stack2;
+    	public MinStack(){
+    		stack1 = new Stack<>();
+    		stack2 = new Stack<>();
+    	}
+
+    	public void push(int val){
+    		if (stack2.isEmpty() || stack2.peek() >= val) {
+    			stack2.push(val);
+    		}
+    		stack1.push(val);
+    	}
+
+    	public int pop(){//use Integer, can return null
+    		//if int, throw exception
+    		//corner case check
+    		int temp = stack1.pop();
+    		if (stack2.peek() == temp) stack2.pop();
+    		return temp;
+    	}
+
+    	public int peek(){
+    		return stack1.peek();
+    	}
+
+    	public int getMin(){
+    		return stack2.peek();
+    	}
+
+    	public boolean isEmpty(){
+    		return stack1.isEmpty();
+    	}
+    }
+
+
+    //pre-order
+    public void preOrder(TreeNode root) {
+    	if (root == null) return;
+    	System.out.println(root.val);
+    	preOrder(root.left);
+    	preOrder(root.right);
+    }
+
+    //in-order
+    public void inOrder(TreeNode root) {
+    	if (root == null) return;
+    	inOrder(root.left);
+    	//wall
+    	System.out.println(root.val);
+    	inOrder(root.right);
+    	//return, implicit one
+    }
+
+    //post-order
+    public void postOrder(TreeNode root) {
+    	if (root == null) return;
+    	postOrder(root.left);
+    	postOrder(root.right);    
+    	System.out.println(root.val);	
+    }
+
+
+    //Iterative
+    //pre-order
+    public List<Integer> preOderTraversal(TreeNode root){
+    	List<Integer> ans = new ArrayList<>();
+    	if (root == null) return ans;
+    	Stack<TreeNode> st = new Stack<>();
+    	while (root != null || !st.isEmpty()){
+    		if (root == null){
+    			root = st.pop();
+    			root = root.right;
+    		}
+    		else{
+    			st.push(root);
+    			ans.add(root.val);
+    			root = root.left;
+    		}
+    	}
+    	return ans;
+    }
+
+    //in-order
+    public List<Integer> inOderTraversal(TreeNode root){
+    	List<Integer> ans = new ArrayList<>();
+    	if (root == null) return ans;
+    	Stack<TreeNode> st = new Stack<>();
+    	while (root != null || !st.isEmpty()){
+    		if (root == null){
+    			root = st.pop();
+    			ans.add(root.val);
+    			root = root.right;
+    		}
+    		else{
+    			st.push(root);
+    			root = root.left;
+    		}
+    	}
+    	return ans;
+    }
+
+    //post-order
+    public List<Integer> postOderTraversal(TreeNode root){
+    	List<Integer> ans = new ArrayList<>();
+    	if (root == null) return ans;
+    	Stack<TreeNode> st = new Stack<>();
+    	while (root != null || !st.isEmpty()){
+    		if (root == null){
+    			root = st.pop();
+    			root = root.left;
+    		}
+    		else{
+    			ans.add(root.val);
+    			st.push(root);
+    			root = root.right;
+    		}
+    	}
+    	Collections.reverse(ans);
+    	//The Key!
+    	return ans;
+    }
+
+
+    //get the height of the root
+    //get the height of the left subtree
+    //get the height of the right subtree
+    public int getHeight(TreeNode root){//maxDepth
+    	if (root == null) return 0;
+    	int leftHeight = getHeight(root.left);
+    	//wall
+    	int rightHeight = getHeight(root.right);
+    	return Math.max(leftHeight, rightHeight) + 1;
+    }
+
+    //get the min depth of the tree
+    public int getHeight(TreeNode root){//maxDepth
+    	if (root == null) return 0;
+    	int leftHeight = getHeight(root.left);
+    	//wall
+    	int rightHeight = getHeight(root.right);
+    	return (leftHeight == 0 || rightHeight == 0) ? 
+    		Math.max(leftHeight, rightHeight) : 
+    		Math.min(leftHeight, rightHeight) + 1;
+    }
+    //T(n) = 2*T(n/2) + O(1) ---> O(n)
+
+
+    //balanced binary tree
+    //time complexity is O(nlogn)
+    public boolean isBalance(TreeNode root){
+    	if (root == null) return true;
+    	if (Math.abs(getHeight(root.left) - 
+    		getHeight(root.right)) > 1) return false;
+    	return isBalance(root.left) && isBalance(root.right);
+    	//put height comparsion first to cut the leaves
+    	//recursion operation and constant operation
+    }
+    //T(n) = 2*T(n/2) + O(n) ---> O(nlogn)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
