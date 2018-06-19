@@ -4103,11 +4103,38 @@ Practice Q9:
     //T(n) = 2*T(n/2) + O(n) ---> O(nlogn)
 
 
+//6/18
+    //Lesson 7
+    //Q 4
+    public void invertTree(TreeNode root) {
+    	if (root == null) return;
+    	invertTree(root.right);
+    	invertTree(root.left);
+    	TreeNode temp = root.left;
+    	root.left = root.right;
+    	root.right = temp;
+    }
 
+    public TreeNode invertTree(TreeNode root) {
+    	if (root == null) return null;
+    	TreeNode newLeft = invertTree(root.left);
+    	TreeNode newRight = invertTree(root.right);
+    	root.left = newLeft;
+    	root.right = newRight;
+    	return root;
+    }
 
+    //DFS root---right---left, first work then swap
+    //left & right, DFS, binary tree, increase order or decrease order
+    public void invertTree(TreeNode root) {
+    	if (root == null) return;
+    	TreeNode temp = root.left;
+    	root.left = root.right;
+    	root.right = temp;
 
-
-
+    	invertTree(root.right);
+    	invertTree(root.left);
+    }
 
 
 
