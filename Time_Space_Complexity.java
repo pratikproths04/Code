@@ -4137,14 +4137,46 @@ Practice Q9:
     }
 
 
+	//symetric check
+    public boolean isSymetric(TreeNode root){
+    	if (root == null) return true;
+    	return helper(root.left, root.right);
+    }
+
+    private boolean helper(TreeNode left, TreeNode right){
+    	if (left == null && right == null) return true;
+    	else if (left == null || right == null) return false;
+    	else if (left.val != right.val) return false;
+    	else {
+    		return helper(left.right, right.left) && 
+    			helper(left.left, right.right);
+    	}
+    }
 
 
+    //part of tree
+    public boolean mirror(TreeNode left, TreeNode right){
+    	if (left == null && right == null) return true;
+    	if (left == null || right == null || left.val != right.val) return false;
+    	return mirror(left.left, right.left) && mirror(left.right, right.right);
+    }
 
 
-
-
-
-
+    //niu tree
+    public boolean niu(TreeNode left, TreeNode right){
+    	if (left == null && right == null) return true;
+    	else if (left == null || right == null) return false;
+    	else if (left.val != right.val) return false;
+    	else {
+    		return (helper(left.right, right.left) && 
+    			helper(left.left, right.right)) || 
+    			(helper(left.left, right.left) && 
+    			helper(left.right, right.right));
+    	}
+    }
+    //docs.oracle.com/javas/tutorial/java/nutsandbolts/operators.html
+    //O(n^2) ---> T(n) = 4*T(n/2) + O(1)
+    //Or recursion tree O(1), O(4), O(4^2) ... O(4^logn-1)
 
 
 
