@@ -4180,6 +4180,413 @@ Practice Q9:
 
 
 
+//6/19
+    public boolean isBST(TreeNode root){
+    	return isBST(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+    //possible one:
+    //Long.MIN_VALUE && LONG.MAX_VALUE
+
+    private boolean isBST(TreeNode root, int min, int max){
+    	if (root == null) return true;
+    	if (root.val < max && root.val > min && 
+    		isBST(root.left, min, root.val) && 
+    		isBST(root.right, root.val, max)) return true;
+    	return false;
+    }
+    //BST does not allow the replicate
+
+
+    //Q2
+    public List<Integer> inOrderTraverse(TreeNode root, int k1, int k2){
+    	List<Integer> list = new ArrayList<>();
+    	helper(list, root, k1, k2);
+    	return list;
+    }
+
+    private void helper(List<Integer> list, TreeNode root, int k1, int k2){
+    	if (root == null) return;
+    	if (root.val >= k1) helper(list, root.left, k1, k2);
+    	if (root.val <= k2 && root.val => k1) list.add(root.val);
+    	if (root.val <= k2) helper(list, root.right, k1, k2);
+    }
+    //S2 O(logn) ~ O(n)
+
+
+    //Q3
+    public int search(TreeNode root, int k){
+    	int[] closest_node = new int[]{root.val};
+    	helper(root, k, closest_node);
+    	return closest_node;
+    }
+
+    private void helper(TreeNode root, int k, int[] closest_node){
+    	if (root ==null) return;
+    	closest_node[0] = (Math.abs(closest_node[0] - k) > 
+    		Math.abs(root.val - k)) ? root.val : closest_node[0];
+    	if (root.val > k) {
+    		helper(root.left, k, closest_node);
+    	}
+    	else if (root.val < k) {
+    		helper(root.right, k, closest_node);
+    	}
+    	else return;
+    }
+
+
+    //second method
+    public int search(TreeNode root, int k) throws Exception{
+    	if (root == null) throw new IllegalArgumentException();//Pay attention!
+    	int closest_node = root.val;
+    	while (root != null && root.val != k){
+	    	closest_node = (Math.abs(closest_node - k) 
+	    		> Math.abs(root.val - k)) ? root.val : closest_node;
+	    	if (root.val > k) {
+	    		root = root.left;
+	    	}
+	    	else if (root.val < k) {
+	    		root = root.right;
+	    	}
+    	}
+    	return (root != null) ? k : closest_node;
+    }
+
+	//another writing
+    public int search(TreeNode root, int k) throws Exception{
+    	if (root == null) throw new IllegalArgumentException();//Pay attention!
+    	int closest_node = root.val;//Pay attention!!!
+    	while (root != null){
+	    	closest_node = (Math.abs(closest_node - k) 
+	    		> Math.abs(root.val - k)) ? root.val : closest_node;
+	    	if (root.val > k) {
+	    		root = root.left;
+	    	}
+	    	else if (root.val < k) {
+	    		root = root.right;
+	    	}
+	    	else {
+	    		return k;
+	    	}
+	    	//this condition can be written at the first place!!!
+	    	//to improve the efficiency!!!
+    	}
+    	return closest_node;
+    }
+
+
+144.
+	//the recursion method
+	time complexity is O(n);
+	space complexity is O(n);
+	public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        helper(list, root);
+        return list;
+    }
+    
+    private void helper(List<Integer> list, TreeNode root) {
+        if (root == null) return;
+        list.add(root.val);
+        helper(list, root.left);
+        helper(list, root.right);
+    }
+
+    //the iterative method
+    //spend more time for push and pop operations
+    public List<Integer> preorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        Stack<TreeNode> st = new Stack<>();
+        while (root != null || !st.isEmpty()) {
+            if (root != null) {
+                list.add(root.val);
+                st.push(root);
+                root = root.left;
+            }
+            else {
+                root = st.pop().right;
+            }
+        }
+        return list;
+    }
+
+
+103.
+	public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        Queue<TreeNode> st = new LinkedList<>();
+        List<List<Integer>> list = new ArrayList<>();
+        if (root == null) return list;
+        st.offer(root);
+        boolean direction = false;
+        
+        //BFS
+        while (!st.isEmpty()) {
+            List<Integer> temp = new ArrayList<>();
+            int count = st.size();
+            for (int i = 0; i < count; i ++) {
+                root = st.poll();
+                temp.add(root.val);
+                if (root.left != null) st.offer(root.left);
+                if (root.right != null) st.offer(root.right);
+            }
+            if (direction) {
+                Collections.reverse(temp);
+                //void output
+            }
+            list.add(temp);
+            direction = !direction;
+        }
+        
+        return list;
+    }
+
+    //another good method
+    //use a level
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+	    List<List<Integer>> res = new ArrayList();
+	    travel(res, 0, root);
+	    return res;
+	}
+	private void travel(List<List<Integer>> res, int level, TreeNode cur) {
+	    if (cur == null) return;
+	    if (res.size() <= level) {
+	        res.add(new ArrayList<Integer>());
+	    }
+	    if (level % 2 == 0) {
+	        res.get(level).add(cur.val);
+	    }   else {
+	        res.get(level).add(0, cur.val);
+	    }
+	    //these two add is the key of this method!!!
+	    travel(res, level + 1, cur.left);
+	    travel(res, level + 1, cur.right);
+	}
+
+
+
+145.
+	//recursion method
+	public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        if (root == null) return list;
+        helper(list, root);
+        return list;
+    }
+    
+    private void helper(List<Integer> list, TreeNode root) {
+        if (root == null) return;
+        helper(list, root.left);
+        helper(list, root.right);
+        list.add(root.val);
+    }
+
+    //iterative method for post-order
+    public List<Integer> postorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        Stack<TreeNode> st = new Stack<>();
+        while (root != null || !st.isEmpty()) {
+            if (root != null) {
+                list.add(root.val);
+                st.push(root);
+                root = root.right;
+            }
+            else {
+                root = st.pop().left;
+            }
+        }
+        Collections.reverse(list);
+        return list;
+    }
+
+
+255.
+	//in-place operation
+	//track the subtrees and record the max and min
+	public boolean verifyPreorder(int[] preorder) {
+        if (preorder.length <= 1) return true;
+        return helper(preorder, 0, preorder.length - 1, Integer.MAX_VALUE, Integer.MIN_VALUE);
+    }
+    
+    private boolean helper(int[] preorder, int left, int right, int max, int min) {
+        if (left > preorder.length - 1) return true;
+        else if (left == right && preorder[left] < max && preorder[left] > min) return true;
+        else if (preorder[left] >= max || preorder[left] <= min) return false;
+        else {
+            int count = left + 1;
+            while (count <= right && preorder[count] < preorder[left]) {
+                count ++;
+            }
+            if (count > right) return helper(preorder, left + 1, right, preorder[left], min);
+            else if (count == left + 1) return helper(preorder, left + 1, right, max, preorder[left]);
+            else return helper(preorder, left + 1, count - 1, preorder[left], min) && 
+                helper(preorder, count, right, max, preorder[left]);
+        }
+    }
+
+
+    //another method, using stack
+    public boolean verifyPreorder(int[] preorder) {
+	    int low = Integer.MIN_VALUE;
+	    Stack<Integer> path = new Stack();
+	    for (int p : preorder) {
+	        if (p < low)
+	            return false;
+	        while (!path.empty() && p > path.peek())
+	            low = path.pop();
+	        path.push(p);
+	    }
+	    return true;
+	}
+
+	//another in-place method
+	public boolean verifyPreorder(int[] preorder) {
+	    int low = Integer.MIN_VALUE, i = -1;
+	    for (int p : preorder) {
+	        if (p < low)
+	            return false;
+	        while (i >= 0 && p > preorder[i])
+	            low = preorder[i--];
+	        preorder[++i] = p;
+	    }
+	    return true;
+	}
+
+
+220.
+	public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+     
+        if(nums == null || nums.length < 2 || k < 1) return false;
+        TreeSet<Long> set = new TreeSet<>();
+        
+        
+        
+        for(int i = 0; i < nums.length; i++){
+            long l = (long) nums[i]; 
+                       
+            Long floor = set.floor(l);
+            Long ceil = set.ceiling(l);
+            // the tricky part I modified to easily understood way.
+            //the key of this method
+
+            //set.floor() *TreeSet
+            //Returns the greatest element in this set less than or 
+            //equal to the given element, or null if there is no such element.
+
+            //set.ceiling() *TreeSet
+            //Returns the least element in this set greater than 
+            //or equal to the given element, or null if there is 
+            //no such element.
+
+            //They use binary seach in these two methods
+            //therefore O(logk)
+            if((floor != null && l - floor <= t) ||
+               (ceil != null && ceil - l <= t) )
+                return true;
+            
+            set.add(l);
+            
+            if(i >= k)
+                set.remove((long)nums[i -k]);
+            
+        }
+        
+        return false;
+    }
+
+
+99.
+	time complexity is O(n)
+	space complexity is O(1)
+	class Solution {
+	    private TreeNode node1 = null;
+	    private TreeNode node2 = null;
+	    private TreeNode prev = null;
+	    
+	    
+	    public void recoverTree(TreeNode root) {
+	        tranverse(root);
+	        
+	        int temp = node1.val;
+	        node1.val = node2.val;
+	        node2.val = temp;
+	    }
+	    
+	    private void tranverse(TreeNode root) {
+	        if (root == null) return;
+	        tranverse(root.left);
+	        
+	        if (prev != null && prev.val >= root.val) {
+	        	//inorder tranverse
+	        	//if BST, the prev.val should be less than root.val
+	        	//for prev = root after tranverse all the left
+	            if (node1 == null) node1 = prev;
+	            node2 = root;
+	        }
+	        //the important swap, two cases explanation
+
+	        
+	        prev = root;
+	        
+	        tranverse(root.right);
+	    }
+	}
+/*
+	Now let us consider the situation
+	The previous in-order traverse (the right one) should be:
+	X1<X2<X3<...<Xi<...<...<Xj<...<Xn
+	Now, Xi and Xj was swapped, so the sequence became:
+	X1<X2<X3<...<Xj>...<...>Xi<...<Xn
+
+	So, there exists at most 2 places where disorder happens:
+
+	Xj>Xi+1
+	Xj-1>Xi
+	However, When Xi is next to Xj,(j=i+1), the disorder is 
+	happened only once.
+
+	Xj>Xi
+	So, you can see the two IFs (pay attention not IF..ELSE IF!)
+	It will record the first greater relation's leftside element 
+	and the last greater relation's rightside element!
+	This will satisfy both situations.
+*/
+
+
+98.
+	//in-order method to validate BST
+	class Solution {
+	    private TreeNode prev = null;
+	    
+	    public boolean isValidBST(TreeNode root) {
+	        boolean[] res = new boolean[]{true};
+	        helper(root, res);
+	        return res[0];
+	    }
+	    
+	    private void helper(TreeNode root, boolean[] res) {
+	        if (root == null) return;
+	        helper(root.left, res);
+	        
+	        if (prev != null && prev.val >= root.val) res[0] = false;
+	        prev = root;
+	        
+	        helper(root.right, res);
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
