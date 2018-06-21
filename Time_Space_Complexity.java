@@ -4575,6 +4575,225 @@ Practice Q9:
 
 
 
+//6/20
+//Q1 L215
+	//quick sort: return when you find the kth
+	//S2: Quick Selection/QuickSort Partition
+	//k - P's index when quick sort
+	//if lucky, O(n) = n + n/2 + n/4 + ... + 2 + 1
+	//if unlucky, O(n^2) = n + n-1 + n-2 + ... + 1
+	time complexity is between O(n) and O(n^2)
+
+	//when talk about heap, say its size and comparator
+	//Q1 S3 && S4
+	//MinHeap (n size) && MaxHeap (k size)
+	//streaming or very large, MaxHeap is better
+
+	
+//Q1.2 top k frequency words
+	//S1: HashMap + PriorityQueue 
+	//(comparator, ele1.fre - ele2.fre, 1 2 minheap, 
+	// - ele1.fre + ele2.fre, maxheap 2 1) 
+
+	//S2: TreeMap
+
+	//S3: If too large, memory cannot put them all
+	//Distributed System Memory
+
+	//S4: Big Data, Map Reduce --- System, need further looking
+
+	//common sense about I/O:
+	//Memory:		100G(cun cu)	10G/s(tun tu / mainly write)
+	//SSD:			500G~1T			500MB/s
+	//HardDisk:		5TB				50MB/s
+	//Internet:		---				1Gbit/s = 125MB/s	
+
+
+//difference about HashMap/Hash Table/HashSet
+//HashMap && Hash Table: 
+	//HashMap xianchenganquan, Hash Table, not, else the same;
+//HashMap && HashSet:
+	//HashMap contains key-value pair, can access value in O(1);
+	//HashSet contains only key, to check if repeat or not
+
+
+//HashSet
+	//add(key) return boolean, 
+		//if success, true, 
+		//if not(has repeat), false
+
+//HashSet --- de duplicate --- contains(), add(), remove()
+//HashMap --- de duplicate & counter --- containsKey(), get(), put(), remove()
+//HashMap, key is what and value is what	
+
+//<key, reference of object>
+//object as key, save the reference as key
+//when compare, dereference first
+	//map.get(key) += 1 cannot change value
+	//map.get(key).age += 1 can, change the field
+
+//expiredMap()
+	//put(key, value) value has expiredTime
+	//<key, (String, expiredTime)>, check expiredTime 
+	//return null or String
+
+//1:51:26 Lesson 8
+
+
+4.
+	//a lot of cases to discuss
+	public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+		//two important notice
+		//1. about k, k is the number, not the index
+		//2. about the median, (length - 1) / 2 is the index of the mediean(the first number in even number array)
+        int k = (nums1.length + nums2.length + 1) / 2;
+        double number1 = helper(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k);
+        if ((nums1.length + nums2.length) % 2 == 1) return number1;
+        double number2 = helper(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k + 1);
+        return (number1 + number2) / 2;
+        //the center of this method is to, cut some numbers after a comparation
+        //k is also useful during finding the median
+    }
+    
+    private double helper(int[] a, int[] b, int aleft, int aright, int bleft, int bright, int k) {
+        if (aleft > aright) return (double) b[bleft + k - 1];
+        if (bleft > bright) return (double) a[aleft + k - 1];
+        
+        int amid = aleft + (aright - aleft) / 2;
+        int bmid = bleft + (bright - bleft) / 2;
+        int temp = amid - aleft + bmid - bleft + 1;
+        //temp, which is the number now sure that is smaller than the larger mid
+        
+        if (a[amid] > b[bmid] && k > temp) {
+            return helper(a, b, aleft, aright, bmid + 1, bright, k - (bmid - bleft + 1));
+        }
+        //when amid > bmid and k > temp, k cannot be found before bmid (including bmid itself)
+        else if (a[amid] > b[bmid]) {
+            return helper(a, b, aleft, amid - 1, bleft, bright, k);
+        }
+        else if (k > temp) {
+            return helper(a, b, amid + 1, aright, bleft, bright, k - (amid - aleft + 1));
+        }
+        else {
+            return helper(a, b, aleft, aright, bleft, bmid - 1, k);
+        }
+    }
+
+
+222.
+	class Solution {
+	    public int countNodes(TreeNode root) {
+	        if (root == null) return 0;
+	        if (root.left == null) return 1;
+	        int height = 0, nodesum = 0;
+	        TreeNode curr = root;
+	        while (curr.left != null) {
+	            nodesum += (1 << height);
+	            //use << to calculate the power 2
+	            //1<<16 == 2^16
+	            height ++;
+	            curr = curr.left;
+	        }
+	        return nodesum + helper(root, height);
+	    }
+	    
+	    //Key to success, use binary search to find the mid at the bottom
+	    //first root.left, then all .right to the last bottom, find the mid or
+	    //first root.right, then all .left to the last bottom
+	    //but its a complete BST, the first way is better
+	    private int helper(TreeNode root, int height) {
+	        //height here is the level number except the last level
+	        if (height == 1 && root.right != null) return 2;
+	        else if (height == 1 && root.left != null) return 1;
+	        else if (height == 1) return 0;
+	        
+	        TreeNode curr = root.left;
+	        int counter = 1;
+	        while (counter < height) {
+	            curr = curr.right;
+	            counter ++;
+	        }
+	        if (curr == null) return helper(root.left, height - 1);
+	        else return (1<<(height-1)) + helper(root.right, height - 1);
+	        //+, - is calculated before <<, >>
+	    }
+	}
+
+
+20.
+	time complexity is O(k);
+	space complexity is O(1);
+	//in-order traverse and count the node number
+	class Solution {
+	    private int counter = 0;
+	    private int res;
+	    
+	    public int kthSmallest(TreeNode root, int k) {
+	        helper(root, k);
+	        return res;       
+	    }
+	    
+	    private void helper(TreeNode root, int k) {
+	        if (root == null) return;
+	        if (counter > k) return;
+	        helper(root.left, k);
+	        
+	        counter ++;
+	        if (counter == k) res = root.val;
+	        
+	        helper(root.right, k);
+	    }
+	}
+
+
+378.
+	time complexity is O(n^2logk)
+	space complexity is O(k)
+	//any better idea to solve this problem???
+	//I remeber there is another way!!!
+	public int kthSmallest(int[][] matrix, int k) {
+        PriorityQueue<Integer> pq = new PriorityQueue<>(k, ((Integer a, Integer b) -> - a.compareTo(b)));
+        
+        for (int i = 0; i < matrix.length; i ++) {
+            for (int j = 0; j < k - i && j < matrix[0].length; j ++) {
+                if (pq.size() < k) pq.offer(matrix[i][j]);
+                else if (pq.peek() > matrix[i][j]) {
+                    pq.poll();
+                    pq.offer(matrix[i][j]);
+                }
+            }
+        }
+        
+        return pq.peek();
+    }
+
+
+174.
+	public int calculateMinimumHP(int[][] dungeon) {
+        int[][] dp = new int[dungeon.length + 1][dugeon[0].length + 1];
+        int rows = dungeon.length, cols = dugeon[0].length;
+        for (int i = 0; i < rows; i ++) {
+            dp[i][cols] = Integer.MAX_VALUE;
+        }
+        for (int j = 0; j < cols; j ++) {
+            dp[rows][j] = Integer.MAX_VALUE;
+        }
+        
+        dp[rows - 1][cols] = 0;
+        dp[rows][cols - 1] = 0;
+        
+        for (int i = rows - 1; i >= 0; i--) {
+            for (int j = cols - 1; j >= 0; j --) {
+                dp[i][j] = Math.max(0, Math.min(dp[i + 1][j], dp[i][j + 1]) - dungeon[i][j]);
+            }
+        }
+        
+        return dp[0][0] + 1;
+    }
+
+
+
+
 
 
 
