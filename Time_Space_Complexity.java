@@ -4792,21 +4792,234 @@ Practice Q9:
     }
 
 
+//6/24
+    public List<Integer> findCommon(int[] m, int[] n){
+    	Set<Integer> s = new HashSet<>();
+    	List<Integer> list = new ArrayList<>();
+    	if (m.length == 0 || n.length == 0) return list;
+    	if (m.length < n.length) return findCommon(n, m);
+    	//Key!!!
+    	if (m.length < n.length) {
+    		for (int each : m) s.add(each);
+    		for (int each : n) {
+    			if (s.contains(each)) list.add(each);
+    		}
+    	}
+    	else {
+    		for (int each : n) s.add(each);
+    		for (int each : m) {
+    			//how to get rid of the duplicate?
+    			//for (int i ...)
+    			//if (i > 0 && n[i] == n[i - 1]) continue;
+    			if (s.contains(each)) list.add(each);
+    			//another way
+    			//new ArrayList<Integer>(resSet);
+    		}
+    	}
+
+    	return list;
+    }
+
+    //how to make m the longer one and n the shorter one?
 
 
+//6/25
+    //Design a stack using LinkedList
+    //single LinkedList Or double LinkedList?
+    //have head and tail or only head?
+    //push(); pop(); peek();
+    class MyStack<T> {
+    	//fields
+    	private int count;
+    	private ListNode<T> head;
+
+    	//methods
+    	public MyStack(){
+    		count = 0;
+    	}
+
+    	public void offer(T element){
+    		if (count == 0) head = new ListNode<T>(element);
+    		else {
+    			ListNode<T> temp = new ListNode<T>(element);
+    			temp.next = head;
+    			head = temp;
+    		}
+    		count ++;
+    		//if head == null at first initialize
+    		//can delete multilines of codes
+    	}
+
+    	public T peek(){
+    		if (isEmpty()) return null;
+    		//general type accept value as null or not?
+    		//in this case, we should throw an exception
+    		return head.val;
+    	}
+
+    	public T pop(){ //throws Exceptions
+    		//null pointer exception
+    		if (isEmpty()) return null;
+    		//return new Exception();
+    		//maybe should give a specify type
+    		T temp = head.val;
+    		head = head.next;
+    		count --;
+    		return temp;
+    	}
+
+    	private boolean isEmpty(){
+    		return count == 0;
+    	}
+
+    }
+
+    //Design Queue using LinkedList
+    //sinlge LinkedList Or Double LinkedList?
+    //double, about the prev
+    //head and tail pointers or head pointer?
+    class MyQueue<T>{
+    	//fields
+    	private int count;
+    	private ListNode<T> head;
+    	private ListNode<T> tail;
+
+    	//methods
+    	public MyQueue(){
+    		count = 0;
+    		head = null;
+    		tail = null;
+    	}
+
+    	public void offer(T element){
+    		ListNode<T> newNode = new ListNode<>(element);
+    		if (count == 0) {
+    			head = newNode;
+    			tail = newNode;
+    		}
+    		else {
+    			tail.next = newNode;
+    			newNode.prev = tail;
+    			tail = tail.next;
+    		}
+    		count ++;
+    	}
+
+    	public T poll(){
+    		if (count == 0) return null;
+    		//if more than 0
+    		ListNode<T> temp = head;
+    		head = head.next;
+    		head.prev = null;
+    		if (count == 1) tail = null;
+    		//if there is only one node
+    		count --;
+    		return temp.val;
+    	}
+
+    	public T peek(){
+    		return (count == 0) ? null : head.val;
+    	}
+
+    	public int size(){
+    		return count;
+    	}
+    }
+    //corner cases summary:
+    //no node, one node two cases
+
+    //Design a Queue using Array with certain Capacity
+    //left contains and right does not contain
+    //FIFO!!! Circular Array!!!
+    //empty or full? size using as flag
+    class MyQueue<E>{
+    	//fields
+    	private int head;
+    	private int tail;
+    	private E[] arr;
+    	private int count;
+
+    	//methods
+    	public MyQueue(int capacity){
+    		head = 0;
+    		tail = 0;
+    		arr = new E[capacity];
+    		count ++;
+    	}
+
+    	//return boolean to see if you can add or not
+    	//with no adding capacity
+    	public boolean offer(E element){
+    		if (count == arr.length) return false;
+    		arr[tail] = element;
+    		tail = (tail + 1) % arr.length;
+    		count ++;
+    		return true;
+    	}
+
+    	public E poll(){
+    		if (count == 0) return null;
+    		E temp = arr[head];
+    		head = (head + 1) % arr.length;
+    		count --;
+    		return temp;
+    	}
+
+    	public E peek(){
+    		return (count == 0) ? null : arr[head];
+    		//do not forget peek of no element case
+    	}
+
+    }
 
 
+    //Design Stack using Array
+    //use [0, head)
+    class MyStack<E>{
+    	//fields
+    	private int tail;
+    	private int count;
+    	private E[] arr;
+
+    	//methods
+    	public MyStack(int capacity){
+    		tail = 0;
+    		count = 0;
+    		arr = new E[capacity];
+    	}
+
+    	public boolean push(E element){
+    		if (count >= arr.length) return false;
+    		arr[head] = element;
+    		head ++;
+    		//or arr[head ++] = element
+    		//first give element, then increase head
+    		count ++;
+    		return true;
+    	}
+    	//expand the capacity, using one array function
+
+    	public E pop(){
+    		if (count == 0) return null;
+    		head --;
+    		count --;
+    		return arr[head];
+    	}
+
+    	public E peek(){
+    		if (count == 0) return null;
+    		return arr[head - 1];
+    		//return arr[-- head];
+    	}
+    }
 
 
+    //Design Stack/Queue/Deque using 
+    //Array/LinkedList/ArrayList
 
 
-
-
-
-
-
-
-
+//BFS & Dijkstra & DFS(backtracking)
+    
 
 
 
