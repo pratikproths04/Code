@@ -5019,13 +5019,231 @@ Practice Q9:
 
 
 //BFS & Dijkstra & DFS(backtracking)
+//after here
+
+146.
+	//use the class LinkedHashMap
+	import java.util.LinkedHashMap;
+	class LRUCache {
+	    
+	    private Map<Integer, Integer> myMap;
+	    //can be implemented by LinkedHashMap
+
+	    public LRUCache(int capacity) {
+	        myMap = new LinkedHashMap<Integer, Integer>((int)//why must <Integer,> 
+	        	(capacity / 0.75 + 1), 0.75f, true){
+	            protected boolean removeEldestEntry(Map.Entry eldest){
+	                return size() > capacity;
+	            }
+	            //override the removeEldestEntry method
+	        };
+	        //constructor:LinkedHashMap<K, V>()
+	        //capacity: pay attention to 0.75 factor
+	        //load factor: pay attention to f here
+	        //true for access order, false for add order
+	    }
+	    
+	    public int get(int key) {
+	        return myMap.getOrDefault(key, -1);
+	    }
+	    
+	    public void put(int key, int value) {
+	        myMap.put(key, value);
+	    }
+	}    
+
+	//another method using double LinkedList and HashMap
+	class LRUCache {
     
+	    private Map<Integer, DoubleListNode> myMap;
+	    //use the HashMap as the index of the LinkedList
+	    //map value is the ListNode
+	    private DoubleListNode head;
+	    private DoubleListNode tail;
+	    //head and tail pointer, for the double LinkedList
+	    private int capa;
+
+	    public LRUCache(int capacity) {
+	        myMap = new HashMap<>((int) (capacity / 0.75) + 1);
+	        head = null;
+	        tail = null;
+	        capa = capacity;
+	    }
+	    
+	    public int get(int key) {
+	        if (!myMap.containsKey(key)) return -1;
+	        DoubleListNode temp = myMap.get(key), prevNode = temp.prev, nextNode = temp.next;
+	        //prevNode == null, head is itself, tail is itself
+	        if (head == temp) return head.val;
+	        //head is itself that is prevNode == null
+	        else if (tail == temp) {
+	            tail = temp.prev;
+	            temp.prev = null;
+	            addHead(temp);
+	        }
+	        else {
+	            prevNode.next = nextNode;
+	            nextNode.prev = prevNode;
+	            temp.prev = null;
+	            addHead(temp);
+	        }
+	        //multiple cases
+	        //actually if stay focus and pay attention, can solve such question
+	        //do not just try to get the answer, that will cost more time
+	        //prev == null(at head), next == null(at tail), or only one node
+	        return head.val;
+	    }
+	    
+	    public void put(int key, int value) {
+	        if (myMap.containsKey(key)) {
+	            myMap.get(key).val = value;
+	            get(key);
+	        }
+	        //access, put is one kind of access
+	        else if (head == null) {
+	            head = new DoubleListNode(value, key);
+	            tail = head;
+	            myMap.put(key, head);
+	        }
+	        else {
+	            DoubleListNode temp = new DoubleListNode(value, key);
+	            addHead(temp);
+	            if (myMap.size() >= capa) {
+	                tail = tail.prev;
+	                myMap.remove(tail.next.key);
+	                tail.next = null;
+	            }
+	            myMap.put(key, temp);
+	        }
+	    }
+	    //tare a lot of method apart to get clearer structure!!!
+	    
+	    private void addHead(DoubleListNode element) {
+	        element.next = head;
+	        head.prev = element;
+	        head = element;
+	    }
+	    
+	    private class DoubleListNode{
+	        int key;
+	        //here, remeber the key, for the remove of the map
+	        int val;
+	        DoubleListNode prev;
+	        DoubleListNode next;
+	        //double LinkedList, do not forget the prev pointer
+	        public DoubleListNode(int val, int key){
+	            this(val, key, null, null);
+	            //overload the constructor
+	        }
+	        public DoubleListNode(int val, int key, DoubleListNode prev, DoubleListNode next){
+	            this.val = val;
+	            this.key = key;
+	            this.prev = prev;
+	            this.next = next;
+	        }
+	    }
+	    //set a private class, for this question
+	}
+
+	//another example
+	public class LRUCache {
+	    private class Node{
+	        int key, value;
+	        Node prev, next;
+	        Node(int k, int v){
+	            this.key = k;
+	            this.value = v;
+	        }
+	        Node(){
+	            this(0, 0);
+	        }
+	    }
+	    private int capacity, count;
+	    private Map<Integer, Node> map;
+	    private Node head, tail;
+	    
+	    public LRUCache(int capacity) {
+	        this.capacity = capacity;
+	        this.count = 0;
+	        map = new HashMap<>();
+	        head = new Node();
+	        tail = new Node();
+	        head.next = tail;
+	        tail.prev = head;
+	    }
+	    
+	    public int get(int key) {
+	        Node n = map.get(key);
+	        if(null==n){
+	            return -1;
+	        }
+	        update(n);
+	        return n.value;
+	    }
+	    
+	    public void set(int key, int value) {
+	        Node n = map.get(key);
+	        if(null==n){
+	            n = new Node(key, value);
+	            map.put(key, n);
+	            add(n);
+	            ++count;
+	        }
+	        else{
+	            n.value = value;
+	            update(n);
+	        }
+	        if(count>capacity){
+	            Node toDel = tail.prev;
+	            remove(toDel);
+	            map.remove(toDel.key);
+	            --count;
+	        }
+	    }
+	    
+	    private void update(Node node){
+	        remove(node);
+	        add(node);
+	    }
+	    private void add(Node node){
+	        Node after = head.next;
+	        head.next = node;
+	        node.prev = head;
+	        node.next = after;
+	        after.prev = node;
+	    }
+	    
+	    private void remove(Node node){
+	        Node before = node.prev, after = node.next;
+	        before.next = after;
+	        after.prev = before;
+	    }
+	}
 
 
+359.
+	//quite easy one
+	class Logger {
 
-
-
-
+	    private Map<String, Integer> myMap;
+	    /** Initialize your data structure here. */
+	    public Logger() {
+	        myMap = new HashMap<>();
+	    }
+	    
+	    /** Returns true if the message should be printed in the given timestamp, otherwise returns false.
+	        If this method returns false, the message will not be printed.
+	        The timestamp is in seconds granularity. */
+	    public boolean shouldPrintMessage(int timestamp, String message) {
+	        if (!myMap.containsKey(message) || myMap.get(message) <= timestamp - 10) {
+	            myMap.put(message, timestamp);
+	            return true;
+	        }
+	        else {
+	            return false;
+	        }
+	    }
+	}
 
 
 
