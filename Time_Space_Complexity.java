@@ -5246,7 +5246,93 @@ Practice Q9:
 	}
 
 
+//6/26
+362.
+	class HitCounter {
+	    
+	    private int[] counter;
+	    private int[] time;
 
+	    /** Initialize your data structure here. */
+	    public HitCounter() {
+	        counter = new int[300];
+	        time = new int[300];
+	    }
+	    
+	    /** Record a hit.
+	        @param timestamp - The current timestamp (in seconds granularity). */
+	    public void hit(int timestamp) {
+	        int pointer = timestamp % 300;
+	        if (time[pointer] == timestamp) {
+	            counter[pointer] ++;
+	        }
+	        else {
+	            counter[pointer] = 1;
+	            time[pointer] = timestamp;
+	        }
+	        
+	    }
+	    
+	    /** Return the number of hits in the past 5 minutes.
+	        @param timestamp - The current timestamp (in seconds granularity). */
+	    public int getHits(int timestamp) {
+	        int total = 0;
+	        for (int i = 0; i < 300; i ++) {
+	            if (timestamp - time[i] < 300 ) total += counter[i];
+	        }
+	        return total;
+	    }
+	}
+	//use another array to store multiple useful information
+
+
+//binary tree level order traversal
+	//BFS
+	//method 1: using one queue and size()
+	public List<Integer> bfsTranverse(TreeNode root) {
+		List<Integer> list = new ArrayList<>();
+		if (root == null) return list;
+		Queue<TreeNode> qu = new LinkedList<>();
+		qu.offer(root);
+		int counter;
+		while (!qu.isEmpty()) {
+			coutner = qu.size();
+			for (int i = 0; i < counter; i ++) {
+			//cannot use qu.size() here
+			//if use qu.size(), it will change continually
+				root = qu.poll();
+				list.add(root.val);
+				if (root.left != null) qu.offer(root.left);
+				if (root.right != null) qu.offer(root.right);
+			}
+			//size() and for loop to give the level info
+		}
+		return list;
+	}
+
+	//method 2: using two queues
+	public List<Integer> bfsTranverse(TreeNode root) {
+		List<Integer> list = new ArrayList<>();
+		if (root == null) return list;
+		Queue<TreeNode> qu1 = new LinkedList<>();
+		Queue<TreeNode> qu2 = new LinkedList<>();
+		qu1.offer(root);
+		while (!qu1.isEmpty() || !qu2.isEmpty()) {
+			if (!qu1.isEmpty()) {
+				root = qu1.poll();
+				list.add(root.val);
+				if (root.left != null) qu2.offer(root.left);
+				if (root.right != null) qu2.offer(root.right);
+			}
+			else {
+				root = qu2.poll();
+				list.add(root.val);
+				if (root.left != null) qu1.offer(root.left);
+				if (root.right != null) qu1.offer(root.right);
+			}
+		}
+		return list;
+	}
 
 
 
