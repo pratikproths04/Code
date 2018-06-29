@@ -5246,7 +5246,6 @@ Practice Q9:
 	}
 
 
-<<<<<<< HEAD
 //6/26
 362.
 	class HitCounter {
@@ -5310,7 +5309,34 @@ Practice Q9:
 		}
 		return list;
 	}
-=======
+
+
+	//method 2: using two queues
+	public List<Integer> bfsTranverse(TreeNode root) {
+		List<Integer> list = new ArrayList<>();
+		if (root == null) return list;
+		Queue<TreeNode> qu1 = new LinkedList<>();
+		Queue<TreeNode> qu2 = new LinkedList<>();
+		qu1.offer(root);
+		while (!qu1.isEmpty() || !qu2.isEmpty()) {
+			if (!qu1.isEmpty()) {
+				root = qu1.poll();
+				list.add(root.val);
+				if (root.left != null) qu2.offer(root.left);
+				if (root.right != null) qu2.offer(root.right);
+			}
+			else {
+				root = qu2.poll();
+				list.add(root.val);
+				if (root.left != null) qu1.offer(root.left);
+				if (root.right != null) qu1.offer(root.right);
+			}
+		}
+		return list;
+	}
+
+
+
 //6/28
 56.
 	time complexity is O(nlong)
@@ -5755,6 +5781,7 @@ Practice Q9:
     }
 
 
+	
 
 
 
@@ -5766,64 +5793,7 @@ Practice Q9:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> edfde69e5465b980a7f2274ebd553733ac971c6d
-
-	//method 2: using two queues
-	public List<Integer> bfsTranverse(TreeNode root) {
-		List<Integer> list = new ArrayList<>();
-		if (root == null) return list;
-		Queue<TreeNode> qu1 = new LinkedList<>();
-		Queue<TreeNode> qu2 = new LinkedList<>();
-		qu1.offer(root);
-		while (!qu1.isEmpty() || !qu2.isEmpty()) {
-			if (!qu1.isEmpty()) {
-				root = qu1.poll();
-				list.add(root.val);
-				if (root.left != null) qu2.offer(root.left);
-				if (root.right != null) qu2.offer(root.right);
-			}
-			else {
-				root = qu2.poll();
-				list.add(root.val);
-				if (root.left != null) qu1.offer(root.left);
-				if (root.right != null) qu1.offer(root.right);
-			}
-		}
-		return list;
-	}
+	
 
 
 
