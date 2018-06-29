@@ -5781,7 +5781,83 @@ Practice Q9:
     }
 
 
-	
+57.	
+	time complexity is O(n)
+	space complexity is O(n)
+	public List<Interval> insert(List<Interval> intervals, Interval newInterval) {
+        List<Interval> res = new ArrayList<>();
+        if (intervals.size() == 0) {
+            res.add(newInterval);
+            return res;
+        }
+        
+        int i = 0;
+        boolean added = false;
+        while (i < intervals.size()) {
+            if (intervals.get(i).end < newInterval.start || intervals.get(i).start > newInterval.end && added) {
+                res.add(intervals.get(i));
+            }
+            else if (intervals.get(i).start > newInterval.end && !added) {
+                res.add(newInterval);
+                res.add(intervals.get(i));
+                added = true;
+            }
+            else {
+                newInterval.start = Math.min(intervals.get(i).start, newInterval.start);
+                newInterval.end = Math.max(intervals.get(i).end, newInterval.end);
+            }
+            i ++;
+        }
+        if (!added) res.add(newInterval);
+        
+        return res;    
+    }	
+
+    //another way, use the order property
+    //use binary search to find the start and the end
+    public List<Interval> insert(List<Interval> intervals, Interval newInterval) {
+	    List<Interval> result = new ArrayList<>();
+	    if (intervals == null || newInterval == null) return result;
+	    int iStart = findStartPos(intervals, newInterval.start);
+	    int iEnd = findEndPos(intervals, newInterval.end);
+	    if (iStart > 0 && intervals.get(iStart - 1).end >= newInterval.start) iStart--;
+	    if (iEnd == intervals.size() || intervals.get(iEnd).start > newInterval.end) iEnd--;
+	    
+	    //If not in the corner cases, this condition should apply.
+	    if (iStart <= iEnd) {
+	        newInterval = new Interval(Math.min(newInterval.start, intervals.get(iStart).start),
+	        	Math.max(newInterval.end, intervals.get(iEnd).end));
+	    }
+
+	    int i = 0;
+	    while (i < iStart) result.add(intervals.get(i++));
+	    result.add(newInterval);
+	    i = iEnd + 1;
+	    while (i < intervals.size()) result.add(intervals.get(i++));
+	    return result;
+	}
+
+	private int findStartPos(List<Interval> intervals, int value) {
+	    int l = 0, r = intervals.size() - 1;
+	    while (l <= r) {
+	        int m = (l + r) >> 1;
+	        if (intervals.get(m).start == value) return m;
+	        else if (intervals.get(m).start < value) l = m + 1;
+	        else r = m - 1;
+	    }
+	    return l;
+	}
+
+	private int findEndPos(List<Interval> intervals, int value) {
+	    int l = 0, r = intervals.size() - 1;
+	    while (l <= r) {
+	        int m = (l + r) >> 1;
+	        if (intervals.get(m).end == value) return m;
+	        else if (intervals.get(m).end < value) l = m + 1;
+	        else r = m - 1;
+	    }
+	    return l;
+	}
 
 
 
@@ -5792,8 +5868,6 @@ Practice Q9:
 
 
 
-
-	
 
 
 
