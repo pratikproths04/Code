@@ -5246,6 +5246,494 @@ Practice Q9:
 	}
 
 
+//6/28
+56.
+	time complexity is O(nlong)
+	space complexity is O(n)
+    public List<Interval> merge(List<Interval> intervals) {
+        if (intervals.size() <= 1) return intervals;
+        
+        Collections.sort(intervals, (Interval a, Interval b) -> a.start - b.start);
+        //sort the list, using the Collections.sort() instead of Arrays.sort()
+        List<Interval> result = new ArrayList<>();
+        
+        int left = 0, right = 1, len = intervals.size();
+        while (left < len || right < len) {
+            if (right < len && intervals.get(left).end < intervals.get(right).start) {
+                result.add(intervals.get(left));
+                left = right ++;
+            }
+            else if (right < len) {
+                intervals.get(left).end = Math.max(intervals.get(left).end, 
+                	intervals.get(right ++).end);
+                //here, pay attention!
+                //choose the larger one among these two
+            }
+            else {
+                result.add(intervals.get(left));
+                break;
+                //remember to break, or it will stay in loop forever
+            }
+        }
+        
+        return result;
+    }
+
+    //another way of doing this
+    //try to sort the start and the end point of the interval
+    //and connects them all together
+    public List<Interval> merge(List<Interval> intervals) {
+		// sort start&end
+		int n = intervals.size();
+		int[] starts = new int[n];
+		int[] ends = new int[n];
+		for (int i = 0; i < n; i++) {
+			starts[i] = intervals.get(i).start;
+			ends[i] = intervals.get(i).end;
+		}
+		Arrays.sort(starts);
+		Arrays.sort(ends);
+		// loop through
+		List<Interval> res = new ArrayList<Interval>();
+		for (int i = 0, j = 0; i < n; i++) { // j is start of interval.
+			if (i == n - 1 || starts[i + 1] > ends[i]) {
+				res.add(new Interval(starts[j], ends[i]));
+				j = i + 1;
+			}
+		}
+		return res;
+	}
+
+
+48.	
+	//rotate
+	//use recursion
+	//and for loop, one loop for one side, use a array for rotating four sides at onde
+	time complexity is O(n^2)
+	space complexity is O(4)
+	public void rotate(int[][] matrix) {
+        helper(matrix, 0);
+    }
+    
+    private void helper(int[][] matrix, int index) {
+        
+        
+        int startrow = index, startcol = index, endrow = matrix.length - 1 - index, endcol = matrix.length - 1 - index;
+        //int[] temp = new int[matrix.length - 2 * index];
+        if (endrow <= startrow) return;
+        
+        for (int i = 0; i < endrow - startrow; i ++) {
+            int[] temp = new int[]{matrix[startrow][startcol + i], matrix[startrow + i][endcol],
+                                  matrix[endrow][endcol - i], matrix[endrow - i][startcol]};
+            matrix[startrow][startcol + i] = temp[3];
+            matrix[startrow + i][endcol] = temp[0];
+            matrix[endrow][endcol - i] = temp[1];
+            matrix[endrow - i][startcol] = temp[2];            
+        }
+        
+        helper(matrix, index + 1);
+    }
+
+    /*
+	 * clockwise rotate
+	 * first reverse up to down, then swap the symmetry 
+	 * 1 2 3     7 8 9     7 4 1
+	 * 4 5 6  => 4 5 6  => 8 5 2
+	 * 7 8 9     1 2 3     9 6 3
+	*/
+
+    /*
+	 * anticlockwise rotate
+	 * first reverse left to right, then swap the symmetry
+	 * 1 2 3     3 2 1     3 6 9
+	 * 4 5 6  => 6 5 4  => 2 5 8
+	 * 7 8 9     9 8 7     1 4 7
+	*/
+    public class Solution {
+	    public void rotate(int[][] matrix) {
+	        for(int i = 0; i<matrix.length; i++){
+	            for(int j = i; j<matrix[0].length; j++){
+	                int temp = 0;
+	                temp = matrix[i][j];
+	                matrix[i][j] = matrix[j][i];
+	                matrix[j][i] = temp;
+	            }
+	        }
+	        for(int i =0 ; i<matrix.length; i++){
+	            for(int j = 0; j<matrix.length/2; j++){
+	                int temp = 0;
+	                temp = matrix[i][j];
+	                matrix[i][j] = matrix[i][matrix.length-1-j];
+	                matrix[i][matrix.length-1-j] = temp;
+	            }
+	        }
+	    }
+	}
+
+
+41.
+	time complexity is O(n)
+	space complexity is O(1)
+	//the key is using index + 1 to record
+	public int firstMissingPositive(int[] nums) {
+        int i = 0;
+        while (i < nums.length) {
+            if (nums[i] > 0 && nums[i] <= nums.length && nums[nums[i] - 1] != nums[i]) {
+                swap(i, nums[i] - 1, nums);
+            }
+            else {
+                i ++;
+            }
+        }
+        i = 0;
+        while (i < nums.length) {
+            if (nums[i] != i + 1) return i + 1;
+            i ++;
+        }
+        return nums.length + 1;
+    }
+    
+    private void swap(int a, int b, int[] nums) {
+        int temp = nums[a];
+        nums[a] = nums[b];
+        nums[b] = temp;
+    }
+    //using sign, positive or negative!
+    //using index and value relation, swap way!
+
+
+128.
+	time complexity is O(n)
+	space complexity is O(n)
+	public int longestConsecutive(int[] nums) {
+        if (nums.length == 0) return 0;
+        
+        Set<Integer> set = new HashSet<>();
+        for (int each : nums) set.add(each);
+        int[] record = new int[1];
+        
+        int len = 1;
+        for (int each : nums) {
+            if (!set.contains(each)) continue;
+            
+            record[0] ++;
+            set.remove(each);
+            helper(record, set, each);
+            len = Math.max(len, record[0]);
+            record[0] = 0;
+        }
+        return len;
+    }
+    
+    //find the consecutive
+    private void helper(int[] record, Set<Integer> set, int element) {
+        if (set.contains(element - 1)) {
+            record[0] ++;
+            set.remove(element - 1);
+            helper(record, set, element - 1);
+        }
+        if (set.contains(element + 1)) {
+            record[0] ++;
+            set.remove(element + 1);
+            helper(record, set, element + 1);
+        }
+    }
+    //cannot use stringbuilder to record, for negative number or number larger than 10
+    //will have 2 or more length instead of 1, use array to record instead
+
+    //use the return value of the set API
+    //what else can I say, 666666!!!
+    public int longestConsecutive(int[] nums) {
+	    if(nums == null || nums.length == 0) return 0;
+	    
+	    Set<Integer> set = new HashSet<Integer>();
+	    
+	    for(int num: nums) set.add(num);
+	    int max = 1;
+	    for(int num: nums) {
+	        if(set.remove(num)) {//num hasn't been visited
+	            int val = num;
+	            int sum = 1;
+	            while(set.remove(val-1)) val--;
+	            sum += num - val;
+	            
+	            val = num;
+	            while(set.remove(val+1)) val++;
+	            sum += val - num;
+	            
+	            max = Math.max(max, sum);
+	        }
+	    }
+	    return max;
+	}
+
+
+289.
+	time complexity is O(mn)
+	space complexity is O(1)
+	//the trick is to remmember the value, by adding different value if die or live next round
+	class Solution {
+	    private int[][] recent = new int[][]{{0,1},{0,-1},{1,0},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
+	    
+	    public void gameOfLife(int[][] board) {
+	        if (board.length == 0 || board[0].length == 0) return;
+	        
+	        for (int i = 0; i < board.length; i ++) {
+	            for (int j = 0; j < board[0].length; j ++){
+	                int positive = 0, negative = 0;
+	                for (int[] each : recent) {
+	                    int newi = i + each[0];
+	                    int newj = j + each[1];
+	                    if (newi < 0 || newi >= board.length || newj < 0 || newj >= board[0].length) continue;
+	                    if (board[newi][newj] == 1 || board[newi][newj] == 5 || board[newi][newj] == 3) {positive ++;}
+	                    else {negative ++;}
+	                }
+	                if (board[i][j] == 1 && (positive < 2 || positive > 3)) {
+	                    board[i][j] += 2;
+	                }
+	                else if (board[i][j] == 1 || board[i][j] == 0 && positive == 3) {
+	                    board[i][j] += 4;
+	                }
+	                else  {
+	                    board[i][j] += 2;
+	                }
+	            }
+	        }
+	        
+	        for (int i = 0; i < board.length; i ++) {
+	            for (int j = 0; j < board[0].length; j ++){
+	                if (board[i][j] == 2 || board[i][j] == 3) board[i][j] = 0;
+	                else board[i][j] = 1;
+	            }
+	        }
+	    }
+	}
+
+	//one similar idea
+	//it says if die next step, turn to 2, or 3
+	public class Solution {
+	int[][] dir ={{1,-1},{1,0},{1,1},{0,-1},{0,1},{-1,-1},{-1,0},{-1,1}};
+	public void gameOfLife(int[][] board) {
+	    for(int i=0;i<board.length;i++){
+	        for(int j=0;j<board[0].length;j++){
+	            int live=0;
+	            for(int[] d:dir){
+	                if(d[0]+i<0 || d[0]+i>=board.length || d[1]+j<0 || d[1]+j>=board[0].length) continue;
+	                if(board[d[0]+i][d[1]+j]==1 || board[d[0]+i][d[1]+j]==2) live++;
+	            }
+	            if(board[i][j]==0 && live==3) board[i][j]=3;
+	            if(board[i][j]==1 && (live<2 || live>3)) board[i][j]=2;
+	        }
+	    }
+	    for(int i=0;i<board.length;i++){
+	        for(int j=0;j<board[0].length;j++){
+	            board[i][j] %=2;
+	            //the beauty of the 2 and 3 next step is here!!!
+	        }
+	    }
+	}
+
+	//follow up: infinite board question, do not understand why???
+
+
+
+120.
+	//can you believe that, using dp to solve this question!!!
+	time complexity is O(n^2)
+	space complexity is O(n^2)
+	public int minimumTotal(List<List<Integer>> triangle) {
+        int len = triangle.size();
+        int[][] dp = new int[len][len];
+        
+        dp[0][0] = triangle.get(0).get(0);
+        for (int i = 1; i < len; i ++) {
+            for (int j = 0; j < triangle.get(i).size(); j ++) {
+                int temp = 0;
+                if (j - 1 >= 0 && j <= i - 1) {
+                    temp = Math.min(dp[i - 1][j - 1], dp[i - 1][j]);
+                }
+                else if (j - 1 >= 0) temp = dp[i - 1][j - 1];
+                else temp = dp[i - 1][j];
+                dp[i][j] = triangle.get(i).get(j) + temp;
+            }
+        }
+        
+        int res = Integer.MAX_VALUE;
+        for (int j = 0; j < len; j ++) {
+            res = Math.min(res, dp[dp.length - 1][j]);
+        }        
+        return res;
+    }
+
+    //how to do it with O(n) extra space?
+    time complexity is O(n^2)
+	space complexity is O(n)
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int len = triangle.size();
+        int[] dp = new int[len];
+        
+        dp[0] = triangle.get(0).get(0);
+        for (int i = 1; i < len; i ++) {
+            for (int j = triangle.get(i).size() - 1; j >= 0; j --) {
+            	//put all the results in one array
+            	//read all results, find the min
+                int temp = 0;
+                if (j - 1 >= 0 && j <= i - 1) {
+                    temp = Math.min(dp[j - 1], dp[j]);
+                }
+                else if (j - 1 >= 0) temp = dp[j - 1];
+                else temp = dp[j];
+                dp[j] = triangle.get(i).get(j) + temp;
+            }
+        }
+        
+        int res = Integer.MAX_VALUE;
+        for (int j = 0; j < len; j ++) {
+            res = Math.min(res, dp[j]);
+        }        
+        return res;
+    }
+
+
+280.
+	//the key is to see
+	//number at position 0 and 2 are unrelated
+	//so they just can be any number lower than position 1
+	time complexity is O(n)
+	space complexity is O(1)
+	public void wiggleSort(int[] nums) {
+        if (nums.length <= 1) return;
+        
+        for (int i = 0; i < nums.length && i + 1 < nums.length; i += 2) {
+        	//corner case has been included
+            if (nums[i] > nums[i + 1]) swap(i, i + 1, nums);
+        }
+        
+        for (int i = 1; i < nums.length && i + 1 < nums.length; i += 2) {
+            if (nums[i] < nums[i + 1]) swap(i, i + 1, nums);
+        }
+    }
+    
+    private void swap(int a, int b, int[] nums) {
+        int temp = nums[a];
+        nums[a] = nums[b];
+        nums[b] = temp;
+    }
+
+
+670.
+	//can you believe that, the result is somekind of good!
+	time complexity is O(n + nlogn + n);
+	space complexity is O(n)
+	public int maximumSwap(int num) {
+        char[] origin = (num + "").toCharArray();
+        char[] arr = (num + "").toCharArray();
+        Arrays.sort(arr);
+        //ATTENTION!!!
+        //cannot easily write comparator here
+        //for calculation, compareTo, compare, they are convert to Character class
+        int index = 0;
+        while (index < arr.length && origin[index] == arr[arr.length - 1 - index]) {
+            index ++;
+        }
+        if (index == arr.length) return num;
+        
+        int right = arr.length - 1;
+        while (arr[arr.length - 1 - index] != origin[right]) {
+            right --;
+        }
+        origin[right] = origin[index];
+        origin[index] = arr[arr.length - 1 - index];
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append(origin);
+        return Integer.parseInt(sb.toString());
+    }
+
+    /*
+    The right way!
+    char[] charArray = str.toCharArray();
+
+    Character[] myCharArr = ArrayUtils.toObject(charArray);
+
+    Arrays.sort(myCharArr, new Comparator<Character>() {
+        @Override
+        public int compare(Character char1, Character char2) {
+            return char2.compareTo(char1);
+        }
+    });
+    */
+
+
+    //another method
+    public int maximumSwap(int num) {
+        char[] digits = Integer.toString(num).toCharArray();
+        //char[] array convert!
+        
+        int[] buckets = new int[10];
+        for (int i = 0; i < digits.length; i++) {
+            buckets[digits[i] - '0'] = i;
+        }
+        
+        for (int i = 0; i < digits.length; i++) {
+            for (int k = 9; k > digits[i] - '0'; k--) {
+                if (buckets[k] > i) {
+                    char tmp = digits[i];
+                    digits[i] = digits[buckets[k]];
+                    digits[buckets[k]] = tmp;
+                    return Integer.valueOf(new String(digits));
+                }
+            }
+        }
+        
+        return num;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
