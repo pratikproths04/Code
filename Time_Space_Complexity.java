@@ -5860,8 +5860,417 @@ Practice Q9:
 	}
 
 
-//7/1
-	
+//7/2
+75.
+	time complexity is O(n)
+	space complexity is O(1)
+	//two pass algorithm
+	public void sortColors(int[] nums) {
+        int[] colors = new int[3];
+        for (int each : nums){
+            colors[each] ++;
+        }
+        int index = 0;
+        for (int i = 0; i < 3; i ++) {
+            while (colors[i] > 0) {
+                nums[index ++] = i;
+                colors[i] --;
+            }
+        }
+    }
+
+
+    //one pass solution
+    //use the property of three different numbers
+    //swap the beginning to be 0
+    //swap the end to be 2
+    public void sortColors(int[] nums) {
+        int left = 0, right = nums.length - 1, pointer = 0;
+        while(pointer <= right) {
+            if (nums[pointer] == 0) {
+                nums[pointer] = nums[left];
+                nums[left ++] = 0;
+            }
+            else if (nums[pointer] == 2) {
+                nums[pointer --] = nums[right];
+                //pay attention here, you have to check what 
+                //the end has given you, make sure
+                //that is not 0, or swap it to the beginning
+                nums[right --] = 2;
+            }
+            pointer ++;
+        }
+    }
+
+
+126.
+	//my way of solving this problem
+	//time exceed!
+	//transform the list to the graph, use BFS to solve it
+	class Solution {
+	    private int[] record = new int[]{Integer.MAX_VALUE};
+	    
+	    public List<List<String>> findLadders(String beginWord, String endWord, List<String> wordList) {
+	        if (wordList.indexOf(endWord) == -1) return new ArrayList<List<String>>();
+	        
+	        List<WordNode> list = new ArrayList<>();
+	        for (String each : wordList) {list.add(new WordNode(each));}
+	        
+	        WordNode head = new WordNode(beginWord);
+	        for (WordNode each : list) {
+	            int temp = 0;
+	            for (int i = 0; i < beginWord.length(); i ++) {
+	                if (beginWord.charAt(i) != each.word.charAt(i)) temp ++;
+	                if (temp >= 2) break;
+	            }
+	            if (temp == 1) {
+	                head.neighbors.add(each);
+	                each.neighbors.add(head);
+	            }
+	        }
+	        
+	        for (int i = 0; i < list.size() - 1; i ++) {
+	            for (int j = i + 1; j < list.size(); j ++) {
+	                if (list.get(i).word.equals(list.get(j).word)) continue;
+	                int temp = 0;
+	                for (int k = 0; k < list.get(i).word.length(); k ++) {
+	                    if (list.get(i).word.charAt(k) != list.get(j).word.charAt(k)) temp ++;
+	                    if (temp >= 2) break;
+	                }
+	                if (temp == 1) {
+	                    list.get(i).neighbors.add(list.get(j));
+	                    list.get(j).neighbors.add(list.get(i));
+	                }
+	            }
+	        }
+	        
+	        Set<List<String>> res = new HashSet<List<String>>();
+	        List<String> eachList = new ArrayList<>();
+	        helper(head, res, eachList, endWord);
+	        
+	        List<List<String>> finalres = new ArrayList<List<String>>();
+	        
+	        for (List<String> each : res) {
+	            if (each.size() == record[0]) finalres.add(each);
+	            //cannot remove element of set here directly
+	            //cause exception
+	        }
+	        
+	        return finalres;
+	        
+	    }
+	    
+	    private void helper(WordNode head, Set<List<String>> res, List<String> eachList, String endWord) {
+	        if (eachList.size() >= record[0] || head.visited) return;
+	        int len = eachList.size();
+	        head.visited = true;
+	        if (head.word.equals(endWord)) {
+	            record[0] = len + 1;
+	            eachList.add(endWord);
+	            res.add(new ArrayList<>(eachList));
+	        }
+	        else {
+	            eachList.add(head.word);
+	            for (WordNode element : head.neighbors) {
+	                helper(element, res, eachList, endWord);
+	            }
+	        }
+	        eachList.remove(len);
+	        head.visited = false;
+	    }
+	    
+	    
+	    private class WordNode {
+	        String word;
+	        ArrayList<WordNode> neighbors;
+	        boolean visited;
+	        public WordNode(String givenWord) {
+	            word = givenWord;
+	            neighbors = new ArrayList<>();
+	            visited = false;
+	        }
+	    }
+	}
+
+
+	//another method, basically same idea, but he use the BFS instead of using a graph
+	//to set up the connection
+	public List<List<String>> findLadders(String start, String end, List<String> wordList) {
+	   HashSet<String> dict = new HashSet<String>(wordList);
+	   List<List<String>> res = new ArrayList<List<String>>();         
+	   HashMap<String, ArrayList<String>> nodeNeighbors = new HashMap<String, ArrayList<String>>();// Neighbors for every node
+	   HashMap<String, Integer> distance = new HashMap<String, Integer>();// Distance of every node from the start node
+	   ArrayList<String> solution = new ArrayList<String>();
+
+	   dict.add(start);          
+	   bfs(start, end, dict, nodeNeighbors, distance);                 
+	   dfs(start, end, dict, nodeNeighbors, distance, solution, res);   
+	   return res;
+	}
+
+	// BFS: Trace every node's distance from the start node (level by level).
+	private void bfs(String start, String end, Set<String> dict, HashMap<String, ArrayList<String>> nodeNeighbors, HashMap<String, Integer> distance) {
+	  for (String str : dict)
+	      nodeNeighbors.put(str, new ArrayList<String>());
+
+	  Queue<String> queue = new LinkedList<String>();
+	  queue.offer(start);
+	  distance.put(start, 0);
+
+	  while (!queue.isEmpty()) {
+	      int count = queue.size();
+	      boolean foundEnd = false;
+	      for (int i = 0; i < count; i++) {
+	          String cur = queue.poll();
+	          int curDistance = distance.get(cur);                
+	          ArrayList<String> neighbors = getNeighbors(cur, dict);
+
+	          for (String neighbor : neighbors) {
+	              nodeNeighbors.get(cur).add(neighbor);
+	              if (!distance.containsKey(neighbor)) {// Check if visited
+	                  distance.put(neighbor, curDistance + 1);
+	                  if (end.equals(neighbor))// Found the shortest path
+	                      foundEnd = true;
+	                  else
+	                      queue.offer(neighbor);
+	                  }
+	              }
+	          }
+
+	          if (foundEnd)
+	              break;
+	      }
+	  }
+
+	// Find all next level nodes.    
+	private ArrayList<String> getNeighbors(String node, Set<String> dict) {
+	  ArrayList<String> res = new ArrayList<String>();
+	  char chs[] = node.toCharArray();
+
+	  for (char ch ='a'; ch <= 'z'; ch++) {
+	      for (int i = 0; i < chs.length; i++) {
+	          if (chs[i] == ch) continue;
+	          char old_ch = chs[i];
+	          chs[i] = ch;
+	          if (dict.contains(String.valueOf(chs))) {
+	              res.add(String.valueOf(chs));
+	          }
+	          chs[i] = old_ch;
+	      }
+
+	  }
+	  return res;
+	}
+
+	// DFS: output all paths with the shortest distance.
+	private void dfs(String cur, String end, Set<String> dict, HashMap<String, ArrayList<String>> nodeNeighbors, HashMap<String, Integer> distance, ArrayList<String> solution, List<List<String>> res) {
+	    solution.add(cur);
+	    if (end.equals(cur)) {
+	       res.add(new ArrayList<String>(solution));
+	    } else {
+	       for (String next : nodeNeighbors.get(cur)) {            
+	            if (distance.get(next) == distance.get(cur) + 1) {
+	                 dfs(next, end, dict, nodeNeighbors, distance, solution, res);
+	            }
+	        }
+	    }           
+	   solution.remove(solution.size() - 1);
+	}
+
+
+277.
+	//two pointers solution
+	time complexity is O(n)
+	space complexity is O(1)
+	public int findCelebrity(int n) {
+        int persona = 0, personb = n - 1;
+        while (persona < personb) {
+            boolean resultAB = knows(persona, personb);
+            boolean resultBA = knows(personb, persona);
+            if (resultAB && resultBA || !resultAB && !resultBA) {
+                persona ++;
+                personb --;
+            }
+            else if (resultAB) {
+                persona ++;
+            }
+            else {
+                personb --;
+            }
+            //try to cut the bad options
+            //if there is one celebrity betwween persona and personb
+            //one must know the other, while the other does not know the one
+        }
+        
+        for (int i = 0; i < n; i ++) {
+            if (persona == i) continue;
+            //pass the self-condition
+            if (knows(persona, i) || !knows(i, persona)) return -1;
+        }
+        //final validation
+
+        return persona;
+    }
+
+
+	//this method might have some problems
+    public int findCelebrity(int n) {
+	    int celebrity = 0;
+
+	    for(int i = 1; i < n; i++){
+	        //檢查完代表兩件事
+	        //celebrity 以前的都不可能是celebrity 因為他們都認識celebrity 以前的其中一個人
+	        //celebrity 以後的他都不認識，因為如果認識的話 celebrity 早就被update了
+	        if(knows(celebrity, i)){
+	            celebrity = i;                  
+	        }
+	    }
+	    //check again if celebrities knows somebody
+	    for(int i = 0; i < celebrity; i++){
+	        //雖然celebrity 以前的都不可能是celebrity 因為他們都認識celebrity 前的一個人
+	        //但是我們必須檢查 celebrity 是否認識前面的任何一個人，如果有認識，-1
+	        //i != celebrity;
+	        // if (!knows(i, candidate) 不用加因為就算在celebrities 
+	        //之前有人不認識 celebritiy 他們也認識了期她的人 )   
+	        //WHY NOT??? 
+	    if(knows(celebrity, i)){
+	            return -1;   
+	        }
+	    }
+	    for(int i = celebrity + 1; i < n; i++){
+	        //雖然celebrity 以後的他都不認識
+	        //但是還是要檢查celebrity 以後的人是不是都認識他
+	        if(!knows(i, celebrity)){
+	            return -1;   
+	        }   
+	    }
+	    return celebrity;
+	}
+
+
+832.
+	time complexity is O(mn)
+	space complexity is O(1)
+	//the use of XOR: ^
+	//int ^ 1 --> invert itself
+	//int ^ 0 --> keep itself
+	public int[][] flipAndInvertImage(int[][] A) {
+        for (int i = 0; i < A.length; i ++) {
+            for (int j = 0; j < (A[0].length + 1) / 2; j ++) {
+                if (j == A[0].length - 1 - j) A[i][j] ^= 1;
+                else {
+                    int temp = A[i][j];
+                    A[i][j] = A[i][A[0].length - 1 - j] ^ 1;
+                    A[i][A[0].length - 1 - j] = temp ^ 1;
+                }
+            }
+        }
+        return A;
+    }
+
+
+769.
+	//use the boundary
+	//use the property that the sorted is index
+	time complexity is O(n)
+	space complexity is O(1)
+	public int maxChunksToSorted(int[] arr) {
+        int chuckNum = 0, pointer = 0, boundary = 0;
+        while (pointer < arr.length) {
+            boundary = Math.max(boundary, arr[pointer ++]);
+            if (pointer > boundary) chuckNum ++;
+        }
+        return chuckNum;
+    }
+
+
+301.
+	time complexity ??? O(n^2)
+	space complexity ??? O(n)
+
+	//using DFS!!!
+	public List<String> removeInvalidParentheses(String s) {
+        int wl = 0, wr = 0;
+        for (int i = 0; i < s.length(); i ++) {
+            if (s.charAt(i) == '(') wl ++;
+            else if (s.charAt(i) == ')' && wl > 0) wl --;
+            else if (s.charAt(i) == ')') wr ++;
+        }
+        
+        Set<String> res = new HashSet<>();
+        helper(s, 0, new StringBuilder(), res, wl, wr, 0);
+        return new ArrayList<>(res);
+    }
+    
+    private void helper(String s, int i, StringBuilder sb, Set<String> list, int wl, int wr, int open) {
+        if (wl < 0 || wr < 0 || open < 0) return;
+        if (wl == 0 && wr == 0 && open == 0 && i == s.length()) {
+            list.add(sb.toString());
+            return;
+        }
+        else if (i == s.length()) return;
+        else {
+            int len = sb.length();
+            if (s.charAt(i) == '(') {
+                helper(s, i + 1, sb, list, wl - 1, wr, open);
+                sb.setLength(len);
+                helper(s, i + 1, sb.append(s.charAt(i)), list, wl, wr, open + 1);
+            }
+            else if (s.charAt(i) == ')') {
+                helper(s, i + 1, sb, list, wl, wr - 1, open);
+                sb.setLength(len);
+                helper(s, i + 1, sb.append(s.charAt(i)), list, wl, wr, open - 1);
+            }
+            else {
+                helper(s, i + 1, sb.append(s.charAt(i)), list, wl, wr, open);
+            }
+            //sb.setLength(len);
+        }
+    }
+
+    //another solution
+    //hard to understand
+    public static List<String> removeInvalidParentheses(String s) {
+        List<String> res = new ArrayList<>();
+        char[] check = new char[]{'(', ')'};
+        dfs(s, res, check, 0, 0);
+        return res;
+    }
+
+    public static void dfs(String s, List<String> res, char[] check, int last_i, int last_j) {
+        int count = 0;
+        int i = last_i;
+        while (i < s.length() && count>= 0) {
+
+            if (s.charAt(i) == check[0]) count ++;
+            if (s.charAt(i) == check[1]) count --;
+            i ++;
+        }
+
+        if (count >= 0)  {
+            // no extra ')' is detected. We now have to detect extra '(' by reversing the string.
+            String reversed = new StringBuffer(s).reverse().toString();
+            if (check[0] == '(') dfs(reversed, res, new char[]{')', '('}, 0, 0);
+            else res.add(reversed);
+
+        }
+
+        else {  // extra ')' is detected and we have to do something
+            i -= 1; // 'i-1' is the index of abnormal ')' which makes count<0
+            for (int j = last_j; j<= i; j++) {
+                if (s.charAt(j) == check[1] && (j == last_j || s.charAt(j-1) != check[1])) {
+                    dfs(s.substring(0, j) + s.substring(j+1, s.length()), res, check, i, j);
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+>>>>>>> e71a431d1b25731fd05a54fa40d4bfaaeccae0fa
 
 
 
