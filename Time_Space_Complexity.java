@@ -6266,11 +6266,156 @@ Practice Q9:
     }
 
 
+337.
+	time complexity is O(n)???
+	space complexity is O(n)
+	//use the dp idea
+	//define as the max from the tree of the given root
+	class Solution {
+	    public int rob(TreeNode root) {
+	        return helper(root, new HashMap<TreeNode, Integer>());
+	    }
+	    
+	    private int helper(TreeNode root, Map<TreeNode, Integer> map) {
+	        if (root == null) return 0;
+	        if (map.containsKey(root)) return map.get(root);
+	        int sum = root.val;
+	        if (root.left != null) sum = sum + helper(root.left.left, map) + helper(root.left.right, map);
+	        if (root.right != null) sum = sum + helper(root.right.left, map) + helper(root.right.right, map);
+	        int temp = Math.max(sum, helper(root.left, map) + helper(root.right, map));
+	        map.put(root, temp);
+	        //use this map to do the dp, overlap part!
+	        return temp;
+	    }
+	}
+
+
+547.
+	//graph problem, find the connective counterpart
+	time complexity is O(m + n)???
+	space complexity is O(n)
+	public int findCircleNum(int[][] M) {
+        boolean[] visited = new boolean[M.length];
+        int sum = 0;
+        for (int i = 0; i < M.length; i ++) {
+            if (visited[i]) continue;
+            dfs(visited, M, i);
+            sum ++;
+        }
+        return sum;
+    }
+    
+    private void dfs(boolean[] visited, int[][] M, int index) {
+        if (visited[index]) return;
+        visited[index] = true;
+        for (int i = 0; i < M[0].length; i ++) {
+            if (M[index][i] == 1) {
+                dfs(visited, M, i);
+            }
+        }
+    }
+
+
+329.
+	time complexity is O(n^2)
+	space complexity is O(n^2)
+	private int[][] around = new int[][]{{0,1},{1,0},{-1,0},{0,-1}};
+    
+    public int longestIncreasingPath(int[][] matrix) {
+        if (matrix.length == 0 || matrix[0].length == 0) return 0;
+        //corner case!!! Do try to avoid!!!
+        
+        int[][] dp = new int[matrix.length][matrix[0].length];
+        
+        int res = 0;
+        for (int i = 0; i < matrix.length; i ++) {
+            for (int j = 0; j < matrix[0].length; j ++) {
+                res = Math.max(res, dfs(matrix, dp, i, j));
+            }
+        }
+        
+        return res;
+    }
+    
+    private int dfs(int[][] matrix, int[][] dp, int row, int col) {
+        if (dp[row][col] != 0) return dp[row][col];
+        
+        int res = 1;
+        for (int[] each : around) {
+            int newrow = row + each[0];
+            int newcol = col + each[1];
+            if (newrow >= 0 && newrow < matrix.length && 
+            	newcol >= 0 && newcol < matrix[0].length
+               && matrix[newrow][newcol] > matrix[row][col]) {
+                res = Math.max(res, dfs(matrix, dp, newrow, newcol) + 1);
+            }
+        }
+        dp[row][col] = res;
+        
+        return res;
+        
+    }
+
+
+86.
+	//one pass
+	time complexity is O(n)
+	space complexity is O(1)
+	public ListNode partition(ListNode head, int x) {
+        ListNode dummy = new ListNode(0);
+        ListNode small = new ListNode(0);
+        dummy.next = head;
+        
+        ListNode pointer = dummy;
+        ListNode start = small;
+        while (pointer.next != null) {
+            if (pointer.next.val >= x) {
+                pointer = pointer.next;
+            }
+            else {
+                ListNode temp = pointer.next;
+                pointer.next = pointer.next.next;
+                start.next = temp;
+                start = start.next;
+                start.next = null;
+                //give null, avoid loops in linkedlist
+            }
+        }
+        
+        start.next = dummy.next;
+        
+        return small.next;
+    }
+    //in-place operation: the start corner case (value less than x) must avoid!
+
+
+455.
+	time complexity is O(mlogm + nlogn)
+	space complexity is O(1)
+    public int findContentChildren(int[] g, int[] s) {
+        Arrays.sort(g);
+        Arrays.sort(s);
+        int child = 0, cookie = 0, number = 0;
+        while (child < g.length && cookie < s.length) {
+            if (g[child] <= s[cookie]) {
+                child ++;
+                cookie ++;
+                number ++;
+            }
+            else {
+                cookie ++;
+            }
+        }
+        return number;
+    }
 
 
 
 
->>>>>>> e71a431d1b25731fd05a54fa40d4bfaaeccae0fa
+
+
+
+
 
 
 
