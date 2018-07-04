@@ -6410,47 +6410,760 @@ Practice Q9:
     }
 
 
+297.
+	//cannot use queue here, use stack instead
+	//but why???
+	//and the last one is not two null, why???
+	private int[] index = new int[]{0};
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        StringBuilder sb = new StringBuilder();
+        Stack<TreeNode> st = new Stack<>();
+        while (root != null || !st.isEmpty()) {
+            if (root != null) {
+                sb.append(root.val + " ");
+                st.push(root.right);
+                st.push(root.left);
+            }
+            else {
+                sb.append("null ");
+            }
+            root = st.pop();
+        }
+        return sb.toString().trim();
+    }
+    
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        if (data == null || data.length() == 0) return null;
+        String[] arr = data.split(" ");
+        return helper(arr);
+    }
+    
+    private TreeNode helper(String[] arr) {
+        if (index[0] >= arr.length || arr[index[0]].equals("null")) return null;
+        TreeNode root = new TreeNode(Integer.parseInt(arr[index[0]]));
+        index[0] ++;
+        root.left = helper(arr);
+        index[0] ++;
+        root.right = helper(arr);
+        return root;
+    }
 
 
+417.
+	//what happend if you have to variables/conditions to detect?
+	//use two different boolean!!!
+	time complexity ???
+	space complexity is O(mn)
+	public List<int[]> pacificAtlantic(int[][] matrix) {
+        List<int[]> res = new LinkedList<>();
+        if(matrix == null || matrix.length == 0 || matrix[0].length == 0){
+            return res;
+        }
+		//corner case!
+
+        int n = matrix.length, m = matrix[0].length;
+        boolean[][]pacific = new boolean[n][m];
+        boolean[][]atlantic = new boolean[n][m];
+        for(int i=0; i<n; i++){
+            dfs(matrix, pacific, Integer.MIN_VALUE, i, 0);
+            dfs(matrix, atlantic, Integer.MIN_VALUE, i, m-1);
+        }
+        for(int i=0; i<m; i++){
+            dfs(matrix, pacific, Integer.MIN_VALUE, 0, i);
+            dfs(matrix, atlantic, Integer.MIN_VALUE, n-1, i);
+        }
+        for (int i = 0; i < n; i++) 
+            for (int j = 0; j < m; j++) 
+                if (pacific[i][j] && atlantic[i][j]) 
+                    res.add(new int[] {i, j});
+        return res;
+    }
+    
+    int[][]dir = new int[][]{{0,1},{0,-1},{1,0},{-1,0}};
+    
+    public void dfs(int[][]matrix, boolean[][]visited, int height, int x, int y){
+        int n = matrix.length, m = matrix[0].length;
+        if(x<0 || x>=n || y<0 || y>=m || visited[x][y] || matrix[x][y] < height)
+            return;
+        visited[x][y] = true;
+        for(int[]d:dir){
+            dfs(matrix, visited, matrix[x][y], x+d[0], y+d[1]);
+        }
+    }
 
 
+513.
+	//using BFS
+	time complexity ???1
+	space complexity is O(n)	
+	public int findBottomLeftValue(TreeNode root) {
+        Queue<TreeNode> qu = new LinkedList<>();
+        qu.offer(root);
+        
+        int record = 0;
+        while (!qu.isEmpty()) {
+            int size = qu.size();
+            for (int i = 0; i < size; i ++) {
+                TreeNode temp = qu.poll();
+                if (i == 0) record = temp.val;
+                if (temp.left != null) qu.offer(temp.left);
+                if (temp.right != null) qu.offer(temp.right);
+            }
+        }
+        
+        return record;
+    }
+
+    //another method
+    //using level
+    //detect when level changes!!!
+    int ans=0, h=0;
+    public int findBottomLeftValue(TreeNode root) {
+        findBottomLeftValue(root, 1);
+        return ans;
+    }
+    public void findBottomLeftValue(TreeNode root, int depth) {
+        if (h<depth) {ans=root.val;h=depth;}
+        if (root.left!=null) findBottomLeftValue(root.left, depth+1);
+        if (root.right!=null) findBottomLeftValue(root.right, depth+1);
+    }
 
 
+77.
+	//backtracking
+	public List<List<Integer>> combine(int n, int k) {
+        List<List<Integer>> res = new ArrayList<List<Integer>>();
+        if (k > n || k <= 0) {
+            return res;
+        }
+        //kill the corner case to accelerate
+
+        helper(n, k, 0, res, new ArrayList<>());
+        return res;
+    }
+    
+    private void helper(int n, int k, int start, List<List<Integer>> res, List<Integer> list) {
+        int len = list.size();
+        if (len == k) {
+            res.add(new ArrayList<>(list));
+        }
+        else {
+            for (int i = start + 1; i <= n; i ++) {
+                list.add(i);
+                helper(n, k, i, res, list);
+                list.remove(len);
+            }
+        }
+    }
+
+    //another good method
+    public List<List<Integer>> combine(int n, int k) {
+        List<List<Integer>> result = new ArrayList<List<Integer>>();
+        if (k > n || k < 0) {
+            return result;
+        }
+        if (k == 0) {
+            result.add(new ArrayList<Integer>());
+            return result;
+        }
+        result = combine(n - 1, k - 1);
+        for (List<Integer> list : result) {
+            list.add(n);
+            //List.add() return true or false
+        }
+        result.addAll(combine(n - 1, k));
+        //addAll() API, add all element from another list
+        return result;
+    }
 
 
+60.
+	private String res = "";
+    
+    public String getPermutation(int n, int k) {
+        helper(n, new int[]{k}, new boolean[n + 1], new StringBuilder());
+        return res;
+    }
+    
+    private void helper(int n, int[] k, boolean[] visited, StringBuilder sb){
+        int len = sb.length();
+        if (k[0] == 1 && len == n) {
+            res = sb.toString();
+            k[0] --;
+            //end condition!!!
+        }
+        else if (len == n) {
+            k[0] --;
+        }
+        else if (k[0] < 1) return;
+        else {
+            for (int i = 1; i <= n && k[0] >= 1; i ++) {
+                if (visited[i]) continue;
+                visited[i] = true;
+                helper(n, k, visited, sb.append(i));
+                //StringBuilder.append() return StringBuilder
+                visited[i] = false;
+                sb.setLength(len);
+            }
+        }
+    }
 
 
+208.
+	//one solution but slow
+	class Trie {
+    
+	    private Set<String> set;
+
+	    /** Initialize your data structure here. */
+	    public Trie() {
+	        set = new HashSet<>();
+	    }
+	    
+	    /** Inserts a word into the trie. */
+	    public void insert(String word) {
+	        set.add(word);
+	    }
+	    
+	    /** Returns if the word is in the trie. */
+	    public boolean search(String word) {
+	        return set.contains(word);
+	    }
+	    
+	    /** Returns if there is any word in the trie that starts with the given prefix. */
+	    public boolean startsWith(String prefix) {
+	        for (String each : set) {
+	            if (prefix.compareTo(each) > 0) continue;
+	            if (prefix.compareTo(each) == 0) return true;
+	            for (int i = 0; i < prefix.length(); i ++) {
+	                if (prefix.charAt(i) != each.charAt(i)) break;
+	                if (prefix.charAt(i) == each.charAt(i) && i == prefix.length() - 1) return true;
+	            }
+	        }
+	        return false;
+	    }
+	}
+
+	//another method
+	class TrieNode {
+	    
+	    TrieNode[] children = new TrieNode[26];
+	    boolean isLeaf;
+	    // Constructor
+	    public TrieNode() {
+	    }
+	}
+
+	public class Trie {
+	    
+	    private TrieNode root;
+
+	    public Trie() {
+	        root = new TrieNode();
+	    }
+
+	    // Inserts a word into the trie.
+	    public void insert(String word) {
+	        insert(word.toCharArray(), 0, root);
+	    }
+	    
+	    public void insert(char[] word, int i, TrieNode node) {
+	        
+	        if (i == word.length) {
+	            node.isLeaf = true;
+	            return;
+	        }
+	        
+	        char c = word[i];
+	        if (node.children[c - 'a'] == null) {
+	            node.children[c - 'a'] = new TrieNode();
+	        }
+	        
+	        insert(word, i + 1, node.children[c - 'a']);
+	    }
+
+	    // Returns if the word is in the trie.
+	    public boolean search(String word) {
+	        return search(word.toCharArray(), 0, root);
+	    }
+	    
+	    public boolean search(char[] word, int i, TrieNode node) {
+	        
+	        if (i == word.length) {
+	            return node.isLeaf;
+	        }
+	        
+	        char c = word[i];
+	        
+	        return node.children[c - 'a'] != null && search(word, i + 1, node.children[c - 'a']);
+	    }
+
+	    // Returns if there is any word in the trie
+	    // that starts with the given prefix.
+	    public boolean startsWith(String prefix) {
+	        return startsWith(prefix.toCharArray(), 0, root);
+	    }
+	    
+	    public boolean startsWith(char[] word, int i, TrieNode node) {
+	        
+	        if (i == word.length) {
+	            return true;
+	        }
+	        
+	        char c = word[i];
+	        return node.children[c - 'a'] != null && startsWith(word, i + 1, node.children[c - 'a']);
+	    }
+}
 
 
+295.
+	class MedianFinder {
+	    
+	    private PriorityQueue<Integer> maxheap;
+	    private PriorityQueue<Integer> minheap;
+
+	    /** initialize your data structure here. */
+	    public MedianFinder() {
+	        maxheap = new PriorityQueue<Integer>((Integer a, Integer b) -> b.compareTo(a));
+	        //default is minheap!!!
+	        //use new comparetor!!!
+	        //Integer must use Integer a and Integer b, can compareTo
+	        //remmember the bracket!!!
+	        minheap = new PriorityQueue<>();
+	    }
+	    
+	    public void addNum(int num) {
+	        if (maxheap.size() == 0 && minheap.size() == 0) minheap.offer(num);
+	        else if (maxheap.size() == 0) {
+	            minheap.offer(num);
+	            maxheap.offer(minheap.poll());
+	        }
+	        else if (num > maxheap.peek() && num < minheap.peek()) {
+	            minheap.offer(num);
+	        }
+	        else if (num < maxheap.peek()) {
+	            maxheap.offer(num);
+	        }
+	        else {
+	            minheap.offer(num);
+	        }
+	        adjust();
+	    }
+	    
+	    private void adjust() {
+	        if (maxheap.size() > minheap.size() + 1) {
+	            minheap.offer(maxheap.poll());
+	        }
+	        else if (minheap.size() > maxheap.size() + 1) {
+	            maxheap.offer(minheap.poll());
+	        }
+	    }
+	    
+	    public double findMedian() {
+	        if (maxheap.size() == minheap.size()) {
+	            return ((double) (maxheap.peek() + minheap.peek())) / 2;
+	        }
+	        else if (maxheap.size() > minheap.size()) {
+	            return maxheap.peek();
+	        }
+	        else {
+	            return minheap.peek();
+	        }
+	    }
+	}
 
 
+281.
+	//no comment
+	//just write it, key is to get all possible cases
+	public class ZigzagIterator {
+	    private int v1pointer;
+	    private int v2pointer;
+	    private int turnpointer;
+	    private List<Integer> list1;
+	    private List<Integer> list2;
+
+	    public ZigzagIterator(List<Integer> v1, List<Integer> v2) {
+	        list1 = v1;
+	        list2 = v2;
+	        v1pointer = 0;
+	        v2pointer = 0;
+	        turnpointer = 0;
+	    }
+
+	    public int next() {
+	        turnpointer %= 2;
+	        if (turnpointer == 0 && v1pointer < list1.size()) {
+	            turnpointer ++;
+	            return list1.get(v1pointer ++);
+	        }
+	        else if (turnpointer == 1 && v2pointer < list2.size()) {
+	            turnpointer ++;
+	            return list2.get(v2pointer ++);
+	        }
+	        else {
+	            turnpointer ++;
+	            return next();
+	        }
+	    }
+
+	    public boolean hasNext() {
+	        return v1pointer < list1.size() || v2pointer < list2.size();
+	    }
+	}
 
 
+460.
+	//get O(logn), put O(logn)
+	//use PriorityQueue and HashMap
+	class LFUCache {
+    
+	    private Map<Integer, Wrapper> map;
+	    private PriorityQueue<Wrapper> pq;
+	    private int count;
+	    private int limit;
+	    private int order;
+
+	    public LFUCache(int capacity) {
+	        pq = new PriorityQueue<Wrapper>(new Comparator<Wrapper>(){
+	            @Override
+	            public int compare(Wrapper a, Wrapper b) {
+	                if (a.frequency == b.frequency) {
+	                    return a.useOrder - b.useOrder;
+	                }
+	                return a.frequency - b.frequency;
+	            }
+	        });
+	        map = new HashMap<>();
+	        count = 0;
+	        order = 0;
+	        limit = capacity;
+	    }
+	    
+	    public int get(int key) {
+	        if (map.containsKey(key)) {
+	            Wrapper temp = map.get(key);
+	            int value = temp.val;
+	            Wrapper newrap = new Wrapper(value, ++ temp.frequency, order ++, key);
+	            pq.remove(temp);
+	            pq.offer(newrap);
+	            map.remove(key);
+	            map.put(key, newrap);
+	            return value;
+	        }
+	        else {
+	            return -1;
+	        }
+	    }
+	    
+	    public void put(int key, int value) {
+	        Wrapper newrap = new Wrapper(value, 0, order ++, key);
+	        if (map.containsKey(key)) {
+	            Wrapper older = map.get(key);
+	            pq.remove(older);
+	            newrap.frequency = older.frequency + 1;
+	            pq.offer(newrap);
+	            map.remove(key);
+	            map.put(key, newrap);
+	        }
+	        else if (count < limit) {
+	            map.put(key, newrap);
+	            pq.offer(newrap);
+	            count ++;
+	        }
+	        else if (count == 0) {
+	            return;
+	        }
+	        else {
+	            map.remove(pq.peek().key);
+	            pq.poll();
+	            map.put(key, newrap);
+	            pq.offer(newrap);
+	        }
+	    }
+	    
+	    private class Wrapper{
+	        int val;
+	        int frequency;
+	        int useOrder;
+	        int key;
+	        public Wrapper(int x, int f, int u, int k) {
+	            val = x;
+	            frequency = f;
+	            useOrder = u;
+	            key = k;
+	        }
+	    }
+	}
 
 
+	//All O(1) operations
+	/*
+	Two HashMaps are used, one to store <key, value> pair, another store the <key, node>.
+
+	I use double linked list to keep the frequent of each key. 
+	In each double linked list node, keys with the same count are saved using 
+	java built in LinkedHashSet. This can keep the order.
+
+	Every time, one key is referenced, first find the current node corresponding to the key, 
+	If the following node exist and the frequent is larger by one, add key 
+	to the keys of the following node, else create a new node and add it following 
+	the current node.
+
+	All operations are guaranteed to be O(1).
+	*/
+	public class LFUCache {
+	    private Node head = null;
+	    private int cap = 0;
+	    private HashMap<Integer, Integer> valueHash = null;
+	    private HashMap<Integer, Node> nodeHash = null;
+	    
+	    public LFUCache(int capacity) {
+	        this.cap = capacity;
+	        valueHash = new HashMap<Integer, Integer>();
+	        nodeHash = new HashMap<Integer, Node>();
+	    }
+	    
+	    public int get(int key) {
+	        if (valueHash.containsKey(key)) {
+	            increaseCount(key);
+	            return valueHash.get(key);
+	        }
+	        return -1;
+	    }
+	    
+	    public void set(int key, int value) {
+	        if ( cap == 0 ) return;
+	        if (valueHash.containsKey(key)) {
+	            valueHash.put(key, value);
+	        } else {
+	            if (valueHash.size() < cap) {
+	                valueHash.put(key, value);
+	            } else {
+	                removeOld();
+	                valueHash.put(key, value);
+	            }
+	            addToHead(key);
+	        }
+	        increaseCount(key);
+	    }
+	    
+	    private void addToHead(int key) {
+	        if (head == null) {
+	            head = new Node(0);
+	            head.keys.add(key);
+	        } else if (head.count > 0) {
+	            Node node = new Node(0);
+	            node.keys.add(key);
+	            node.next = head;
+	            head.prev = node;
+	            head = node;
+	        } else {
+	            head.keys.add(key);
+	        }
+	        nodeHash.put(key, head);      
+	    }
+	    
+	    private void increaseCount(int key) {
+	        Node node = nodeHash.get(key);
+	        node.keys.remove(key);
+	        
+	        if (node.next == null) {
+	            node.next = new Node(node.count+1);
+	            node.next.prev = node;
+	            node.next.keys.add(key);
+	        } else if (node.next.count == node.count+1) {
+	            node.next.keys.add(key);
+	        } else {
+	            Node tmp = new Node(node.count+1);
+	            tmp.keys.add(key);
+	            tmp.prev = node;
+	            tmp.next = node.next;
+	            node.next.prev = tmp;
+	            node.next = tmp;
+	        }
+
+	        nodeHash.put(key, node.next);
+	        if (node.keys.size() == 0) remove(node);
+	    }
+	    
+	    private void removeOld() {
+	        if (head == null) return;
+	        int old = 0;
+	        for (int n: head.keys) {
+	            old = n;
+	            break;
+	        }
+	        head.keys.remove(old);
+	        if (head.keys.size() == 0) remove(head);
+	        nodeHash.remove(old);
+	        valueHash.remove(old);
+	    }
+	    
+	    private void remove(Node node) {
+	        if (node.prev == null) {
+	            head = node.next;
+	        } else {
+	            node.prev.next = node.next;
+	        } 
+	        if (node.next != null) {
+	            node.next.prev = node.prev;
+	        }
+	    }
+	    
+	    class Node {
+	        public int count = 0;
+	        public LinkedHashSet<Integer> keys = null;
+	        public Node prev = null, next = null;
+	        
+	        public Node(int count) {
+	            this.count = count;
+	            keys = new LinkedHashSet<Integer>();
+	            prev = next = null;
+	        }
+	    }
+	}
 
 
+407.
+	public class Solution {
+	    private static class Cell implements Comparable<Cell> {
+	        private int row;
+	        private int col;
+	        private int value;
+	        public Cell(int r, int c, int v) {
+	            this.row = r;
+	            this.col = c;
+	            this.value = v;
+	        }
+	        @Override
+	        public int compareTo(Cell other) {
+	            return value - other.value;
+	        }
+	    }
+	    private int water;
+	    private boolean[][] visited1;
+	    public int trapRainWater(int[][] heightMap) {
+	        if (heightMap.length == 0) return 0;
+	        PriorityQueue<Cell> walls = new PriorityQueue<Cell>();
+	        water = 0;
+	        visited1 = new boolean[heightMap.length][heightMap[0].length];
+	        int rows = heightMap.length, cols = heightMap[0].length;
+	        //build wall;
+	        for (int c = 0; c < cols; c++) {
+	        	walls.add(new Cell(0, c, heightMap[0][c]));
+	        	walls.add(new Cell(rows - 1, c, heightMap[rows - 1][c]));
+	        	visited1[0][c] = true;
+	        	visited1[rows - 1][c] = true;
+	        }
+	        for (int r = 1; r < rows - 1; r++) {
+	        	walls.add(new Cell(r, 0, heightMap[r][0]));
+	        	walls.add(new Cell(r, cols - 1, heightMap[r][cols - 1]));
+	        	visited1[r][0] = true;
+	        	visited1[r][cols - 1] = true;
+	        }
+	        //end build wall;
+	        while(walls.size() > 0) {
+	            Cell min = walls.poll();
+	            visit(heightMap, min, walls);
+	        }
+	        return water;
+	    }
+	    private void visit(int[][] height, Cell start, PriorityQueue<Cell> walls) {
+	        fill(height, start.row + 1, start.col, walls, start.value);
+	        fill(height, start.row - 1, start.col, walls, start.value);
+	        fill(height, start.row, start.col + 1, walls, start.value);
+	        fill(height, start.row, start.col - 1, walls, start.value);
+	    }
+	    private void fill(int[][] height, int row, int col, PriorityQueue<Cell> walls, int min) {
+	        if (row < 0 || col < 0) return;
+	        else if (row >= height.length || col >= height[0].length) return;
+	        else if (visited1[row][col]) return;
+	        else if (height[row][col] >= min) {
+	            walls.add(new Cell(row, col, height[row][col]));
+	            visited1[row][col] = true;
+	            return;
+	        } else {
+	//        	System.out.println(row + ", " + col + " height = " + height[row][col] + ", bar = " + min);
+	            water += min - height[row][col];
+	            visited1[row][col] = true;
+	            fill(height, row + 1, col, walls, min);
+	            fill(height, row - 1, col, walls, min);
+	            fill(height, row, col + 1, walls, min);
+	            fill(height, row, col - 1, walls, min);
+	        }
+	    }
+	}
 
 
+	//another method
+	public class Solution {
 
+	    public class Cell {
+	        int row;
+	        int col;
+	        int height;
+	        public Cell(int row, int col, int height) {
+	            this.row = row;
+	            this.col = col;
+	            this.height = height;
+	        }
+	    }
 
+	    public int trapRainWater(int[][] heights) {
+	        if (heights == null || heights.length == 0 || heights[0].length == 0)
+	            return 0;
 
+	        PriorityQueue<Cell> queue = new PriorityQueue<>(1, new Comparator<Cell>(){
+	            public int compare(Cell a, Cell b) {
+	                return a.height - b.height;
+	            }
+	        });
+	        
+	        int m = heights.length;
+	        int n = heights[0].length;
+	        boolean[][] visited = new boolean[m][n];
 
+	        // Initially, add all the Cells which are on borders to the queue.
+	        for (int i = 0; i < m; i++) {
+	            visited[i][0] = true;
+	            visited[i][n - 1] = true;
+	            queue.offer(new Cell(i, 0, heights[i][0]));
+	            queue.offer(new Cell(i, n - 1, heights[i][n - 1]));
+	        }
 
+	        for (int i = 0; i < n; i++) {
+	            visited[0][i] = true;
+	            visited[m - 1][i] = true;
+	            queue.offer(new Cell(0, i, heights[0][i]));
+	            queue.offer(new Cell(m - 1, i, heights[m - 1][i]));
+	        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	        // from the borders, pick the shortest cell visited and check its neighbors:
+	        // if the neighbor is shorter, collect the water it can trap and update its height as its height plus the water trapped
+	       // add all its neighbors to the queue.
+	        int[][] dirs = new int[][]{{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+	        int res = 0;
+	        while (!queue.isEmpty()) {
+	            Cell cell = queue.poll();
+	            for (int[] dir : dirs) {
+	                int row = cell.row + dir[0];
+	                int col = cell.col + dir[1];
+	                if (row >= 0 && row < m && col >= 0 && col < n && !visited[row][col]) {
+	                    visited[row][col] = true;
+	                    res += Math.max(0, cell.height - heights[row][col]);
+	                    queue.offer(new Cell(row, col, Math.max(heights[row][col], cell.height)));
+	                }
+	            }
+	        }
+	        
+	        return res;
+	    }
+	}
 
 
 
