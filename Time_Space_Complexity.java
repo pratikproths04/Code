@@ -7167,6 +7167,99 @@ Practice Q9:
 
 
 
+//Lesson 10
+	//Q2 L 103
+	public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+		List<List<Integer>> res = new ArrayList<List<Integer>>();
+		if (root == null) return res;
+		Deque<Integer> dq = new ArrayDeque<>();
+		//ArrayDeque implements Deque
+		//ArrayDeque can do that in Java 7
+		dq.offerFirst(root);
+		boolean reverseOrder = false;
+		//can use level
+		int size;
+		while (!dq.isEmpty()) {
+			size = dq.size();
+			List<Integer> list = new ArrayList<>();
+			for (int i = 0; i < size; i ++) {
+				if (reverseOrder) {
+					//leve % 2 == 0 can do that
+					TreeNode temp = dq.pollLast();
+					list.add(temp.val);
+					if (temp.right != null) dq.offerFirst(temp.right);
+					if (temp.left != null) dq.offerFirst(temp.left);
+				}
+				else {
+					TreeNode temp = dq.pollFirst();
+					list.add(temp.val);
+					if (temp.left != null) dq.offerLast(temp.left);
+					if (temp.right != null) dq.offerLast(temp.right);
+				}
+			}
+			res.add(list);
+			reverseOrder = !reverseOrder;// flag = 1 - flag;
+			//level ++
+			//how to tell how many times of true?
+			//use 0 for false, use 1, 2, 3, ... to represent the true
+			//times
+		}
+		return res;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
