@@ -7208,13 +7208,104 @@ Practice Q9:
 	}
 
 
-//7/5
+//7/6
+	//all
+	private void dfs(int n, StringBuilder sb, int l, int r,
+		List<String> res) {
+		//base case
+		if (l == r && l == n) {
+			res.add(sb.toString());
+			return;
+		}
+		if (l < n) {
+			dfs(n, sb.append('('), l + 1, r);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		if (r < n) {
+			dfs(n, sb.append(')'), l, r + 1);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+	}
 
 
+	//valid generator
+	private void dfs(int n, StringBuilder sb, int l, int r,
+		List<String> res) {
+		if (l == r && l == n) {
+			res.add(sb.toString());
+			return;
+		}
+		if (l < n && l >= r) {
+			//use l < n
+			dfs(n, sb.append('('), l + 1, r);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		if (l <= n && l > r) {
+			//use r < l
+			dfs(n, sb.append(')'), l, r + 1);
+			//StringBuilder append char
+			//or String or int or boolean
+			//or double
+			sb.deleteCharAt(sb.length() - 1);
+		}
+	}
 
 
+	private void dfs(int[] coins, int level, int left,
+		 int[] sol, List<int[]> res) {
+		if (level == coins.length - 1) {
+			sol[level] = left;
+			int[] copy = new int[coins.length];
+			System.arraycopy(sol, 0, copy, 0, coins.length);
+			//deep copy, or can use a for loop
+			//or use
+			//res.add(sol.clone());
+			//which is also good
+			res.add(copy);
+			return;
+		}
+		for (int i = 0; i * coins[level] <= left; i ++) {
+			sol[level] = i;
+			dfs(coins, level + 1, left - coins[level] * i,
+				sol, res);
+		}
+	}
 
 
+46.
+	private void dfs(char[] array, List<String> res, 
+		StringBuilder sb, boolean[] visited) {
+		if (sb.length == array.length) {
+			res.add(sb.toString());
+			return;
+		}
+		for (int i = 0; i < array.length; i ++) {
+			if (visited[i]) continue;
+			sb.append(array[i]);
+			visited[i] = true;
+			dfs(array, res, sb, visited);
+			visited[i] = false;
+			sb.deleteCharAt(sb.length() - 1);
+		}
+	}
+
+
+	//another method
+	private void dfs(char[] array, int index, 
+		List<String> res) {
+		//base case
+		if (index == array.length - 1) {
+			result.add(new String(array));
+			return;
+		}
+		for (int i = index; i < array.length; i ++) {
+			//a
+			swap(array, index, i);
+			dfs(array, index + 1, result);
+			swap(array, index, i);
+			//a
+		}
+	}
 
 
 
