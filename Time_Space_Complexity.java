@@ -7301,8 +7301,10 @@ Practice Q9:
 		for (int i = index; i < array.length; i ++) {
 			//a
 			swap(array, index, i);
+			//swap one
 			dfs(array, index + 1, result);
 			swap(array, index, i);
+			//return to original
 			//a
 		}
 	}
