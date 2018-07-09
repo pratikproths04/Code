@@ -7310,13 +7310,84 @@ Practice Q9:
 	}
 
 
+//7/9
+191.
+	//left shift
+	public int numOfBits(int n) {
+		int count = 0, mask = 1;
+		for (int i = 0; i < 32; i ++) {
+			if (n & mask != 0) count ++;
+			//using != 0, do not use == 1,
+			//might causing mistakes
+			mask <<= 1;
+		}
+		return count;
+	}
+
+	//left shift, another method
+	public int numOfBits(int n) {
+		int count = 0;
+		for (int i = 0; i < 32; i ++) {
+			if (n & (mask << i) > 0) count ++;
+			//O(1) time complexity, computer bit operation
+		}
+		return count;
+	}
+
+	//right shift filled with 0
+	public int numOfBits(int n) {
+		int count = 0， mask = 1;
+		for (int i = 0; i < 32; i ++) {
+			if (n & mask == 1) count ++;
+			n >>>= 1;
+			//can use n >>= 1
+			//for loop will end eventually
+		}
+		return count;
+	}
+
+	//right shift filled with 0, using while loop
+	public int numOfBits(int n) {
+		int count = 0, mask = 1;
+		while (n != 0) {
+			if (n & mask == 1) count ++;
+			n >>>= 1;
+			//while loop must use >>>=
+			//for loop do not have to use >>>=
+		}
+		return count;
+	}
 
 
+231.
+	public boolean powerOf2(int n) {
+		if (n == 1) return true;
+		if (n % 2 != 0 || n < 1) return false;
+		//do not forget n < 1, negative or zero
+		return powerOf2(n / 2);
+	}
 
+	//the corresponding while loop
+	public boolean powerOf2(int n) {
+		if (n < 1) return false;
+		while (n > 1) {
+			if (n % 2 != 0) return false;
+			n /= 2;
+		}
+		return n == 1;
+	}
 
-
-
-
+	//
+	public boolean powerOf2(int n) {
+		if (n < 1) return false;
+		int count = 1;
+		while (n > count) {
+			count *= 2;
+			//count <<= 1; this is a better way, REALLY???
+			//times is supported by left shift in computer
+		}
+		return count == n;
+	}
 
 
 
