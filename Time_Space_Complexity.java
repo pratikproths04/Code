@@ -7391,6 +7391,204 @@ Practice Q9:
 	}
 
 
+//7/12
+	//bit operation for check
+	//use 8 length of int can represent all characters
+	public boolean checkRepete(char[] arr) {
+		try {
+			if (arr == null) {
+				throw new IllegalArgumentException();
+			}
+			//corner case:
+			if (arr.length <= 1) return true;
+			int[] map = new int[8];
+			for (char each : arr) {
+				int row = (int) each / 32;
+				// can use
+				//int row = each / 32
+				int col = (int) each % 32;
+				if (map[row] >> col & 1 != 0) return false;
+				map[row] = 1 << col | map[row]
+				//can also use
+				//map[row] |= (1 << col);
+			}
+			return true;
+		} 
+		catch (IllegalArgumentException e) {
+			//do error handling
+		}
+	}
+
+
+	//pay attention to write comment
+	//get, set, shift
+	public int reverseBit(int n) {
+		int res = 0;
+		int mask;
+		for (int i = 0; i < 32; i ++) {
+			mask = 1;
+			mask &= n >>> i;
+			//mask = (n >> i) & 1;
+			//get the bit
+			res |= mask << (31 - i);
+			//set the bit
+		}
+		return res;
+	}
+
+	//in place operation
+	public int reverseBit(int n) {
+		//corner case?
+		//all bits are 0
+		int left, right;
+		for (int i = 0; i <= 15; i ++) {
+			//number 16, total 32
+			left = i;
+			right = 31 - i;
+			if ((1 & n >> right) == (1 & n >> left)) continue;
+			//shift n not 1 here
+			//for it causes different!
+			//the result is exactly 0 and 1
+			n ^= (1 << right);
+			n ^= (1 << left);
+		}
+		return n;
+	}
+
+
+	//for 10-number
+	public long reverseNum(int n) {
+		if (n == 0) return (long) n;
+		long res = 0;
+		//use long, for overflow
+		while (n != 0) {
+			res *= 10;
+			res += n % 10
+			n /= 10;
+		}
+		return res;
+		//if negative?
+		//
+	}
+	//for 2-number
+	public long reverseNum(int n) {
+		if (n == 0) return (long) n;
+		long res = 0;
+		//use long, for overflow
+		while (n != 0) {
+			res *= 2;// res <<= 1;
+			res += n % 2// n & 1;
+			n /= 2;// n >>= 1;
+			//which is bit operation
+		}
+		return res;
+	}
+
+
+//7/13
+	public String removeChar(String origin, char a, char b) {
+		if (origin == null || origin.length() == 0) return origin;
+		char[] arr = origin.toCharArray();
+		int slow = 0, fast = 0;
+		while (fast < arr.length {
+			if (arr[fast] == a || arr[fast] == b) {
+				fast ++;
+			}
+			else {
+				arr[slow ++] == arr[fast ++];
+			}
+		}
+		return new String(arr, 0, slow);
+	}
+
+
+	public String removeLeadingAndEnding(String s) {
+		if (s == null || s.length() == 0) return s;
+		char[] arr = s.toCharArray();
+		int slow = 0, fast = 0;
+		while (fast < arr.length) {
+			if (arr[fast] == ' ' && (fast == 0 || arr[fast - 1] == ' ')) {
+				fast ++;
+			}
+			else {
+				arr[slow ++] = arr[fast ++];
+			}
+		}
+		if (slow == 0) {
+			//rule out the case of all spaces
+			String temp = "";
+			return temp;
+			//return "";
+		}
+		return new String(arr, 0, slow).trim();
+	}
+
+
+	public String removeDuplicateLetters(String s, int k) {
+		if (s == null || s.length() <= k) return s;
+		//KEY1: corner case
+		//do not have to check k == 0
+		//remove duplicate letters, not all of them!!!
+		int slow = k, fast = k;
+		//KEY2: slow initiate
+		char[] arr = s.toCharArray();
+		for (; fast < arr.length; fast ++) {
+			if (arr[fast] != arr[slow - k]) {
+				//KEY3: comparision
+				arr[slow ++] = arr[fast];
+			}
+		}
+		return new String(arr, 0, slow);
+	}	
+
+
+	public String removeDuplicateLetters(String s, int k) {
+		if (s == null || s.length() <= k) return s;
+		//KEY1: corner case
+		//make sure k > 0
+		int slow = k - 1, fast = k - 1;
+		//KEY2: slow initiate
+		char[] arr = s.toCharArray();
+		for (; fast < arr.length; fast ++) {
+			if (arr[fast] != arr[slow - k + 1]) {
+				//slow - (slow - k + 1) + 1 = k
+				//KEY3: comparision
+				arr[++ slow] = arr[fast];
+			}
+		}
+		return new String(arr, 0, slow + 1);
+	}	
+
+
+
+	public String reverseString(String s) {
+		if (s == null || s.length() <= 1) return s;
+		char[] arr = s.toCharArray();
+		helper(arr, 0, arr.length - 1);
+		return new String(arr, 0, arr.length);
+	}
+	private void helper(char[] arr, int left, int right) {
+		if (left >= right) return;
+		helper(arr, left + 1, right - 1);
+		//helper(arr, ++ left, ++ right);
+		//cannot use the above !!!
+		//because swap()!!! but the left value has been changed
+		//can only use left + 1!!!
+		//keep the left and right unchanged!!!
+		swap(arr, left, right);
+	}
+	private void swap(char[] arr, int a, int b) {
+		char temp = arr[a];
+		arr[a] = arr[b];
+		arr[b] = temp;
+	}
+
+
+
+
+
+
+
 
 
 
