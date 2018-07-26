@@ -7584,8 +7584,48 @@ Practice Q9:
 	}
 
 
+//7/23
+	public int strStr(String a, String b) {
+		if (a == null || a.length() == 0 || b == null
+			|| b.length() == 0) return -1;
+		int alen = a.length(), blen = b.length();
 
+		if (alen < blen) return strStr(b, a);
+		int pointera = 0, pointerb = 0;
+		for (; pointera <= alen - blen; pointera ++) {
+			if (a.charAt(pointera) != b.charAt(pointerb)) continue;
+			int temp = pointera;
+			while (a.charAt(temp) == b.charAt(pointerb)
+			 && pointerb < blen) {
+				temp ++;
+				pointerb ++;
+			}
+			if (pointerb >= blen) return pointera;
+			pointerb = 0;
+		}
+		return -1;
+	}
 
+	//better writing method
+	public int strStr(String a, String b) {
+		if (a == null || b == null) return -1;
+
+		int alen = a.length(), blen = b.length();
+		if (alen < blen) return strStr(b, a);
+		for (int i = 0; i <= alen - blen; i ++) {
+			//i can arrive at alen - blen!!!
+			//int j = 0;
+			for (int j = 0; j < blen; j ++) {
+				if (a.charAt(i + j) != b.charAt(j)) break;
+				if (j == beln - 1) return i;//improve place one
+				//downside check the judge each time
+				//slow down the for loop
+			}
+			//if (j == blen) return i;
+		}
+		return -1;
+	}
+	time complexity O(n*m)
 
 
 
