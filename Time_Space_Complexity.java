@@ -7628,7 +7628,24 @@ Practice Q9:
 	time complexity O(n*m)
 
 
-
+//7/30
+	public int cutRope(int n) {
+		int[] dp = new int[n + 1];
+		for (int i = 2; i <= n; i ++) {
+			int curMax = 0;
+			for (int j = 1; j <= (i + 1) / 2; j ++) {
+				int curVal = Math.max(j, dp[j]) * Math.max(i - j, dp[i - j]);
+				//for a specific cut
+				nowMax = Math.max(nowMax, curVal);
+				//update when rope length is i metrics
+			}
+			dp[i] = nowMax;
+		}
+		return dp[n];
+	}
+	Time complexity is O(n^2)
+	//focus the inner loop to reduce the time complexity
+	//n>4, cut the middle, so the inner loop can reduce
 
 
 

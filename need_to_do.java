@@ -29,6 +29,11 @@ Machine Learning:
 Android App:
 	30 days app
 
+More:
+	large scale robust distributed systems
+	cloud computing (infrastructure, storage, platforms and data)
+	
+
 
 Ali:
 	Java high engineer:
