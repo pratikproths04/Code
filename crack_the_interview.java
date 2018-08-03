@@ -228,14 +228,165 @@ Before the Interview: {
 
 
 Behavioral Questions: {
-	
+	Interview Preparation Grid for each project
+	What are your weaknesses? give a real weakness but emphasizes how you work to overcome it
+	What questions should you ask the interviewer: {
+		Genuine Questions: {
+			1. "What is the ratio of testers to developers to program managers? 
+			What is the interaction like? How does project planning happen on the team?"
+			2. "What brought you to this company? What has been most challenging for you?"
+		}
+		Passion Questions: {
+			1. "T am very interested in scalability, and I would love to learn more about it. 
+			What opportunities are there at this company to learn about this?"
+			2. "I am not familiar with technology X, but it sounds like a very interesting solution. 
+			Could you tell me a bit more about how it works?"
+		}
+	}
 }
 
 
+Special Situations: {
+	Testers and SDETs:
+		1.	
+}
 
 
+Techical Questions: {
+	How to Prepare: {
+		For each problem, do the following: {
+			1.	Try to solve the problem on your own;
+			2.	Write the code on paper;
+			3.	Test your code--on paper, test general cases, base cases, and error cases;
+			4.	Type your paper code as-is into a computer.
+		}
+		try to do as many mock interviews as possible;
+	}
+	What you need to know: {
+		Core Data Structures, Algorithms, and Concepts: {
+			the list of the absolute, must-have knowledge: {
+				Data Structures: {
+					Linked Lists;
+					Trees, Tries, Graphs;
+					Stacks, Queues;
+					Heaps;
+					Vectors, ArrayLists;
+					Hash Tables;
+				}
+				Algorithms: {
+					BFS;
+					DFS;
+					Binary Search;
+					Merge Sort;
+					Quick Sort;
+				}
+				Concepts: {
+					Bit Manipulation;
+					Memory (Stack Heap);
+					Recursion;
+					DP;
+					Big O time and space;
+				}
+			}
+		}
+		Powers of 2 Table;
+	}
+	Optimize & Solve Technique #1: Look for BUD: {
+		Bottlenecks
+		Unnecessary work
+		Duplicated work
+	}
+	When you have heard a question before: {
+		admit this to your interviewer?
+	}
+}
 
 
+The Offer and Beyond: {
+	Handling Oﬀers and Rejection: {
+		Oﬀer Deadlines and Extensions:  Companies will usually try to accommodate this, if possible;
+		Declining an Oﬀer: {
+			provide a reason that is non-oﬀensive and inarguable. For example, if you were
+			declining a big company for a startup, you could explain that you feel a startup is the right choice for you
+			at this time.
+		}
+		Handling Rejection: {
+			Thank your recruiter for his time, explain that you are disappointed but that you understand their position, and ask when
+			you can reapply to the company;
+			You can also ask for feedback from the recruiter.
+		}
+	}
+	Evaluating the Oﬀer: {
+		The Financial Package: {
+			Signing Bonus, Relocation, and Other One Time Perks: wise to amortize this cash over three years;
+			Cost ofLiving Diﬀerence: Taxes and other cost of living diﬀerences can make a big difference;
+			Annual Bonus;
+			Stock Options and Grants;
+		}
+		what you learn and how a company advances your career ofen 
+		makes far more of a difference to your long term fnances than the salary;
+		Career Development: {
+			how this offer would impact your career path: {
+				1.	How good does the company name look on my resume?
+				2.	How much will I learn? Will I learn relevant things?
+				3.	What is the promotion plan? How do the careers of developers progress?
+				4.	If I want to move into management, does this company offer a realistic plan?
+				5.	Is the company or team growing?
+				6.	If I do want to leave the company, is it situated near other companies I am interested in, or will I need to move?
+			}
+			The fnal point is extremely important and usually overlooked.
+			Company Stability
+			The Happiness Factor: {
+				1.	The Product;
+				2.	Manager and Teammates;
+				3.	Company Culture;
+				4.	Hours;
+			}
+			Negotiation: {
+				1.	Not surprisingly, in a class poll, most of these students also said they didn't 
+					negotiate their job offer. They just accepted whatever the company gave them.
+				2.	Negotiate. Here are some tips to get you started: {
+					1. Just Do It;
+					2. Have a Viable Alterative: recruiters negotiate with you because they are concerned you may not join the company otherwise
+					3. Have a Specifc "Ask": more effective to ask for an additional $7000 in salary than to just ask for"more";
+					4. Overshoot;
+					5. Tink Beyond Salary: Companies are ofen more willing to negotiate on non-salary components: {
+						Consider asking for more equity or a bigger signing bonus. 
+						Alternatively, you may be able to ask for your relocation benefts in cash, 
+						instead of having the company pay directly for the moving fees. 
+						This is a great avenue for many college students, whose actual moving expenses are fairly cheap
+					}
+				}
+			}
+			On the job: {
+				1.	Set a Timeline: {
+					When you're enjoying your job, it's very easy to get wrapped up in it and not realize that your career is not advancing;
+					This is why you should outline your career path before starting a new job;
+				}
+				2.	Build Strong Relationships: {
+					establish strong relationships with your manager and teammates;
+					When employees leave, keep in touch with them;
+					a friendly note a few weeks after their departure will help to bridge that 
+					 	connection from a work acquaintance to a personal acquaintance;
+				}
+				3.	Ask for What You Want: {
+					Be (reasonably) frank about your goals with your manager. 
+					If you want to take on more back-end coding projects, say so.
+				}
+				4.	Keep Interviewing: {
+					keep your interview skills fresh, and also keep you in tune with what sorts of opportunities (and salaries) are out there
+				}
+			}
+		}
+	}
+}
+
+
+Testing: {
+	Testing a Piece of Software: {
+		
+	}
+}
 
 
 
