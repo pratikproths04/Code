@@ -7672,6 +7672,9 @@ Practice Q9:
 				steps ++;
 			}
 		}
+		return Integer.MAX_VALUE;
+	}
+
 
 //7/30
 	public int cutRope(int n) {
@@ -7691,10 +7694,6 @@ Practice Q9:
 	Time complexity is O(n^2)
 	//focus the inner loop to reduce the time complexity
 	//n>4, cut the middle, so the inner loop can reduce
-		return Integer.MAX_VALUE;
-	}
-
-
 
 
 
