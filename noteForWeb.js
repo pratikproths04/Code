@@ -325,8 +325,45 @@ it respond with data, xml and json
 
 
 
+name 			url 				HTTP verb 			desc.
+-----------------------------------------------------------------------------------------------------
+INDEX			/campus				GET 			display all campuses
+NEW 			/campus/addNew 		GET 			add a new campus in the form  //must declare first before SHOW
+CREAT 			/campus 			POST 			add the new campus to database
+SHOW 			/campus/:id     	GET 			show info of the campus
+EDIT			/campus/:id/edit 	GET 			show edit form for one campus
+UPDATE 			/campus/:id 		PUT 			update a particular campus, then redirect somewhere
+DELETE 			/campus/:id 		DELETE 			delete a particular campus, then redirect somewhere
 
 
+
+
+let userSchema = new mongoose.Schema({
+	email: String,
+	name: String,
+	posts: [postSchema]
+})
+
+let Post = mongoose.model('Post', postSchema)//set Post collection according to postSchema, refer as object Post in js
+
+let userSchema = new mongoose.Schema({
+	email: String,
+	name: String,
+	posts: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Post"
+		}
+	]
+})
+
+//use, user.posts.push(somepost)
+
+
+user.findOne({email: "example@email.com"}).populate('posts').exec(function(err, user){
+
+});
+//execute all with function
 
 
 
