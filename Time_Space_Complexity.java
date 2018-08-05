@@ -7648,8 +7648,76 @@ Practice Q9:
 	//n>4, cut the middle, so the inner loop can reduce
 
 
+//8/2
+	//square for spiral print, clockwise
+	public void spiral(int offset, int size, int[][] matrix) {
+		//cannot use size <= 0 as the usecase, for the for loop will 
+		//run two times on the same row/column
+		if (size == 0) return;
+		if (size == 1) {
+			System.out.println(matrix[offset][offset]);
+			return;
+		}
+		//the key is the index of this matrix element
+		//top left corner [offset][offset]
+		//top right corner [offset][offset + size - 1]
+		for (int i = 0; i < size - 1; i ++) {
+			System.out.println(matrix[offset][offset + i]);
+		}
+		//how to find the top right corner?
+		//from the for loop above
+		//find the start point first, see row/column who is changing
+		for (int i = 0; i < size - 1; i ++) {
+			System.out.println(matrix[offset + i][offset + size - 1]);
+		}
+		for (int i = 0; i < size - 1; i ++) {
+			System.out.println(matrix[offset + size - 1][offset + size - 1 - i]);
+		}
+		for (int i = 0; i < size - 1; i ++) {
+			System.out.println(matrix[offset + size - 1 - i][offset]);
+		}
+		//anti-clockwise, exchange the row and column of each elements
+		spiral(offset + 1, size - 2, matrix);
+	}
+
+	//one clockwise, one anti-clockwise
+	//keep the flag!
+
+	//rectangle form
+	public void spiral(int offset, int m, int n, int[][] matrix) {
+		//base case change
+		//if one is 1 or 0, print by the other one
+	}
 
 
+	//renew the property of each node
+	public int countNodes(TreeNode root) {
+		if (root == null) return 0;
+		int left = countNodes(root.left);
+		int right = countNodes(root.right);
+		root.left_subtree_nodes = left;
+		return left + right + 1;
+	}
+
+	class TreeNode {
+		int val;
+		TreeNode left;
+		TreeNode right;
+		int left_subtree_nodes;
+	}
+
+
+	TreeNode[] record = new TreeNode[1];
+	public int countNodes(TreeNode root, TreeNode[] record) {
+		if (root == null) return 0;
+		int left = countNodes(root.left, TreeNode[] record);
+		int right = countNodes(root.right, TreeNode[] record);
+		if (Math.abs(left - right) > 
+			Math.abs(record[0].left - record[0].right)) {
+			record[0] = root;
+		}
+		return left + right + 1;
+	}
 
 
 
