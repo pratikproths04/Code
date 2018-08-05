@@ -7628,6 +7628,54 @@ Practice Q9:
 	time complexity O(n*m)
 
 
+//7/26
+//Lesson 16	
+	//DP
+	public int JumpGame(int[] arr) {
+		if (arr == null || arr.length == 0) return 0;
+
+		int[] dp = new int[arr.length];
+		if (arr[arr.length - 1] == 0)  dp[arr.length-1] = Integer.MAX_VALUE;
+		//coner case, the end value cannot reach the end
+		//also can use 
+		//Arrays.fill(arr, Integer.MAX_VALUE);
+		
+		for (int i = arr.length - 2; i >= 0; i --) {
+			dp[i] = Integer.MAX_VALUE - 1;
+			//avoid the case that the for loop cannot enter
+			//where arr[i] = 0
+			for (int j = 1; j < arr[i] && 
+				j + i < arr.length; j ++) {
+				dp[i] = Math.min(dp[i], dp[i + j]);
+			}
+			dp[i] ++;
+		}
+
+		return dp[0];
+		//if the start cannot reach the end
+		//return Integer.MAX_VALUE
+	} 
+
+
+	//Greedy
+	//thinking if it can jump out!
+	public int JumpGame(int[] arr) {
+		if (arr == null || arr.length == 0) return 0;
+
+		int pre = 0, cur = 0, step = 0;
+		for (int i = 0; i <= cur; i ++) {
+			cur = Math.max(cur, arr[i] + i);
+			//cur the farest pointer can get in this stage
+			if (cur >= arr.length) return steps + 1;
+			if (i > pre) {
+				pre = cur;
+				steps ++;
+			}
+		}
+		return Integer.MAX_VALUE;
+	}
+
+
 //7/30
 	public int cutRope(int n) {
 		int[] dp = new int[n + 1];
@@ -7718,10 +7766,6 @@ Practice Q9:
 		}
 		return left + right + 1;
 	}
-
-
-
-
 
 
 
