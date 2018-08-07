@@ -7768,6 +7768,154 @@ Practice Q9:
 	}
 
 
+//8/7
+	public TreeNode LCA(TreeNode root, TreeNode p, TreeNode q){
+		if (root == null || root == p || root == q) return root;
+		TreeNode left = LCA(root.left, p, q);
+		TreeNode right = LCA(root.right, p, q);
+		if (left != null && right != null) return root;
+		else if (left != null) return left;
+		return right;
+		//include case right!= null
+		//and case right == null && left == null
+
+		//can write as
+		//return (left != null) left : right; 
+
+		/*
+			can also write as
+			if (left == null) return right;
+			if (right == null) return left;
+			return root;
+		*/
+	}
+
+
+	//15.2 root to leaf, all leaf node is positive!
+	public int pathSum(TreeNode root) {
+		if (root == null) return 0;
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+		return root.val + Math.max(leftSum, rightSum);
+	}
+
+	//if with negative leaf node
+	public int pathSum(TreeNode root) {
+		if (root == null) return Integer.MIN_VALUE;
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+		int returnVal = Math.max(leftSum, rightSum);
+		return (returnVal == 
+			Integer.MIN_VALUE) ? root.val : root.val + returnVal;
+	}
+
+	//15.3 any node to root
+	//only return positive, or 0
+	public int pathSum(TreeNode root) {
+		if (root == null) return Integer.MIN_VALUE;
+		//for negative node, but can use 0 here also
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+
+		int returnVal = Math.max(leftSum, rightSum);
+		return (returnVal < 0) ? root.val : root.val + returnVal;
+
+		//another write method
+		//return Math.max(Math.max(leftSum + rightSum), 0) + root.val;
+	}
+
+	//15.1 any leaf to any leaf
+	//with all leaf node is positive
+	private int globalMax = 0;
+	public int pathSum(TreeNode root) {
+		if (root == null) return 0;
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+		globalMax = Math.max(globalMax, leftSum + rightSum + root.val);
+		return root.val + Math.max(leftSum, rightSum);
+	}
+
+	//if with negative leaf node
+	private int globalMax = 0;
+	public int pathSum(TreeNode root) {
+		if (root == null) return Integer.MIN_VALUE;
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+		int returnVal = Math.max(leftSum + rightSum);
+		if (leftSum != Integer.MIN_VALUE &&
+			rightSum != Integer.MIN_VALUE) {
+			globalMax = Math.max(globalMax, leftSum + rightSum + root.val);
+		}
+		return (returnVal == 
+			Integer.MIN_VALUE) ? root.val : root.val + returnVal;
+	}
+
+	//15
+	private int globalMax = 0;
+	public int pathSum(TreeNode root) {
+		if (root == null) return 0;
+		int leftSum = pathSum(root.left);
+		int rightSum = pathSum(root.right);
+		int curSum = root.val;
+		if (leftSum > 0) {
+			curSum += leftSum;
+		}
+		if (rightSum > 0) {
+			curSum += rightSum;
+		}
+		globalMax = Math.max(globalMax, curSum);
+		return Math.max(Math.max(leftSum, rightSum), 0) + root.val;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
