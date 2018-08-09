@@ -7868,12 +7868,42 @@ Practice Q9:
 	}
 
 
+	//20 in place operation S2
+	//private field, in order
+	private TreeNode prev = new TreeNode(0);
+	private TreeNode head = prev;
+	private void inOrder(TreeNode root) {
+		if (root == null) return;
+		inOrder(root.left);
+		prev.right = root;
+		//if prev == null
+		//nullPointerException
+		//in that case head = prev;
+		root.left = prev;
+		prev = root;
+		inOrder(root.right);
+	}
+
+	//another possible method
+	private void inOrder(TreeNode root, TreeNode[] prev) {
+		if (root == null) return;
+		inOrder(root.left, prev);
+		prev[0].right = root;
+		root.left = prev[0];
+		prev[0] = root;
+		inOrder(root.right, prev);
+	}
 
 
-
-
-
-
+	//S3 check answer here!!!
+	public TreeNode inOrder(TreeNode root) {
+		if (root == null) return root;
+		TreeNode r = inOrder(root.right);
+		if (r != null) r.left = root;
+		root.right = r;
+		TreeNode l = inOrder(root.left);
+		return l;
+	}
 
 
 
