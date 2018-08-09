@@ -7909,7 +7909,94 @@ Practice Q9:
 
 
 
+//8/8
+	public TreeNode flatten(TreeNode root) {
+		flatten(root, null);
+	}
 
+	private TreeNode flatten(TreeNode root, TreeNode tail) {
+		if (root == null) return tail;
+		root.right = flatten(root.left, flatten(root.right, tail));
+		root.left = null;
+		return root;
+	}
+
+	//Q21 wrong answer
+	private TreeNode sortedArrayToBST(int[] nums, int start, int end) {
+		if (start > end) return null;
+		if (start == end) return new TreeNode(num[start]);
+		int mid = start + (end - start) / 2;
+		TreeNode left = sortedArrayToBST(nums, start, mid - 1);
+		TreeNode right = sortedArrayToBST(nums, mid + 1, end);
+	}
+
+
+//lesson 20
+	public String removeDuplicateLetters(String s) {
+		if (s == null || s.length() <= 1) return s;
+		//remove duplicate!!! remmerber to check corner case
+		StringBuilder sb = new StringBuilder();
+		Stack<Character> st = new Stack<>();
+		for (char letter : s) {
+			if (st.isEmpty() || st.peek() != letter) {
+				st.push(letter);
+				sb.append(letter);
+				//append while check stack
+				//one pass
+			}
+		}
+		return sb.toString();
+	}
+
+
+	public String removeDuplicateLetters(String s) {
+		if (s == null || s.length() <= 1) return s;
+		//remove duplicate!!! remmerber to check corner case
+		StringBuilder sb = new StringBuilder();
+		for (char letter : s) {
+			if (sb.length() == 0 || sb.charAt(sb.length()) != letter) {
+				sb.append(letter);
+				//append while check stack
+				//one pass
+			}
+		}
+		return sb.toString();
+	}
+
+
+//Q5 S3
+	public int[] moveZeros(int[] arr) {
+		if (arr == null || arr.length <= 1) return arr;
+		int fast = 0;
+		for (int slow = 0; slow < arr.length; slow ++) {
+			if (fast < arr.length && arr[fast] != 0) {
+				arr[slow] = arr[fast];
+			}
+			else if (fast < arr.length && arr[fast] == 0) {
+				slow --;
+			}
+			else {
+				arr[slow] = 0;
+			}
+			fast ++;
+		}
+		return arr;
+	}
+
+
+//Q9 S1
+	private void matrixRotate(int[][] matrix, int offset, int size) {
+		if (size <= 1) return; 
+		int temp;
+		for (int i = 0; i < size - 1; i ++) {//less than size - 1, spiral!!!
+			temp = matrix[offset][offset + i];
+			matrix[offset][offset + i] = matrix[offset + size - 1 - i][offset];
+			matrix[offset + size - 1 - i][offset] = matrix[offset + size - 1][offset + size - 1 - i];
+			matrix[offset + size - 1][offset + size - 1 - i] = matrix[offset + i][offset + size - 1];
+			matrix[offset + i][offset + size - 1] = temp;
+		}
+		matrixRotate(matrix, offset + 1, size - 2);
+	}
 
 
 
