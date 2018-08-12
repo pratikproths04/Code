@@ -1,0 +1,134 @@
+Spring: framework for building Java applications
+
+Spring core framework:
+
+
+
+Java Application Server: Tomcat
+
+
+Inversion of Control(IoC):
+
+
+configuring Spring COntainer:
+	XML file;
+	Java Annotations
+	Java Source Code
+
+
+example: 
+
+	1. Configure your Spring Bean: applicationContext.xml
+	<beans ... >
+		<bean id="myCoach"
+			class="com.luv2code.springdemo.BaseballCoach">
+		</bean>
+	</beans>
+
+	2. Create a Spring Container;
+	ClassPathXmlApplicationContext context = new 
+		ClassPathXmlApplicationContext("applicationContext.xml");
+
+	3. Retrieve Beans from Container
+	Coach theCoach = context.getBean("myCoach", Coach.class);
+
+	When we pass the interface to the method, behind the scenes Spring will cast the object for you.throwing a BeanNotOfRequiredTypeException if the bean is not of the required type.
+
+
+
+Spring Bean is a Java object
+
+Create dependency:
+
+Constructor injection:
+
+	1. Define the dependency interface and class;
+
+	2. Create a constructor in your class for injections
+
+	3. Configure the dependency file in Spring config file
+
+	in XML file:
+	<bean id="myFortuneService"
+		class="com.luv2code.springdeml.HappyFortuneService">
+	</bean>
+
+	<bean id="myCoach"
+		class="com.luv2code.springdemo.BaseballCoach">
+		<constructor-arg ref="myFortuneService" />
+	</bean>
+
+	done by Spring:
+
+	HappyFortuneService myFortuneService = 
+		new HappyFortuneService();
+
+	BaseballCoach myCoach = 
+		new BaseballCoach(myFortuneService);
+
+
+Setter injection:
+
+	1. Create setter methods in your class for injections
+
+	2. Configure the dependency injection in Spring config file
+
+	<property name="fortuneService" ref="myFortuneService" />
+	setter method has format limit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
