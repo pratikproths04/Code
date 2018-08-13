@@ -128,6 +128,40 @@ prototype:
 	new object for each request
 
 
+Bean Lifecycle method:
+	A. container started
+	B. Bean instantiated
+	C. Dependencies injected
+	D. Internal Spring Processing
+	E. Your custom init method
+	F. Bean is ready for use and container is shutdown
+	G. Custom destroy method
+
+
+Init/Destroy: method configuration
+<bean id="myCoach"
+	class="com.luv2code.springdemo.BaseballCoach"
+	init-method="doMyStartupStuff"
+	destroy-method="doMyCleanupStuuff">
+</bean>
+
+these methods can have any access modifier(public, protected, private);
+any return type (void is most commonly used);
+the method cannot accept any arguments, should be no-arg;
+
+Destroy method is not called for beans of scope prototype. This is because the context doesn't keep track of the prototype scope objects (if it does, it will cause a memory leak as spring doesn't know when to dispose it).
+
+
+Java Annotations:
+special labels/ makers added to Java classes;
+Provide meta-data about the class
+
+
+
+
+
+
+
 
 
 
