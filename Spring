@@ -157,6 +157,159 @@ special labels/ makers added to Java classes;
 Provide meta-data about the class
 
 
+	1. Eable component scanning in Spring config file
+	<beans ...>
+		<context:component=scan base-package="co.luv2code.springdemo" />
+	</beans>
+
+	spring will scan the package automatically and recursively
+
+	2. Add the @Component Annotation to your Java classes
+	@Component("thatSillyCoach") //bean ID
+	public class RnnisCoach implements Coach{
+		...
+	}
+
+	3. Retrieve bean from Spring container
+	Coach theCoach = context.getBean("thatSillyCoach", Coach.class);
+
+
+
+Default Bean ID:
+	the class name, make the first letter lower-case
+	TennisCoach --> tennisCoach
+	Use the default, does not have to give a specific bean id
+	when the spring cannot find the corresponding bean id, it throws NoSuchBeanDefinitionException error!
+
+
+Spring dependency injection using annotations and autowiring:
+
+Constructor injection:
+	@Autowired //annotaion for constructor
+	Spring will scan for a component
+
+	commented the Autowired annotation. But still it worked:
+
+	As of Spring Framework 4.3, an @Autowired annotation on such a constructor is no longer necessary if the target bean only defines one constructor to begin with. However, if several constructors are available, at least one must be annotated to teach the container which one to use.
+
+
+Setter injection:
+	@Autowired //annotaion for setter
+
+	Autowired method, will do itself automatically, do not have to call it!Including constuctor method and setter method!!!
+
+
+Method injection:
+	Any method, just add @Autowired, Spring will seach for the class, it will run automatically
+
+
+Field injection:
+	inject dependencies by setting field values on your class directly, even private fields
+	Accomplished by Java reflection
+
+	no need for setter method;
+
+	place @Autowired directly on the field
+
+
+Multiple implementations:
+	It will throw exceptions, NoUniqueBeanDefinitionException;
+	need to tell Spring which bean to use
+	@Qualifier("happyFortuneService"), give the bean id! Even the default id.
+
+	can apply on constructor, setter, field injection
+
+
+RandomService --> randomService (default ID)
+
+RESTFortuneService --> RESTFortuneService (default ID)
+No conversion since the first two characters are upper case.
+Spring uses the Java Beans Introspector to generate the default bean name.
+
+constructor injection:
+//constructor injection
+@Autowired
+public TennisCoach(@Qualifier("randomFortuneService")FortuneService theFortuneService){
+    System.out.println("\nHey! Inside the constructor. Spring will setup the object automatically!");
+    this.theFortuneService = theFortuneService;
+}
+setter method/any other method can use the field injection way!!!
+
+
+Inject properties file using Java annotations:
+	1. Create a properties file to hold your properties. It will be a name value pair.  
+
+
+	New text file:  src/sport.properties
+
+	foo.email=myeasycoach@luv2code.com
+	foo.team=Silly Java Coders
+
+	It must be stored in src/sport.properties
+
+	2. Load the properties file in the XML config file.
+	<context:property-placeholder location="classpath:sport.properties"/>  
+
+	3. Inject the properties values into your Swim Coach: SwimCoach.java
+
+	@Value("${foo.email}")
+	private String email;
+	    
+	@Value("${foo.team}")
+	private String team;
+
+
+Bean Scopes with Annotations:
+	specify Bean Scope using annotations,
+	@Scope("prototype")
+
+Bean Lifecycle Methods with Annotations:
+1. Define the init method and destroy method
+2. Add annotations: @PostConstruct @PreDestroy
+
+you can give any method name!!!
+
+@PostContruct and @PreDestroy methods.
+
+Access modifier
+
+The method can have any access modifier (public, protected, private)
+
+Return type
+The method can have any return type. However, "void' is most commonly used. If you give a return type just note that you will not be able to capture the return value. As a result, "void" is commonly used.
+
+Method name
+The method can have any method name.
+
+Arguments
+The method can not accept any arguments. The method should be no-arg.
+
+in the case of prototypes, configured destruction lifecycle callbacks are not called.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
