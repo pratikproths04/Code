@@ -8030,6 +8030,323 @@ Practice Q9:
 	}
 
 
+//8/12
+	//Q5
+	public void removeBST(TreeNode root, int target) {
+		if (root == null) return;
+		while (root != null && root.val != target) {
+			root = (root.val < target) ? root.right : root.left;
+		}
+		if (root == null) return;
+
+		TreeNode cur = root;
+		if (cur.left != null) {
+			while (cur.right != null && cur.right.right != null) {
+				cur = cur.right;
+			}
+			root.val = cur.val;
+
+		}
+	}
+
+
+	//return one TreeNode is better
+	public TreeNode removeAndReturn(TreeNode root, int target) {
+		//add some corner cases
+		if (root.val == target) {
+			if (root.left != null && root.right != null) {
+				root.val = findMin(root.right).val;
+				root.right = removeAndReturn(root.right, root.val);
+				//Key step!!!
+			}
+			else {
+				root = (root.left != null) ? root.left : root.right;
+				//key step!!!
+				//include all other cases, including all null children
+			}
+		}
+		else if (root.val > target) {
+			root.left = removeAndReturn(root.left, target);
+		}
+		else if (root.val < target) {
+			root.right = removeAndReturn(root.right, target);
+		}
+		return root;
+	}
+
+
+	private TreeNode findMin(TreeNode root) {
+		while (root.left != null) {
+			root = root.left;
+		}
+		return root;
+	}
+
+	private TreeNode findMin(TreeNode root) {
+		if (root.left == null) return root;
+		return findMin(root.left);
+	}
+
+
+	//Q7
+	public TreeNode reverseBST(TreeNode root) {
+		if (root == null || root.left == null) return root;
+		TreeNode leftNew = reverseBST(root.left);
+		root.left.right = root;
+		root.left.left = root.right;
+		root.left = null;
+		root.right = null;
+		return leftNew;
+	}
+
+
+278.
+	public class Solution extends VersionControl {
+	    public int firstBadVersion(int n) {
+	        int left = 1, right = n;
+	        int mid = (left + right) / 2;
+	        if (n == 1) {
+	            return isBadVersion(1) ? 1 : 0;
+	        }
+	        while (left > right) {
+	            if (isBadVersion(mid)) {
+	                right = mid;
+	                mid = (left + right) / 2;
+	            }
+	            else if (!isBadVersion(mid + 1)) {
+	                left = mid + 1;
+	                mid = (left + right) / 2;
+	            }
+	            else if (!isBadVersion(mid) && isBadVersion(mid + 1)) {
+	                return mid + 1;
+	            }
+	        }
+	        return 0;
+	    }
+	}
+
+	//better solution, clearer code, use method 2
+	class Solution extends VersionControl {
+	    public int firstBadVersion(int n) {
+	        int left = 1, right = n, mid;
+	        while (left < right) {
+	            mid = left + (right - left) / 2;
+	            if (isBadVersion(mid)) {
+	                right = mid;
+	            }
+	            else {
+	                left = mid + 1;
+	            }
+	        }
+	        return (isBadVersion(left)) ? left : right;
+	    }
+	}
+
+	//best solution, method 3
+	class Solution extends VersionControl {
+	    public int firstBadVersion(int n) {
+	        int left = 1, right = n, mid;
+	        while (left <= right) {
+	            mid = left + (right - left) / 2;
+	            if (isBadVersion(mid)) {
+	                right = mid - 1;
+	            }
+	            else {
+	                left = mid + 1;
+	            }
+	        }
+	        return left;
+	    }
+	}
+
+
+374.
+	//very easy binary search, nothing serious to say!
+	public class Solution extends GuessGame {
+	    public int guessNumber(int n) {
+	        int left = 1, right = n, mid;
+	        while(left <= right) {
+	            mid = left + (right - left) / 2;
+	            int result = guess(mid);
+	            if (result == 0) {
+	                return mid;
+	            } else if (result == 1) {
+	                left = mid + 1;
+	            } else {
+	                right = mid - 1;
+	            }
+	        }
+	        return left;
+	    }
+	}
+
+
+34.
+	public int[] searchRange(int[] nums, int target) {
+        int leftIndex = 0, rightIndex = 0;
+        int left = 0, right = nums.length - 1, mid = (left + right) / 2;
+        while (!(left >= right)) {
+            if (nums[mid] > target) {
+                right = mid - 1;
+            }
+            else if (nums[mid] < target) {
+                left = mid + 1;
+            }
+            else {
+                right = mid;
+            }
+            mid = (left + right) / 2;
+        }
+        leftIndex = left;
+        left = 0; right = nums.length - 1; mid = (left + right) / 2;
+        while (!(left >= right)) {
+            if (nums[mid] > target) {
+                right = mid - 1;
+            }
+            else if (nums[mid] < target) {
+                left = mid + 1;
+            }
+            else {
+                left = mid;
+            }
+            mid = (left + right) / 2;
+        }
+        rightIndex = right;
+        return new int[]{leftIndex, rightIndex};
+    }
+
+
+    //another method
+    public int[] searchRange(int[] nums, int target) {
+        int[] res = new int[]{-1, -1};
+        //use array initializaion
+        if (nums == null || nums.length == 0) return res;
+        int left = 0, right = nums.length - 1, mid;
+        if (nums[left] > target || nums[right] < target) return res;
+        //method 3 cannot deal with the condition that, 
+        //out of range, smaller than the first one and larger than the last one
+
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            if (nums[mid] < target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        if (nums[left] != target) {
+            return res;
+        }
+        res[0] = left;
+        //start can be find at left index of method 3
+
+        left = 0;
+        right = nums.length - 1;
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            if (nums[mid] <= target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }            
+        }
+        res[1] = right;
+        //end can be find at the last index of method 3
+
+        return res;
+    }
+
+
+658.
+	public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        LinkedList<Integer> res = new LinkedList<>();
+        if (arr == null || arr.length == 0) return res;
+        //casting, create LinkedList, return as a List
+
+        int left = 0, right = arr.length - 1, mid = 0;
+        if (arr[left] >= x) {
+            while (left < k) {
+                res.add(arr[left ++]);
+            }
+            return res;
+        } else if (arr[right] <= x) {
+            while (k > 0) {
+                res.add(arr[arr.length - k]);
+                k --;
+            }   
+            return res;
+        }
+        
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            if (arr[mid] == x) {
+                break;
+            } else if (arr[mid] < x) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        
+        if (arr[mid] != x) {
+            mid = (Math.abs(arr[left] - x) < Math.abs(arr[right] - x)) ? left : right;
+        }
+        res.addLast(arr[mid]);
+        left = mid - 1;
+        right = mid + 1;
+        k --;
+        
+        while (k > 0) {
+            int leftVal = Integer.MAX_VALUE, rightVal = Integer.MAX_VALUE;
+            //avoid keeping changing int value
+            if (left >= 0) {
+                leftVal = Math.abs(arr[left] - x);
+            }
+            if (right < arr.length) {
+                rightVal = Math.abs(arr[right] - x);
+            }
+            if (leftVal <= rightVal) {
+                res.addFirst(arr[left --]);
+            } else {
+                res.addLast(arr[right ++]);
+            }
+            k --;
+        }
+        
+        return res;
+    }
+
+
+    //another method, quite clean and quicker
+    public List<Integer> findClosestElements(int[] arr, int k, int x) {
+        int left = 0;
+        int right = arr.length - k;
+        //right start position, making the code below will not throw exception
+        
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (x - arr[mid] > arr[mid + k] - x) { //this can cover the case of negative
+                /*
+                sub array length k + 1, check both end, if left diff > right diff
+                eliminate [left, mid]
+                */
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        //find the kth closest directly       
+        
+        List<Integer> res = new ArrayList<>();
+        for (int i = left; i < left + k; i++) {
+            res.add(arr[i]);
+        }
+        return res;
+    }
+
+
+
+
 
 
 
