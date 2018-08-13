@@ -77,20 +77,55 @@ Setter injection:
 	setter method has format limit
 
 
+Inject literal values:
+	1. Create the setter method;
+
+	2. Configure the injection in Spring config file
+
+	<property name="emailAddress" value="123456@789.com" />
+	setter method has format limit
 
 
+Inject literal file from a property files:
+	1. Create Properties file;
+
+	name-value pair:
+	foo.email = ...
+	foo.team = ...
+
+	2. Load Properties file in spring config file
+
+	<context: property-placeholder location="classpath:filename"/>
+
+	3. reference values from properties file
+
+	${the prop name}
+	<property name="emailAddress" value="${foo.email}" />
 
 
+Bean Scopes:
 
+Singleton: 
+	create only one instance of the bean, all requests for the bean will return a SHARED reference to the SAME bean
 
+	Coach theCoach context.getBean("myCoach", Coach.class);
+	Coach alphaCoach = context.getBean("myCoach", Coach.class);
 
+	all above points to the same bean, it only creates one bean
 
+	Explicitly specify Bean Scope:
+	set bean scope:
+		<bean id="myCoach"
+			class="com.luv2code.springdemo.BaseballCoach"
+			scope="singleton">
+			<constructor-arg ref="myFortuneService" />
+		</bean>
 
+Additional Spring Bean Scopes:
+	prototype request session global-session
 
-
-
-
-
+prototype:
+	new object for each request
 
 
 
