@@ -3549,49 +3549,6 @@ Practice Q9:
     }
 
 
-162.
-	time complexity is O(logn)
-	space complexity is O(1)
-	public int findPeakElement(int[] nums) {
-        if (nums.length == 1 || nums[0] > nums[1]) return 0;
-        //edge case 1: one element
-        //edge case 2: the first element is a peak
-        if (nums[nums.length - 1] > nums[nums.length - 2]) return nums.length - 1;
-        //edge case 3: the last element is a peak
-        
-        int left = 0, right = nums.length - 1, mid;
-        while (left + 1 < right) {
-            mid = left + (right - left) / 2;
-            if (mid > 0 && mid < nums.length - 1 && nums[mid] > nums[mid - 1] && nums[mid] > nums[mid + 1]) return mid;
-            //test mid
-            else if (mid == 0 && nums[mid] <= nums[mid + 1]) left = mid;
-            else if (nums[mid] >= nums[mid - 1] && nums[mid] <= nums[mid + 1]) left = mid;
-            //move left to mid if the mid is on the up slope
-            else right = mid;
-            //move right to mid if the mid is on the down slope
-        }
-        return (nums[left] < nums[right]) ? right : left;   
-        //post-processing    
-    }
-
-    //another method
-    public int findPeakElement(int[] nums) {
-        int l = 0;
-        int r = nums.length - 1;
-        while (l <= r) {
-            int mid = (r - l) / 2 + l;
-            if ((mid == 0 || nums[mid] > nums[mid - 1]) && (mid == nums.length - 1 || nums[mid] > nums[mid + 1])) return mid;
-            //this judgment is too good!
-            //it covers three possible cases
-            if (mid == 0 || nums[mid] > nums[mid - 1]) {
-                l = mid + 1;
-            } else {
-                r = mid - 1;
-            }
-        }
-        return l;
-    }
-
 
 302.
 	//using DFS
@@ -8345,7 +8302,477 @@ Practice Q9:
     }
 
 
+//8/14
+162.
+	//three different method
+	//method, use the BS
+	//when changing the state, move the pointer
+	class Solution {
+	    public int findPeakElement(int[] nums) {
+	        if(nums.length == 1 || nums[0] > nums[1]) return 0;
+	        if(nums[nums.length - 1] > nums[nums.length - 2]) return nums.length - 1;
+	        int left = 0, right = nums.length - 1, mid;
+	        while (left < right) {
+	            mid = left + (right - left) / 2;
+	            if (mid - 1 >= 0 && mid + 1 < nums.length && nums[mid] > nums[mid + 1] && nums[mid] > nums[mid - 1]) return mid;
+	            //pay attention to the corner case
+	            else if (mid - 1 < 0 || mid + 1 < nums.length && nums[mid] <= nums[mid + 1] && nums[mid] >= nums[mid - 1]) left = mid + 1;
+	            //move left pointer, if it is going upside, and in the leftmost end
+	            else right = mid;
+	            //all other cases
+	        }
+	        return left;
+	        //this must work if there is a peak
+	    }
+	}
 
+	time complexity is O(logn)
+	space complexity is O(1)
+	public int findPeakElement(int[] nums) {
+        if (nums.length == 1 || nums[0] > nums[1]) return 0;
+        //edge case 1: one element
+        //edge case 2: the first element is a peak
+        if (nums[nums.length - 1] > nums[nums.length - 2]) return nums.length - 1;
+        //edge case 3: the last element is a peak
+        
+        int left = 0, right = nums.length - 1, mid;
+        while (left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (mid > 0 && mid < nums.length - 1 && nums[mid] > nums[mid - 1] && nums[mid] > nums[mid + 1]) return mid;
+            //test mid
+            else if (mid == 0 && nums[mid] <= nums[mid + 1]) left = mid;
+            else if (nums[mid] >= nums[mid - 1] && nums[mid] <= nums[mid + 1]) left = mid;
+            //move left to mid if the mid is on the up slope
+            else right = mid;
+            //move right to mid if the mid is on the down slope
+        }
+        return (nums[left] < nums[right]) ? right : left;   
+        //post-processing    
+    }
+
+    //another method
+    public int findPeakElement(int[] nums) {
+        int l = 0;
+        int r = nums.length - 1;
+        while (l <= r) {
+            int mid = (r - l) / 2 + l;
+            if ((mid == 0 || nums[mid] > nums[mid - 1]) && (mid == nums.length - 1 || nums[mid] > nums[mid + 1])) return mid;
+            //this judgment is too good!
+            //it covers three possible cases
+            if (mid == 0 || nums[mid] > nums[mid - 1]) {
+                l = mid + 1;
+            } else {
+                r = mid - 1;
+            }
+        }
+        return l;
+        //check the final state, it will be left pointer, for right pointer is less than the left pointer, only way to cause this
+        //can lead to the condition before;
+    }
+
+LintCode 447.
+	//Q9, Seach in a big sorted array
+	public int findNum(ArrayReader reader, int k) {
+		if (reader.get(0) > k) return -1;
+
+		int aim = 1;
+		while (reader.get(aim) < k) {
+			aim *= 2;
+		}
+		//key, you can set the seach range by log(k)
+
+		if (reader.get(aim) == k) return aim;
+
+		int left = 0, right = aim, mid, temp;
+		while (left <= right) {
+			mid = left + (right - left) / 2;
+			temp = reader.get(mid);
+			if (temp == k) return mid;
+			else if (temp < k) left = mid + 1;
+			else right = mid - 1;
+		} 
+		return -1;
+	}
+
+
+LintCode 183.
+	//wood cut problem
+	//O(nlog(len)) for time complexity
+	//key here is to give a len limit by O(log(len)), this is done
+	//by increase each time through times 2;
+	public class Solution {
+	    /**
+	     * @param L: Given n pieces of wood with length L[i]
+	     * @param k: An integer
+	     * @return: The maximum length of the small pieces
+	     */
+	    public int woodCut(int[] L, int k) {
+	        // write your code here
+	        long boundaryLen = 1;
+	        while (canBeDivided(L, boundaryLen, k)) {
+	            boundaryLen *= 2;
+	        }
+	        if (boundaryLen == 1) return 0;
+	        //conner case, do not forget!!!
+
+	        long left = boundaryLen / 2, right = boundaryLen, mid;
+	        //the length might beyond the int boundary
+	        while (left <= right) {
+	            mid = left + (right - left) / 2;
+	            if (canBeDivided(L, mid, k)) {
+	                left = mid + 1;
+	            } else {
+	                right = mid - 1;
+	            }
+	        }
+	        return (int) right;
+	        //int and long can transform to each other by adding (int) or (long)
+	    }
+	    
+	    private boolean canBeDivided(int[] L, long len, int k) {
+	        long temp = 0;
+	        for (int each : L){
+	            temp = temp + (each / len); 
+	        }
+	        return temp >= k;
+	        //int and long can directly compare or add or minus
+	        //the result return is long
+	    } 
+	}
+
+
+33.
+	class Solution {
+    	public int search(int[] A, int target) {
+	        if (A.length == 0) {return -1;}
+	        int lo = 0;
+	        int hi = A.length - 1;
+	        while (lo < hi) {
+	            int mid = (lo + hi) / 2;
+	            if (A[mid] == target) return mid;
+
+	            if (A[lo] <= A[mid]) {
+	                if (target >= A[lo] && target < A[mid]) {
+	                    hi = mid - 1;
+	                } else {
+	                    lo = mid + 1;
+	                }
+	            } else {
+	                if (target > A[mid] && target <= A[hi]) {
+	                    lo = mid + 1;
+	                } else {
+	                    hi = mid - 1;
+	                }
+	            }
+	        }
+	        return A[lo] == target ? lo : -1;
+	    }
+	}
+
+	//by self, the method, less effective
+	class Solution {
+	    public int search(int[] A, int target) {
+	        if (A == null || A.length == 0) return -1;
+	        int left = 0, right = A.length - 1, mid;
+	        while(left < right) {
+	            mid = left + (right - left) / 2;
+	            if (A[mid] >= A[left] && A[mid] > A[right]) left = mid + 1;
+	            else right = mid;
+	        }
+	        if (A[left] > target || left > 0 && A[left - 1] < target || left == 0 && A[A.length - 1] < target) return -1;
+	        if (left != 0 && A[0] <= target) {
+	            return binarySearch(A, target, 0, left - 1);
+	        }
+	        return binarySearch(A, target, left, A.length - 1);
+	    }
+	    
+	    private int binarySearch(int[] A, int target, int start, int end) {
+	        int mid;
+	        while (start <= end) {
+	            mid = start + (end - start) / 2;
+	            if (A[mid] == target) return mid;
+	            else if (A[mid] < target) start = mid + 1;
+	            else end = mid - 1;
+	        }
+	        return -1;
+	    }
+	}
+
+
+35.
+	//this problem is also the problem of finding the closest number in the array
+	//primitive method, scan once
+	class Solution {
+	    public int searchInsert(int[] nums, int target) {
+	        int index = 0;
+	        for (int i = 0; i < nums.length; i ++){
+	            if (nums[i] >= target){
+	                index = i;
+	                break;
+	            }
+	        }
+	        if (nums[nums.length - 1] < target){
+	            index = nums.length;
+	        }
+	        return index;
+	    }
+	}
+
+	//binary search method to solve this problem
+	class Solution {
+	    public int searchInsert(int[] nums, int target) {
+	        if (nums.length == 0 || nums[0] >= target) return 0;
+	        //combine the corner cases, the finding case and not finding case
+	        int left = 0, right = nums.length - 1, mid;
+	        while(left < right) {
+	            mid = left + (right - left) / 2;
+	            if (nums[mid] == target) return mid;
+	            else if (nums[mid] < target) left = mid + 1;
+	            else right = mid;
+	        }
+	        return (nums[left] >= target) ? left : left + 1;
+	    }
+	}
+
+
+81.
+	//rotated array, consider the repeat elements
+	//primiry solution
+	class Solution {
+	    public boolean search(int[] nums, int target) {
+	        if (nums.length == 0) {return false;}
+	        for (int each : nums) {
+	            if (target == each) {return true;}
+	        }
+	        return false;
+	    }
+	}
+
+	//binary search solution
+	//give this solution as an example
+	public boolean search(int[] nums, int target) {
+        int start = 0, end = nums.length - 1, mid = -1;
+        while(start <= end) {
+            mid = (start + end) / 2;
+            if (nums[mid] == target) {
+                return true;
+            }
+            //If we know for sure right side is sorted or left side is unsorted
+            if (nums[mid] < nums[end] || nums[mid] < nums[start]) {
+                if (target > nums[mid] && target <= nums[end]) {
+                    start = mid + 1;
+                } else {
+                    end = mid - 1;
+                }
+            //If we know for sure left side is sorted or right side is unsorted
+            } else if (nums[mid] > nums[start] || nums[mid] > nums[end]) {
+                if (target < nums[mid] && target >= nums[start]) {
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
+            //If we get here, that means nums[start] == nums[mid] == nums[end], then shifting out
+            //any of the two sides won't change the result but can help remove duplicate from
+            //consideration, here we just use end-- but left++ works too
+            } else {
+                end--;
+            }
+        }
+        
+        return false;
+    }
+
+    //another binary solution
+    class Solution {
+	    public boolean search(int[] nums, int target) {
+	        if(nums == null || nums.length == 0){
+	            return false;
+	        }
+	        
+	        int low = 0, high = nums.length - 1;
+	        while(high > low + 1){
+	            int mid = low + (high - low) / 2;
+	            
+	            if(nums[low] == nums[high]){
+	                if(target < nums[mid]){
+	                    if(nums[mid] < nums[low]){
+	                        high = mid;
+	                    }else if(nums[mid] > nums[low]){
+	                        if(target < nums[low]){
+	                            low = mid;
+	                        }else if(target > nums[low]){
+	                            high = mid;
+	                        }else{
+	                            return true;
+	                        }
+	                    }else{
+	                        low++;
+	                    }
+	                }else if(target > nums[mid]){
+	                    if(nums[mid] < nums[low]){
+	                        if(target < nums[low]){
+	                            low = mid;
+	                        }else if(target > nums[low]){
+	                            high = mid;
+	                        }else{
+	                            return true;
+	                        }
+	                    }else if(nums[mid] > nums[low]){
+	                        low = mid;
+	                    }else{
+	                        high--;
+	                    }
+	                }else{
+	                    return true;
+	                }
+	            }else{
+	                if(target < nums[mid]){
+	                    if(nums[mid] < nums[low]){
+	                        high = mid;
+	                    }else if(nums[mid] > nums[low]){
+	                        if(target > nums[low]){
+	                            high = mid;
+	                        }else if(target < nums[low]){
+	                            low = mid;
+	                        }else{
+	                            return true;
+	                        }
+	                    }else{
+	                        low = mid;
+	                    }
+	                }else if(target > nums[mid]){
+	                    if(nums[mid] < nums[low]){
+	                        if(target < nums[low]){
+	                            low = mid;
+	                        }else if(target > nums[low]){
+	                            high = mid;
+	                        }else{
+	                            return true;
+	                        }
+	                    }else{
+	                        low = mid;
+	                    }
+	                }else{
+	                    return true;
+	                }
+	            }
+	        }
+	        
+	        if(target == nums[low]){
+	            return true;
+	        }
+	        
+	        if(target == nums[high]){
+	            return true;
+	        }
+	        
+	        return false;
+	    }
+	}
+
+
+300.
+	//dynamic programming O(n^2)
+	public int lengthOfLIS(int[] nums) {
+        if (nums == null || nums.length == 0) {return 0;}
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        int res = 1;
+        for (int i = 1; i < nums.length; i ++) {
+            int max = 1;
+            dp[i] = 1;
+            for (int j = 0; j < i; j ++) {
+                if (nums[j] < nums[i]) {
+                    max = Math.max(max, dp[j] + 1);
+                    dp[i] = max;
+                }
+            }
+            res = Math.max(dp[i], res);
+        }
+        return res;
+    }
+
+    //using dynamic programming and binary search
+    //the key here:
+    //this method only record the number (tails), smaller and index as the length
+    class Solution {
+	    public int lengthOfLIS(int[] nums) {
+	        if (nums == null || nums.length == 0) return 0;
+	        int[] res = new int[nums.length];
+	        int size = 0;
+	        for (int element : nums) {
+	            int left = 0, right = size, mid;
+	            //here, right is not including in the effect area
+	            //[left, right - 1]
+	            while (left < right) {
+	                mid = left + (right - left) / 2;
+	                if (res[mid] < element) {
+	                    left = mid + 1;
+	                } else {
+	                    right = mid;
+	                }
+	            }
+	            //the result of the while loop, three cases:
+	            //One, element is beyond the boundary, left = right = size
+	            //Two, element is inside the range, left = right ===> res[right] >= element
+	            //Three, element is smaller than left, left = right ===> res[right] >= element
+	            //Therefore, it can apply res[left] = element
+	            res[left] = element;
+	            //increase size if left == size
+	            if (left == size) size ++;
+	        }
+	        return size;
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
