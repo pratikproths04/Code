@@ -264,27 +264,111 @@ Bean Scopes with Annotations:
 	@Scope("prototype")
 
 Bean Lifecycle Methods with Annotations:
-1. Define the init method and destroy method
-2. Add annotations: @PostConstruct @PreDestroy
+	1. Define the init method and destroy method
+	2. Add annotations: @PostConstruct @PreDestroy
 
-you can give any method name!!!
+	you can give any method name!!!
 
-@PostContruct and @PreDestroy methods.
+	@PostContruct and @PreDestroy methods.
 
-Access modifier
+	Access modifier
 
-The method can have any access modifier (public, protected, private)
+	The method can have any access modifier (public, protected, private)
 
-Return type
-The method can have any return type. However, "void' is most commonly used. If you give a return type just note that you will not be able to capture the return value. As a result, "void" is commonly used.
+	Return type
+	The method can have any return type. However, "void' is most commonly used. If you give a return type just note that you will not be able to capture the return value. As a result, "void" is commonly used.
 
-Method name
-The method can have any method name.
+	Method name
+	The method can have any method name.
 
-Arguments
-The method can not accept any arguments. The method should be no-arg.
+	Arguments
+	The method can not accept any arguments. The method should be no-arg.
 
-in the case of prototypes, configured destruction lifecycle callbacks are not called.
+	in the case of prototypes, configured destruction lifecycle callbacks are not called.
+
+
+
+Java Configuration Class: No XML
+	1. Create a Java class and annotate as @Configuration
+	2. Add component scanning support: @ComponentScan
+	3. Read Spring Java configuration class
+	AnnotationConfigApplicationContext context = 
+		new AnnotationConfigApplicationContext(SportConfig.class);
+	4. Retrieve bean from Spring container
+
+
+1. Define method to expose bean
+
+	@Bean
+	public Coach swimCoach() { //this is also the bean id
+		SwimCoach mySwimCoach = ...
+	}
+
+
+2. Inject bean dependencies
+
+3. Read Spring Java configuration class
+
+4. Retrieve bean from Spring container
+
+
+
+Inject values from properties file:
+1. Create Properties File
+2. Load
+@PropertySource("")
+3. Reference Values
+@Value("${foo.email}")
+
+
+Spring MVC: Model-View-Controller
+Documentation: www.luv2code.com/spring-mvc-docs
+
+view tempplates: JSP + JSTL
+
+Apache Tomcat
+Eclipse(Java EE version)
+Connected TomCat to Eclipse
+
+
+MVC development process:
+	1. Create controller class
+	@Controller
+	it inherits from @Component, supports scanning
+
+	2. Define controller method
+	@Controller
+
+	3. Add request mapping to controller method
+	@RequestMapping("/")
+
+	4. Return view name
+
+	5. Develop view page
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
