@@ -8726,6 +8726,23 @@ LintCode 183.
 	}
 
 
+41.
+	public int firstMissingPositive(int[] nums) {
+		//corner case
+		for (int i = 0; i < nums.length; i ++) {
+			if (nums[i] != i + 1 && nums[i] > 0 && nums[i] <= nums.length) {
+				if (nums[nums[i] - 1] == nums[i]) continue;
+				int tmp = nums[nums[i] - 1];
+				nums[nums[i] - 1] = nums[i];
+				nums[i] = tmp;
+				i --;
+			}
+		}
+		for (int i = 0; i < nums.length; i ++) {
+			if (nums[i] != i + 1) return i + 1;
+		}
+		return nums.length + 1;
+	}
 
 
 
