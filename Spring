@@ -347,30 +347,119 @@ MVC development process:
 	5. Develop view page
 
 
+Read form data using Spring MVC:
+	1. Controller class
+	2. Show HTML form
+	3. Process HTML form
 
 
+JSP:
+	<br> one space line
+	in jsp, to the router, do not add "/""
 
 
+Adding data to the spring model:
+controller put data in the model
+JSP can access data from the model
+
+s
+Tomcat reload the page, every 10 seconds
 
 
+How to use CSS, JS and images in Spring MVC app:
+	Any static resource is processed as a URL Mapping in Spring MVC.
+
+	Step 1: Add the following entry to your Spring MVC configuration file: spring-mvc-demo-servlet.xml
+
+	You can place this entry anywhere in your Spring MVC config file.
+
+	<mvc:resources mapping="/resources/**" location="/resources/"></mvc:resources> 
+
+	Step 2: Now in your view pages, you can access the static files using this syntax:
+
+	<img src="${pageContext.request.contextPath}/resources/images/spring-logo.png"> 
+
+	You need to use the JSP expression ${pageContext.request.contextPath} to access the correct root directory for your web application.
+
+	Apply the same technique for reading CSS and JavaScript.
+
+	---
+
+	Here's a full example that reads CSS, JavaScript and images.
+
+	<!DOCTYPE html> <html>
+
+	<head>
+
+	    <link rel="stylesheet" type="text/css"           
+
+	           href="${pageContext.request.contextPath}/resources/css/my-test.css">
+
+	    <script src="${pageContext.request.contextPath}/resources/js/simple-test.js"></script>
+
+	</head>
+
+	<body>
+
+	<h2>Spring MVC Demo - Home Page</h2>
+
+	<a href="hello">Plain Hello World</a>
+
+	<br><br>
+
+	<img src="${pageContext.request.contextPath}/resources/images/spring-logo.png" />
+
+	<br><br>
+
+	<input type="button" onclick="doSomeWork()" value="Click Me"/>
+
+	</body>
+
+	</html>
 
 
+example 1:
+@RequestMapping("/processFormVersionTwo")
+    public String addToTheForm(HttpServletRequest req, Model model){
+
+        //Read the data from HTML form
+        String data = req.getParameter("studentName");
+
+        //convert data
+        data = data.toUpperCase();
+
+        //create the message
+        String res = data + " First trial Good Good!!!";
+
+        //add message to the model
+        model.addAttribute("message", res);
+
+        return "helloWorld";
+
+    }
 
 
+different to read the form data:
+	Using @RequestParam() to read the data
+
+	public String addToTheFormVersionTwo(
+            @RequestParam("studentName") String data, Model model){}
 
 
+Controller Request Mapping:
+	@RequestMapping("/funny")
+	public class FunnyController{
+		@RequestMapping("/showForm")
+		public String showForm(){
+
+		}
+	}
+	final route: /funny/showForm
 
 
+***Why do not have to add in the form action?***
 
-
-
-
-
-
-
-
-
-
+The HTML form uses "processForm" for the form action. Notice that it does not have a forward slash, as a result, this will be relative to the current browser URL. Since the current browser URL is 
 
 
 
