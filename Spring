@@ -462,21 +462,58 @@ Controller Request Mapping:
 The HTML form uses "processForm" for the form action. Notice that it does not have a forward slash, as a result, this will be relative to the current browser URL. Since the current browser URL is 
 
 
+Spring MVC form tags:
+make use of data binding
 
 
+Web structure: JSP
+	<html>
+		regular html...
+		Spring MVC form tags ...
+		more html ...
+	</html>
+
+How to reference Spring MVC form tags:
+	specify the spring namespace at beginning of JSP file
+	<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 
+Spring MVC form tag for text field:
+	before show the form, add a model attribute;
 
 
+	When form is loaded, Spring MVC will call:
+		student.getFirstName()
+
+	When form is submitted, Spring MVC will call:
+		student.setFirstName()
 
 
+Spring MVC form tag for drop down list:
+	<form:select path="country">
+		<form:option value="Brazil" label="Brazil"/>
+		...
+		//value is the code
+		//label is for displayc
+
+	</form:select>
+
+    <form:select path="country">
+        <form:options items="${student.countryOptions}"/>
+    </form:select>
 
 
+Spring MVC Radio Button:
+	<form:radiobutton path="..." value="..." />
+	On submit, Spring will call set method according to path
+	If want to use radiobuttons, use the LinkedHashMap<> as before, the first String is the label
+
+	Map<a, b>: a is value, b is label
+
+	remmeber the setter method and getter method of the path attribute!!! for using ${} and "path"
 
 
-
-
-
+Spring MVC checkbox:
 
 
 
