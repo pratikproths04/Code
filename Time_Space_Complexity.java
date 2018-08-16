@@ -3730,6 +3730,46 @@ Practice Q9:
 	    return len;
 	}
 
+	//using binary search!!!
+	//key is to sort with ascending first number and descending second number, so the behind pair can
+	//replace the first pair??? need to think more!!!
+	class Solution {
+	    public int maxEnvelopes(int[][] envelopes) {
+	        if (envelopes == null || envelopes.length == 0 || envelopes[0].length == 0) return 0;
+	        if (envelopes.length == 1) return 1;
+	        
+	        Arrays.sort(envelopes, new Comparator<int[]>(){
+	            @Override
+	            public int compare(int[] a, int[] b) {
+	                if (a[0] == b[0]) {
+	                    return b[1] - a[1];
+	                }
+	                return a[0] - b[0];
+	            }
+	        });
+	        
+	        int[] dp = new int[envelopes.length];
+	        int size = 0;
+	        for (int i = 0; i < envelopes.length; i ++) {
+	            int left = 0, right = size, mid;
+	            while (left < right) {
+	                mid = left + (right - left) / 2;
+	                if (envelopes[dp[mid]][0] < envelopes[i][0] && envelopes[dp[mid]][1] < envelopes[i][1]) {
+	                    left = mid + 1;
+	                } else {
+	                    right = mid;
+	                }
+	            }
+	            if (left == size) {
+	                size ++;
+	            }
+	            dp[left] = i;
+	        }
+	        
+	        return size;
+	    }
+	}
+
 
 225.
 	//using one queue
@@ -8763,6 +8803,315 @@ LintCode 183.
 		//}
 		return res / 3;//res % 7 is also good
 	}
+
+
+//8/16
+74.
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix.length == 0 || matrix[0].length == 0) return false;
+        
+        int left = 0, right = matrix.length - 1, mid;
+        while (matrix.length != 1 && left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (matrix[mid][0] == target) return true;
+            else if (matrix[mid][0] < target) left = mid;
+            else right = mid;
+        }
+        if (matrix[left][0] == target || matrix[right][0] == target) return true;
+        if (matrix[left][0] > target) return false;
+        
+        int row = (matrix[right][0] < target) ? right : left;
+        left = 0;
+        right = matrix[0].length - 1;     
+        while (left + 1 < right) {
+            mid = left + (right - left) / 2;
+            if (matrix[row][mid] == target) return true;
+            else if (matrix[row][mid] > target) right = mid;
+            else left = mid;
+        }
+        if (matrix[row][left] == target || matrix[row][right] == target) return true;
+        
+        return false;
+    }
+
+    //search through the row first, then the column
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return false;
+        int rowLen = matrix.length, colLen = matrix[0].length;
+        if (matrix[0][0] > target || matrix[rowLen - 1][colLen - 1] < target) return false;
+        
+        int left = 0, right = rowLen - 1, mid;
+        while (left< right) {
+            mid = left + (right - left) / 2;
+            if (matrix[mid][0] == target) return true;
+            else if (matrix[mid][0] < target) left = mid + 1;
+            else right = mid;
+        }
+        
+        if (matrix[left][0] == target) return true;
+        if (matrix[left][0] > target) left --;
+        
+        int start = 0, end = colLen - 1;
+        while (start <= end) {
+            mid = start + (end - start) / 2;
+            if (matrix[left][mid] == target) return true;
+            else if (matrix[left][mid] < target) start = mid + 1;
+            else end = mid - 1;
+        }
+        return false;
+    }
+
+    //treat the matrix as a ascending array
+    public boolean searchMatrix(int[][] matrix, int target) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return false;
+        int rowLen = matrix.length, colLen = matrix[0].length;
+        if (matrix[0][0] > target || matrix[rowLen - 1][colLen - 1] < target) return false;
+        
+        int left = 0, right = rowLen * colLen - 1, mid;
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            if (matrix[mid / colLen][mid % colLen] == target) return true;
+            else if (matrix[mid / colLen][mid % colLen] < target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return false;
+    }
+
+
+275.
+	public int hIndex(int[] citations) {
+        int hIndex = 0;
+        for (int i = 0; i < citations.length; i ++) {
+            if (citations[citations.length - 1 - i] > i) {
+                hIndex = i + 1;
+            }
+        }
+        return hIndex;
+    }
+
+    //using binary search
+    public int hIndex(int[] citations) {
+        if (citations == null || citations.length == 0) return 0;
+        int left = 0, right = citations.length - 1, mid = 0, len = citations.length;
+        while (left <= right) {
+            mid = left + (right - left) / 2;
+            if (citations[mid] == len - mid) {
+                return len - mid;
+            } else if (citations[mid] < len - mid) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        return len - left;
+    }
+/*
+    IMPORTANT POINTS:
+    1. [0, i) is of size i, [0, i] is of size i + 1;
+    2. [i, len] is of size len - i + 1;
+    3. [i, len) is of size len - i;
+    4. H index: if citations[mid] >= len - mid, then
+    	len - mid is a potential H index;
+    5. Among these potential ones, if citations[mid] == len - mid,
+    	len - mid is the largest potential H index;
+*/
+
+
+410.
+	//binary search method
+	//thinking the sum limit as an array, there is a change of state from 
+	//not working as sum to can be seen as sum
+	//therefore the binary seach can be applied to this problem
+	class Solution {
+	    public int splitArray(int[] nums, int m) {
+	        if (nums.length == 0) return 0;
+	        
+	        int max = 0;
+	        long sum = 0;
+	        for (int each : nums) {
+	            sum += each;
+	            max = Math.max(max, each);
+	        }
+	        return binarySearch(max, sum, nums, m);
+	        //one end for the search array is 
+	        //the largest element among the array
+	        //the other end for the array is
+	        //the sum of all elements
+	    }
+	    
+	    private int binarySearch(long left, long right, int[] nums, int m) {
+	        long mid = 0;
+	        //using long type to avoid adding overflow
+	        while (left < right) {
+	            mid = left + (right - left) / 2;
+	            if (isValid(nums, m, mid)) {
+	                right = mid;
+	            } else {
+	                left = mid + 1;
+	            }
+	        }
+	        return (int) left;
+	        //Two key points here:
+	        //1. do not have to check the sum if it can be formed or not
+	        //	what we are looking for is the lowest changing state number;
+	        //2. do not have to check the left, because the number we are looking for
+	        //	must be inside the range, cannot go beyond at the first place
+	    }
+	    
+	    private boolean isValid(int[] nums, int m, long boundary) {
+	    	//isValid method, checking if the sum can work as limit
+	        long sum = 0; 
+	        int count = 1;
+	        for (int each : nums) {
+	            sum += each;
+	            if (sum > boundary) {
+	                sum = each;
+	                count ++;
+	            }
+	            if (count > m) return false;
+	        }
+	        return true;
+	    }
+	}
+
+
+302.
+	class Solution {
+	    private int[][] move = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+	    private int[] area = new int[]{Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MIN_VALUE,Integer.MIN_VALUE};
+	    
+	    public int minArea(char[][] image, int x, int y) {
+	        if (image.length == 0 || image[0].length == 0) return 0;
+	        
+	        boolean[][] visited = new boolean[image.length][image[0].length];
+	        helper(image, x, y, visited);
+	        return (area[2] - area[0] + 1) * (area[3] - area[1] + 1);
+	    }
+	    
+	    private void helper(char[][] image, int x, int y, boolean[][] visited) {
+	        if (x < 0 || x >= image.length || y < 0 || y >= image[0].length || visited[x][y] || image[x][y] == '0') return;
+	        area[0] = Math.min(area[0], x);
+	        area[1] = Math.min(area[1], y);
+	        area[2] = Math.max(area[2], x);
+	        area[3] = Math.max(area[3], y);
+	        visited[x][y] = true;
+	        for(int[] each : move) {
+	            helper(image, x + each[0], y + each[1], visited);
+	        }
+	    }
+	}
+
+	//binary serach method
+	//rows and cols, both from two ends to the point to search, if the matrix has '1'
+	class Solution {
+	    public int minArea(char[][] image, int x, int y) {
+	        if (image == null || image.length == 0 || image[0].length == 0) return 0;
+	        int cols = BSearch(false, y, image[0].length - 1, image, true) - BSearch(true, 0, y, image, true) + 1;
+	        int rows = BSearch(false, x, image.length - 1, image, false) - BSearch(true, 0, x, image, false) + 1;
+	        return cols * rows;
+	    }
+	    
+	    private int BSearch(boolean fromZero, int start, int end, char[][] image, boolean isCol) {
+	        int mid;
+	        if (fromZero) {
+	            while (start < end) {
+	                mid = start + (end - start) / 2;
+	                if (hasOne(mid, image, isCol)) {
+	                    end = mid;
+	                } else {
+	                    start = mid + 1;
+	                }
+	            }
+	            return start;
+	        } else {
+	            while (start < end) {
+	                mid = start + (end - start) / 2;
+	                if (hasOne(mid, image, isCol)) {
+	                    start = mid + 1;
+	                } else {
+	                    end = mid;
+	                }
+	            } 
+	            return (hasOne(start, image, isCol)) ? start : start - 1;
+	        }
+	    }
+	    
+	    private boolean hasOne(int mid, char[][] image, boolean isCol) {
+	        if (isCol) {
+	            for (int i = 0; i < image.length; i ++) {
+	                if (image[i][mid] == '1') return true;
+	            }
+	        } else {
+	            for (int i = 0; i < image[0].length; i ++) {
+	                if (image[mid][i] == '1') return true;
+	            }
+	        }
+	        return false;
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
