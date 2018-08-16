@@ -8745,9 +8745,24 @@ LintCode 183.
 	}
 
 
+//8/15
+	public int[] myYao(){
+		int[] trialRes = new int[2];
+		trialRes[0] = yao();
+		trialRes[1] = yao();
+		if (trialRes[0] == trialRes[1]) return myYao();
+		return trialRes;
+	}
 
 
-
+	public int random7(){
+		int res = random5() * 5 + random5();
+		if (res > 20) return random7();
+		//while (res > 20) {
+		//	res = random5() * 5 + random5();
+		//}
+		return res / 3;//res % 7 is also good
+	}
 
 
 
