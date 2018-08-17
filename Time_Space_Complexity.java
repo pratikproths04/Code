@@ -68,6 +68,16 @@ LeetCode:
 100.
 	Time complexity should be O(n);
 	Space complexity should be O(1);
+
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {return true;}
+        if (p != null && q != null && p.val == q.val) {
+            return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+        }
+        else {
+            return false;
+        }
+    }
 	
 666.
 	Time complexity should be O(n), for the recursion is called n times, and takes constant time for each recursion;
@@ -235,7 +245,7 @@ LeetCode:
 	//In this method, the time complexity is O(n);
 	
 500.
-	Time complexity should be O(words.length's sum);
+	Time complexity should be O(words.length sum);
 	Space complexity should be O(1); //save 26 characters	
 	//only save uppercase or lowercase can save half space
 	//use index , when not good, set index = -1
@@ -297,7 +307,7 @@ LeetCode:
         
         return (slow >= arr.length) ? -1 : slow;
 		//pay attention to this
-		//there exists situation that won't find, should return -1!
+		//there exists situation that will not find, should return -1!
     }
 	
 187.
@@ -8588,6 +8598,49 @@ LintCode 183.
 	    }
 	}
 
+
+	//my binary search version, based on finding the smallest
+	class Solution {
+	    public boolean search(int[] nums, int target) {
+	        if (nums == null || nums.length == 0) return false;
+	        int left = 0, right = nums.length - 1, mid;
+	        while (left < right) {
+	            if (nums[left] == nums[right]) {
+	                left ++;
+	            } else if (nums[left] < nums[right]) {
+	                break;
+	            } else {
+	                mid = left + (right - left) / 2;
+	                if (nums[mid] >= nums[left] && nums[mid] > nums[right]) left = mid + 1;
+	                else right = mid;
+	            }
+	        }
+	        while (left > 0 && nums[left] == nums[left - 1]) {
+	            left --;
+	        }
+	        if (nums[left] > target || left > 0 && nums[left - 1] < target 
+	            || left == 0 && nums[nums.length - 1] < target) return false;
+	        if (nums[left] <= target && nums[nums.length - 1] >= target || left == 0) {
+	        	//find in left --- nums.length - 1, including the left, so there is an equal sign
+	            return bSearch(nums, target, left, nums.length - 1);
+	        } else {
+	        	//rule out the left
+	            return bSearch(nums, target, 0, left - 1);
+	        }
+	    }
+	    
+	    private boolean bSearch(int[] nums, int target, int left, int right) {
+	        int mid;
+	        while (left <= right) {
+	            mid = left + (right - left) / 2;
+	            if (nums[mid] == target) return true;
+	            else if (nums[mid] < target) left = mid + 1;
+	            else right = mid - 1;
+	        }
+	        return false;
+	    }
+	}
+
 	//binary search solution
 	//give this solution as an example
 	public boolean search(int[] nums, int target) {
@@ -9049,6 +9102,304 @@ LintCode 183.
 	        return false;
 	    }
 	}
+
+
+153.
+	//original solution
+	class Solution {
+	    public int findMin(int[] num) {
+	        if (num == null || num.length == 0) {
+	            return 0;
+	        }
+	        if (num.length == 1) {
+	            return num[0];
+	        }
+	        int start = 0, end = num.length - 1;
+	        while (start <= end) {
+	            int mid = (start + end) / 2;
+	            if (mid > 0 && num[mid] < num[mid - 1]) {
+	                return num[mid];
+	            }
+	            if (num[start] <= num[mid] && num[mid] > num[end]) {
+	                start = mid + 1;
+	            } else {
+	                end = mid - 1;
+	            }
+	        }
+	        return num[start];
+	    }
+	}
+
+	//use method 2, 
+	class Solution {
+	    public int findMin(int[] num) {
+	        if (num == null || num.length == 0) return 0;
+	        int left = 0, right = num.length - 1, mid;
+	        while (left < right) {
+	            mid = left + (right - left) / 2;
+	            if (num[mid] >= num[left] && num[mid] > num[right]) left = mid + 1;
+	            //because the left end is larger than the right end, so the equal to left should be count into the left win side
+	            else right = mid;
+	        }
+	        return (num[left] <= num[0] && num[left] <= num[num.length - 1]) ? num[left] : num[0];
+	        //rule out the possibility of left end is less than the right end
+	    }
+	}
+
+
+154.
+	//original method, primiry method
+	class Solution {
+	    public static int findMin(int[] num) {
+	        int small = Integer.MAX_VALUE;
+	        for ( int each : num) {
+	            small = Math.min(small, each);
+	        }
+	        return small;
+	    }
+	}
+
+	//binary search method, the key is to rule out the influence bringed by duplicate elements
+	class Solution {
+	    public static int findMin(int[] num) {
+	        if (num == null || num.length == 0) return -1;
+	        int left = 0, right = num.length - 1, mid;
+	        while (left < right) {
+	            if (num[left] == num[right]) {
+	                left ++;
+	            } else if (num[left] > num[right]) {
+	                mid = left + (right - left) / 2;
+	                if (num[mid] >= num[left] && num[mid] > num[right]) left = mid + 1;
+	                else right = mid;
+	            } else break;
+	        }
+	        //case 1: left keep adding, until left == right, in this case, min element is num[left]
+	        //case 2: left keep adding, break the loop because it is less than num[right], in this case, min element is num[left]
+	        //case 3: left and right keeping change because of BS, getting the last element, in this case, min element is num[left]	        
+	        return num[left];
+	    }
+	}
+
+
+/*
+	selection sort is like keeping scanning and swapping the smallest element to the left
+	merge sort ... 
+	quick sort, see below code implementing
+*/
+
+	public void quickSort(int[] nums, int left, int right) {
+		if (left >= right) return;
+		int start = left, end = right, pivot = left ++;
+		int temp;
+		while (left <= right) {
+			while (left <= right && nums[left] < nums[pivot]) {
+				left ++;
+			}
+			while (right >= left && nums[right] > nums[pivot]) {
+				right --;
+			}
+			if (left > right) break;
+			temp = nums[left];
+			nums[left] = nums[right];
+			nums[right] = temp;
+		}
+		temp = nums[pivot];
+		nums[pivot] = nums[right];
+		nums[right] = temp;
+
+		quickSort(nums, start, right - 1);
+		quickSort(nums, right + 1, end);
+	}
+
+
+155.
+	class MinStack {
+	    
+	    private Stack<Integer> st1;
+	    private Stack<Integer> st2;
+
+	    /** initialize your data structure here. */
+	    public MinStack() {
+	        st1 = new Stack<>();
+	        st2 = new Stack<>();
+	    }
+	    
+	    public void push(int x) {
+	        st1.push(x);
+	        if (st2.isEmpty() || st2.peek() >= x) {
+	            st2.push(x);
+	        }
+	    }
+	    
+	    public void pop() {
+	        int tmp = st1.pop();
+	        if (tmp == st2.peek()) st2.pop();
+	    }
+	    
+	    public int top() {
+	        return st1.peek();
+	    }
+	    
+	    public int getMin() {
+	        return st2.peek();
+	    }
+	}
+
+
+
+110.
+	//my method
+	class Solution {
+	    public boolean isBalanced(TreeNode root) {
+	        boolean[] res = new boolean[]{true};
+	        depthCheck(root, res);
+	        return res[0];
+	    }
+	    
+	    private int depthCheck(TreeNode root, boolean[] res) {
+	    	//can also use -1 as a signal
+	        if (root == null || !res[0]) return 0;
+	        int leftD = depthCheck(root.left, res);
+	        int rightD = depthCheck(root.right, res);
+	        if (Math.abs(leftD - rightD) > 1) res[0] = false;
+	        return Math.max(leftD, rightD) + 1;
+	    }
+	}
+
+
+101.
+	//Symmetric tree
+	//Recursively
+	class Solution {
+	    public boolean isSymmetric(TreeNode root) {
+	        if (root == null) {return true;}
+	        return helper(root.left, root.right);
+	    }
+	    
+	    private boolean helper(TreeNode node1, TreeNode node2) {
+	        if (node1 == null && node2 == null) return true;
+	        if (node1 == null || node2 == null || node1.val != node2.val) return false;
+	        return helper(node1.left, node2.right) && helper(node1.right, node2.left);
+	    }
+	}
+
+	//Interatively
+	class Solution {
+	    public boolean isSymmetric(TreeNode root) {
+	        if (root == null) {return true;}
+	        TreeNode rootL = root.left, rootR = root.right;
+	        Stack<TreeNode> stL = new Stack<>();
+	        Stack<TreeNode> stR = new Stack<>();
+	        while (rootL != null || rootR != null || !stL.isEmpty() || !stR.isEmpty()) {
+	            if (rootL != null && rootR != null) {
+	                if (rootL.val != rootR.val) return false;
+	                stL.push(rootL.right);
+	                stR.push(rootR.left);
+	                rootL = rootL.left;
+	                rootR = rootR.right;
+	            } else if (rootL != null || rootR != null) {
+	                return false;
+	            } else {
+	                rootL = stL.pop();
+	                rootR = stR.pop();
+	            }
+	        }
+	        return true;
+	    }
+	}
+
+
+226.
+	class Solution {
+	    public TreeNode invertTree(TreeNode root) {
+	        if (root == null) return root;
+	        invert(root);
+	        return root;
+	    }
+	    
+	    private void invert(TreeNode root) {
+	        if (root == null) return;
+	        TreeNode tmp = root.left;
+	        root.left = root.right;
+	        root.right = tmp;
+	        invert(root.left);
+	        invert(root.right);
+	    }
+	}
+
+
+572.
+	class Solution {
+	    public boolean isSubtree(TreeNode s, TreeNode t) {
+	        if (t == null) return true;
+	        if (s == null) return false;
+	        boolean res = isSame(s, t);
+	        if (!res) return isSubtree(s.left, t) || isSubtree(s.right, t);
+	        return res;
+	    }
+	    
+	    private boolean isSame(TreeNode s, TreeNode t) {
+	        if (s == null && t == null) return true;
+	        if (s == null || t == null || s.val != t.val) return false;
+	        return isSame(s.left, t.left) && isSame(s.right, t.right);
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
