@@ -9478,10 +9478,73 @@ LintCode 11.
 
 
 
+//Binary Search Tree Iterator
+	public class BSTIterator {
+	    
+	    private Stack<TreeNode> st;
+	    /*
+	    * @param root: The root of binary tree.
+	    */public BSTIterator(TreeNode root) {
+	        // do intialization if necessary
+	        st = new Stack<>();
+	        while (root != null) {
+	            st.push(root);
+	            root = root.left;
+	        }
+	    }
+
+	    /*
+	     * @return: True if there has next node, or false
+	     */
+	    public boolean hasNext() {
+	        // write your code here
+	        return !st.isEmpty();
+	    }
+
+	    /*
+	     * @return: return next node
+	     */
+	    public TreeNode next() {
+	        // write your code here
+	        TreeNode cur = st.pop();
+	        TreeNode point = cur.right;
+	        while (point != null) {
+	            st.push(point);
+	            point = point.left;
+	        }
+	        return cur;
+	    }
+	}
 
 
+268.
+	//bit operation, XOR, constant space
+	//x ^ x = 0
+	//0 ^ x = x
+	//even nums --> 0
+	//odd nums --> self, the request number
+	class Solution {
+	    public int missingNumber(int[] nums) {
+	        int res = nums.length;
+	        for (int i = 0; i < nums.length; i ++) {
+	            res ^= nums[i];
+	            res ^= i;
+	        }
+	        return res;
+	    }
+	}
 
-
+	//Math solution, constant space
+	class Solution {
+	    public int missingNumber(int[] nums) {
+	        int n = nums.length;
+	        int sum = n * (n + 1) / 2;
+	        for (int each : nums) {
+	            sum -= each;
+	        }
+	        return sum;
+	    }
+	}
 
 
 
