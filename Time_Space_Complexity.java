@@ -4559,7 +4559,7 @@ Practice Q9:
 
 
 98.
-	//in-order method to validate BST
+	//in-order method to validate BST, primiry array
 	class Solution {
 	    private TreeNode prev = null;
 	    
@@ -4580,6 +4580,40 @@ Practice Q9:
 	    }
 	}
 
+	//pass the range to the child nodes
+	class Solution {
+	    public boolean isValidBST(TreeNode root) {
+	        return returnVal(root, Long.MIN_VALUE, Long.MAX_VALUE);
+	        //use Long.MAX_VALUE here
+	        //need to clarify in the actual test
+	    }
+	    
+	    private boolean returnVal(TreeNode root, long min, long max) {
+	        if (root == null) return true;
+	        if (root.val < max && root.val > min) {
+	            return returnVal(root.left, min, root.val) && returnVal(root.right, root.val, max);
+	        } else {
+	            return false;
+	        }
+	    }
+	}
+
+	//in-order tranverse, virtual array
+	class Solution {
+	    public boolean isValidBST(TreeNode root) {
+	        boolean[] res = new boolean[]{true};
+	        inOrder(root, new long[]{Long.MIN_VALUE}, res);
+	        return res[0];
+	    }
+	    
+	    private void inOrder(TreeNode root, long[] record, boolean[] res) {
+	        if (root == null || !res[0]) return;
+	        inOrder(root.left, record, res);
+	        if (record[0] >= root.val) res[0] = false;
+	        record[0] = root.val;
+	        inOrder(root.right, record, res);
+	    }
+	}
 
 
 //6/20
@@ -9344,6 +9378,145 @@ LintCode 183.
 	        return isSame(s.left, t.left) && isSame(s.right, t.right);
 	    }
 	}
+
+
+11.
+	//two pointers, scan and keep the area
+	//[i,j), i and j are index, the size of the range is j - i;
+	class Solution {
+	    public int maxArea(int[] height) {
+	        int left = 0, right = height.length - 1, area = 0;
+	        while (left < right) {
+	            area = Math.max(Math.min(height[left], height[right]) * (right - left), area);
+	            if (height[left] < height[right]) left ++;
+	            else right --;
+	        }
+	        return area;
+	    }
+	}
+
+
+LintCode 11.
+	//the key is to cut some branches
+	public class Solution {
+	    /**
+	     * @param root: param root: The root of the binary search tree
+	     * @param k1: An integer
+	     * @param k2: An integer
+	     * @return: return: Return all keys that k1<=key<=k2 in ascending order
+	     */
+	    public List<Integer> searchRange(TreeNode root, int k1, int k2) {
+	        // write your code here
+	        List<Integer> res = new ArrayList<>();
+	        if (root == null || k2 < k1) return res;
+	        searchAdd(root, k1, k2, res);
+	        return res;
+	    }
+	    
+	    private void searchAdd(TreeNode root, int k1, int k2, List<Integer> res) {
+	        if (root == null) return;
+	        if (root.val >= k1 && root.val <= k2) {
+	            res.add(root.val);
+	            searchAdd(root.left, k1, k2, res);
+	            searchAdd(root.right, k1, k2, res);
+	        } else if (root.val < k1) {
+	            searchAdd(root.right, k1, k2, res);
+	        } else {
+	            searchAdd(root.left, k1, k2, res);
+	        }
+	    }
+	}
+
+
+700.
+	//findint the target in the BST
+	class Solution {
+	    public TreeNode searchBST(TreeNode root, int val) {
+	        if (root == null) return root;
+	        if (root.val == val) return root;
+	        else if (root.val > val) return searchBST(root.left, val);
+	        else return searchBST(root.right, val);
+	    }
+	}
+
+
+270.
+	//finding the closest in the BST
+	class Solution {
+	    
+	    private int record;
+	    
+	    public int closestValue(TreeNode root, double target) {
+	        record = root.val;
+	        helper(root, target);
+	        return record;
+	    }
+	    
+	    private void helper(TreeNode root, double target) {
+	        if (root == null) return;
+	        if (root.val == target) {
+	            record = root.val;
+	            return;
+	        }
+	        else if (root.val < target) {
+	            if (Math.abs(record - target) > Math.abs(root.val - target)) record = root.val;
+	            helper(root.right, target);
+	        } else {
+	            if (Math.abs(record - target) > Math.abs(root.val - target)) record = root.val;
+	            helper(root.left, target);
+	        }
+	    }
+	}
+
+
+272.
+	//find k closest elements
+	//convert to array, use binary search to find k values
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
