@@ -514,6 +514,465 @@ Spring MVC Radio Button:
 
 
 Spring MVC checkbox:
+	<form:checkbox path="..." value="..." />
+	support multiple options
+	array return
+
+Spring MVC validation:
+
+Java's Bean Validation API:
+	@NotNull	checks that the annotated value is not null
+	@Min 		Must be a number >= value
+	@Max 		Must be a number <= value
+	@Size 		Size must match the given size
+	@Pattern 	Must match a regular expression pattern
+	@Future/@Past Date must be in future or past of given date
+
+
+Setting Up Development Environment:
+
+Using Hibernate Validation
+
+Trim the white space:
+	@InitBinder, pre-process all web requess coming to our controllers
+    @InitBinder
+    public void initBiner(WebDataBinder theWebDataBinder) {
+        StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+        //this is difined in Spring API
+        //true - means trim to null
+
+        theWebDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
+        //for every String form data, applying the editor
+    }
+
+
+
+Min and max limit:
+    @Max(value = 10, message = "Number should be less or equal to 10")
+    @Min(value = 0, message = "Number should be larger or equal to 0")
+    private int freePasses;
+
+Regular Expression:
+	tutorials:
+		https://docs.oracle.com/javase/tutorial/essential/regex/
+
+Validate a Postal Code:
+	Apply regular expression;
+	@Pattern(regexp="...", message="...")
+	//regular expression pattern and error message
+
+
+    @Pattern(regexp = "^[a-zA-Z0-9]{5}", message = "only 5 characters/digits")
+    @NotNull(message="is required!")
+    private String postalCode;
+
+
+Make an Integer Field requiered:
+
+	1. using "Integer" type instead of "int", this can deal with null input type
+
+	2. deal with
+
+
+custom error message:
+	1. create custom error message
+
+	2. load custom messages resource in Spring config file
+
+
+	typeMismatch.customer.freePasses=Invalid number
+	//error type
+	//spring model attribute name
+	//field name
+	//custom message
+
+	<bean id="messageSource"
+		  class="org.springframework.context.support.ResourceBundleMessageSource" >
+		<property name="basenames" value="resources.messages" />
+	</bean>
+
+
+Custom Validation:
+	custom validation returns boolean true or false
+	create a custom Java Annotation
+
+create custom validation rule:
+	1. create annotation
+	2. create the validator class
+
+	@Constraint(...)
+	@Target(...)//where can apply 
+	@Retention(...)//retain how long
+	public @interface CourseCode{
+
+		//define default course code
+		public String value() default "LUV";
+
+		...
+	}
+
+	--->
+
+	@CourseCode(...)
+
+
+example 1:
+	@Constraint(validatedBy = CourseCodeConstrainValidator.class)
+	@Target({ElementType.METHOD, ElementType.FIELD})
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface CourseCode {
+
+	    //define default course code
+	    public String value() default "CSCI";
+
+	    //define default error message
+	    public String message() default "must start with CSCI!";
+
+	    //define default groups
+	    public Class<?>[] groups() default {};
+	    //can group related constraints
+
+	    //define default payload
+	    public Class<? extends Payload>[] payload() default {};
+	    //provide sutom details about validation failure
+
+	}
+
+
+
+	import javax.validation.ConstraintValidator;
+	import javax.validation.ConstraintValidatorContext;
+
+	public class CourseCodeConstrainValidator
+	    implements ConstraintValidator<CourseCode, String> {
+
+	    private String coursePreffix;
+
+	    @Override
+	    public void initialize(CourseCode constraintAnnotation) {
+	        coursePreffix = constraintAnnotation.value();
+	    }
+
+	    @Override
+	    public boolean isValid(String theCode,
+	                           ConstraintValidatorContext constraintValidatorContext) {
+	        boolean result = theCode.startsWith(coursePreffix);
+	        //need to check for null
+	        return false;
+	    }
+	}
+
+
+Hibernate: a framework for persisting / saving Java objects in a database
+
+www.hibernate.org
+
+Object-To-Relation Mapping ORM
+mapping between Java class and database table
+
+example 1:
+	//create Java object
+	Student theStudent = new Student("John", "Doe", "john@luv2code.com");
+	//firstname, lastname, email fields
+
+	//save it to database
+	int theId = (Integer) session.save(theStudent);
+	//session is a Hibernate object
+	//return the primary key, use it to retrieve from DB
+
+
+example 2:
+	//retrieve object from DB
+	Student myStudent = session.get(Student.class, theId);
+	//find the student database
+
+example 3:
+	//querying for all java objects
+	Query query = session.createQuery("from Student");
+	//Hibernate Query Language HQL
+	List<Student> students = query.list();
+
+
+Hibernate CRUD (create/read/update/delete)
+
+Hibernate and JDBC:
+	Hibernate uses JDBC for all database communications
+
+to build Hibernate App, need:
+1. IDE
+2. Database Server
+3. Hibernate JAR files and JDBC Driver
+
+
+mySQL:
+	1. database table
+
+Connect:
+
+public class TestJdbc {
+
+    public static void main(String[] args) {
+        String jdbcUrl = "jdbc:mysql://localHost:3306/hb_student_tracker?useSSL=false&serverTimezone=UTC";
+        String user = "hbstudent";
+        String password = "hbstudent";
+
+        try {
+            System.out.println("Connecting database ..." + jdbcUrl);
+
+            Connection myConn =
+                    DriverManager.getConnection(jdbcUrl, user, password);
+
+            System.out.println("Connection successful!");
+
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
+    }
+}
+
+
+Hibernate development process:
+
+1. Hibernate Configuration file;
+2. Annotate Java Class
+	Entity Class: java class that is mapped to a database table
+
+	options for mapping:
+	XML and Java Annotations
+
+3. Develop Java code to perform database operations
+
+
+Java Annotations:
+	1. Map class to database table
+	2. Map field to database column
+
+Java ---> database:
+	firstName ---> first_name (convention for seperate words)
+
+
+From Hibernate:
+	SessionFactory & Session
+
+
+Primary Key: Uniquely indentifies each row in a table, must be a unique value
+
+@GeneratedValue(strategy=GenerationType.IDENTITY)
+
+can define own CUSTOM generation strategy
+create subclass of org.hibernate.id.SequenceGenerator
+override the method public Serializabel generate(...)
+
+
+MySQL:
+	trucate ...
+	//clean up
+
+
+Hibernate create object:
+public static void main (String[] args) {
+        //create session factory
+        SessionFactory factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Student.class)
+                .buildSessionFactory();
+
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            //use the session object to save java object
+
+            //create 3 student objects
+            System.out.println("Creating student object ...");
+            Student tmpStudent = new Student("Arthur", "Pendragon", "arthur.pen@fgo.com");
+
+            //start a transaction
+            session.beginTransaction();
+
+            //save student object
+            System.out.println("Saving ...");
+            session.save(tmpStudent);
+
+            //commit transaction
+            session.getTransaction().commit();
+
+            System.out.println("Saving finished!");
+
+        } finally {
+            factory.close();
+        }
+    }
+
+
+Retrieve a Java object with Hibernate:
+Retrieve still need session begin and commit
+
+public class ReadStudentDemo {
+
+    public static void main(String[] args) {
+        //create session factory
+        SessionFactory factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Student.class)
+                .buildSessionFactory();
+
+        //create session
+        Session session = factory.getCurrentSession();
+
+        try {
+            //use the session object to save java object
+
+            //create student object
+            System.out.println("Retrieving student object ...");
+
+            //start a transaction
+            session.beginTransaction();
+
+            Student myStudent = session.get(Student.class, 1);
+            System.out.println("Get complete: " + myStudent);
+
+            session.getTransaction().commit();
+            System.out.println("Done!");
+
+        } finally {
+            factory.close();
+        }
+
+    }
+
+}
+
+
+Query objects with Hibernate:
+
+Retrieving all Students:
+List<Student> students = session
+						.createQuery("from Student")
+						.getResultList();
+						//Use Java class name here!
+
+
+Retrieve students with constrain:
+List<Student> theStudents = 
+		session
+			.createQuery("from Student s where s.lastName='Doe'")
+			.getResultList();
+			//Use the Java property name
+
+
+Retrieve Students using OR:
+List<Student> theStudents = 
+		session
+			.createQuery("from Student s where s.lastName='Doe'" + " OR s.firstName='Daffy'")
+			.getResultList();
+			//Use the Java property name
+
+
+Retrieve Students using LIKE:
+List<Student> theStudents = 
+		session
+			.createQuery("from Student s where" + " s.email LIKE '%luv2code.com'")
+			.getResultList();
+			//Use the Java property name
+			//ends with luv2code.com
+			//just a string, do not have to add "+"
+
+
+intellij: refactor --- extract --- method
+
+
+Update objects using Hibernate:
+Upate all students:
+	session.createQuery("update Student set email='...'")
+	.executeUpdate();
+
+
+
+Delete objects using Hibernate:
+	session.delete(...);
+	session.getTransaction().commit();
+
+Another way of deleting:
+	session
+		.createQuery("delete from Student where id=2")
+		.executeUpdate();
+		//executeUpdate() using in update and delete
+
+
+Advanced Mappings:
+	One to One
+	One to Many, Many to One,
+	Many to Many
+
+
+One to One Mapping:
+	an instructor have an instructor_detail database tables
+
+
+Primary key:
+	identify a unique row in a table
+
+foreign key:
+	link tables together
+	a field in one table that refers to other table
+
+Cascade:
+	apply the same operation to related entities
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
