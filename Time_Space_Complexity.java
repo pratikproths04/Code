@@ -9547,6 +9547,428 @@ LintCode 11.
 	}
 
 
+102.
+	//level order tranverse, BFS
+	class Solution {
+	    public List<List<Integer>> levelOrder(TreeNode root) {
+	        List<List<Integer>> res = new LinkedList<>();
+	        Queue<TreeNode> queue = new LinkedList<>();
+	        
+	        if (root == null) {return res;}
+	        queue.add(root);
+	        
+	        while(!queue.isEmpty()) {
+	            int levelsum = queue.size();
+	            List<Integer> temp = new LinkedList<>();
+	            for (int i = 0; i < levelsum; i ++) {
+	                if (queue.peek().left != null) {
+	                    queue.add(queue.peek().left);
+	                }
+	                if (queue.peek().right != null) {
+	                    queue.add(queue.peek().right);
+	                }
+	                temp.add(queue.poll().val);
+	            }
+	            res.add(temp);
+	        }
+	        return res;
+	    }
+	}
+
+	//using two queues to implements BFS
+	class Solution {
+	    public List<List<Integer>> levelOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<List<Integer>>();
+	        Queue<TreeNode> qu1 = new LinkedList<>();
+	        Queue<TreeNode> qu2 = new LinkedList<>();
+	        
+	        if (root == null) return res;
+	        qu1.offer(root);
+	        
+	        while (!qu1.isEmpty()) {
+	            List<Integer> tmp = new ArrayList<>();
+	            
+	            while (!qu1.isEmpty()) {
+	                TreeNode tmpNode = qu1.poll();
+	                tmp.add(tmpNode.val);
+	                if (tmpNode.left != null) qu2.offer(tmpNode.left);
+	                if (tmpNode.right != null) qu2.offer(tmpNode.right);
+	            }
+	            
+	            while (!qu2.isEmpty()) {
+	                qu1.offer(qu2.poll());
+	            }
+	            
+	            res.add(tmp);
+	        }
+	        
+	        return res;
+	    }
+	}
+
+	//using dfs to do level order tranverse
+	class Solution {
+	    public List<List<Integer>> levelOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<List<Integer>>();
+	        dfsLevel(root, 0, res);
+	        return res;
+	    }
+	    
+	    private void dfsLevel(TreeNode root, int level, List<List<Integer>> res) {
+	        if (root == null) return;
+	        if (res.size() < level + 1) {
+	            List<Integer> tmpList = new ArrayList<>();
+	            res.add(tmpList);
+	        }
+	        res.get(level).add(root.val);
+	        dfsLevel(root.left, level + 1, res);
+	        dfsLevel(root.right, level + 1, res);
+	    }
+	}
+
+
+107.
+	//level order tranverse bottom up
+	//key is using method 
+	//Collections.reverse();
+	//res.addFirst(); this method can only be used by LinkedList, not List
+	//therefore need casting in the end
+	class Solution {
+	    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+	        LinkedList<List<Integer>> res = new LinkedList<>();
+	        Queue<TreeNode> queue = new LinkedList<>();
+	        
+	        if (root == null) {return res;}
+	        queue.add(root);
+	        
+	        while(!queue.isEmpty()) {
+	            int levelsum = queue.size();
+	            List<Integer> temp = new LinkedList<>();
+	            for (int i = 0; i < levelsum; i ++) {
+	                if (queue.peek().left != null) {
+	                    queue.add(queue.peek().left);
+	                }
+	                if (queue.peek().right != null) {
+	                    queue.add(queue.peek().right);
+	                }
+	                temp.add(queue.poll().val);
+	            }
+	            res.addFirst(temp);
+	        }
+	        return (List<List<Integer>>) res;
+	    }
+	}
+
+
+314.
+	//binary tree vertical order tranverse
+	//pay attention to its request
+	//need to use bfs instead of dfs here
+	class Solution {
+	    public List<List<Integer>> verticalOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        if (root == null) return res;
+	        
+	        TreeMap<Integer, List<Integer>> map = new TreeMap<>();
+	        bfs(root, 0, map);
+	        
+	        for (Map.Entry<Integer, List<Integer>> each : map.entrySet()) {
+	            res.add(each.getValue());
+	        }
+	        return res;
+	    }
+	    
+	    private void bfs(TreeNode root, int vertical, TreeMap<Integer, List<Integer>> map) {
+	        Queue<TreeNode> qu1 = new LinkedList<>();
+	        Queue<Integer> qu2 = new LinkedList<>();
+	        qu1.offer(root);
+	        qu2.offer(vertical);
+	        int size;
+	        while (!qu1.isEmpty()) {
+	            size = qu1.size();
+	            for (int i = 0; i < size; i ++) {
+	                TreeNode tmp = qu1.poll();
+	                vertical = qu2.poll();
+	                if (!map.containsKey(vertical)) {
+	                    List<Integer> list = new ArrayList<>();
+	                    map.put(vertical, list);
+	                }
+	                map.get(vertical).add(tmp.val);
+	                if (tmp.left != null) {
+	                    qu1.offer(tmp.left);
+	                    qu2.offer(vertical - 1);
+	                }
+	                if (tmp.right != null) {
+	                    qu1.offer(tmp.right);
+	                    qu2.offer(vertical + 1);
+	                }
+	            }
+	        }
+	    }
+	}
+
+
+	//using a HashMap instead of the TreeMap
+	//remember the min and max vertical value, loop in the end
+	class Solution {
+	    public List<List<Integer>> verticalOrder(TreeNode root) {
+	        List<List<Integer>> result = new ArrayList<>();
+	        
+	        if (root == null) {
+	            return result;
+	        }
+	        Map<Integer, List<Integer>> map = new HashMap<>();
+	        int max = 0;
+	        int min = 0;
+	        
+	        Queue<TreeNode> nodequeue = new LinkedList<>();
+	        Queue<Integer> valuequeue = new LinkedList<>();
+	        
+	        nodequeue.offer(root);
+	        valuequeue.offer(0);
+	        
+	        while (!nodequeue.isEmpty()) {
+	            TreeNode node= nodequeue.poll();
+	            int index = valuequeue.poll();
+	            List<Integer> list= map.get(index);
+	            if (list == null) {
+	                list = new ArrayList<>();
+	                map.put(index, list);
+	            }
+	            list.add(node.val);
+	            max = Math.max(max, index);
+	            min = Math.min(min, index);
+	            if (node.left != null) {
+	                nodequeue.offer(node.left);
+	                valuequeue.offer(index - 1);
+	                
+	            }
+	            if (node.right != null) {
+	                nodequeue.offer(node.right);
+	                valuequeue.offer(index + 1);
+	            }
+	        }
+	        for (int i = min; i <= max; i++) {
+	            List<Integer> list= map.get(i);
+	            if (list != null) {
+	                result.add(list);
+	            }
+	        }
+	        return result;
+	    }
+	}
+
+
+103.
+	//using reverse to do zig zag level order tranverse
+	class Solution {
+	    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        if (root == null) return res;
+	        
+	        Queue<TreeNode> qu = new LinkedList<>();
+	        qu.offer(root);
+	        int size;
+	        boolean oddLevel = true;
+	        while (!qu.isEmpty()) {
+	            List<Integer> tmpList = new ArrayList<>();
+	            size = qu.size();
+	            for (int i = 0; i < size; i ++) {
+	                TreeNode tmpNode = qu.poll();
+	                tmpList.add(tmpNode.val);
+	                if (tmpNode.left != null) qu.offer(tmpNode.left);
+	                if (tmpNode.right != null) qu.offer(tmpNode.right);
+	            }
+	            if (!oddLevel) {Collections.reverse(tmpList);}
+	            res.add(tmpList);
+	            oddLevel = !oddLevel;
+	        }
+	        
+	        return res;
+	    }
+	}
+
+
+	//using bfs, using add and addFirst zig zag
+	class Solution {
+	    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        if (root == null) return res;
+	        
+	        Queue<TreeNode> qu = new LinkedList<>();
+	        qu.offer(root);
+	        int size;
+	        boolean isOddLevel = true;
+	        
+	        while (!qu.isEmpty()) {
+	            size = qu.size();
+	            LinkedList<Integer> list = new LinkedList<>();
+	            for (int i = 0; i < size; i ++) {
+	                TreeNode tmp = qu.poll();
+	                if (isOddLevel) {
+	                    list.add(tmp.val);
+	                } else {
+	                    list.addFirst(tmp.val);
+	                }
+	                if (tmp.left != null) qu.offer(tmp.left);
+	                if (tmp.right != null) qu.offer(tmp.right);
+	            }
+	            //directly add list, for it will cast for you automatically
+	            res.add(list);
+	            isOddLevel = !isOddLevel;
+	        }
+	        
+	        return res;
+	    }
+	}
+
+
+//GeeksForGeeks
+//validate if complete binary tree
+//iteration method
+	boolean isCompleteBT(Node root)
+        {
+          //add code here.
+        if (root == null) return true;
+        Queue<Node> qu = new LinkedList<>();
+        qu.offer(root);
+        //pay attention to put it into queue first
+        boolean comeIntoNull = false;
+        while (!qu.isEmpty()) {
+            Node tmp = qu.poll();
+            if (tmp != null) {
+                if (comeIntoNull) return false;
+                if (tmp.left == null) qu.offer(null);
+                else qu.offer(tmp.left);
+                if (tmp.right == null) qu.offer(null);
+                else qu.offer(tmp.right);
+            } else {
+                comeIntoNull = true;
+            }
+        }
+        return true;
+	} 
+
+
+286.
+	//BFS solution
+	//from the gate points
+	//cost more memory
+	//remember to add visited[][]
+	class Solution {
+	    private int[][] around = new int[][]{{1,0},{-1,0},{0,1},{0,-1}};
+	    
+	    public void wallsAndGates(int[][] rooms) {
+	        //corner cases
+	        if (rooms == null || rooms.length == 0 || rooms[0].length == 0) return;
+	        
+	        Queue<Integer> quRow = new LinkedList<>();
+	        Queue<Integer> quCol = new LinkedList<>();
+	        boolean[][] visited = new boolean[rooms.length][rooms[0].length];
+	        
+	        //loop around the rooms
+	        //do bfs at gate points
+	        for (int i = 0; i < rooms.length; i ++) {
+	            for (int j = 0; j < rooms[0].length; j ++) {
+	                if (rooms[i][j] == 0) {
+	                    quRow.offer(i);
+	                    quCol.offer(j);
+	                }
+	            }
+	        }
+	        
+	        int size, distance = 1, row, col;
+	        while (!quRow.isEmpty()) {
+	            
+	            size = quRow.size();
+	            
+	            //get the point
+	            for (int i = 0; i < size; i ++) {
+	                row = quRow.poll();
+	                col = quCol.poll();
+	                visited[row][col] = true;
+
+	                //loop around the point
+	                //update the distance and add points to queue
+	                for (int[] each : around) {
+	                    int newRow = each[0] + row;
+	                    int newCol = each[1] + col;
+	                    if (newRow < 0 || newRow >= rooms.length 
+	                        || newCol < 0 || newCol >= rooms[0].length 
+	                        || rooms[newRow][newCol] == -1 || visited[newRow][newCol]) continue;
+	                    if (rooms[newRow][newCol] > distance) rooms[newRow][newCol] = distance;
+	                    quRow.offer(newRow);
+	                    quCol.offer(newCol);
+	                }
+	            }
+	            
+	            //add distance
+	            distance ++;
+	        }
+	    }
+	}
+
+
+
+	//DFS solution
+	//faster? maybe
+	//cost more stack, may cause stackoverflow
+	class Solution {
+	    int[][] dirs = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+	    //do not have to write new int[][], but why???
+
+	    public void wallsAndGates(int[][] rooms) {
+	        // all source shortest path
+	        for (int i = 0; i < rooms.length; i++) {
+	            for (int j = 0; j < rooms[0].length; j++) {
+	                if (rooms[i][j] == 0) {
+	                     dfs(rooms, i, j);
+	                }
+	               
+	            }
+	        }
+	        
+	    }
+
+	    private void dfs(int[][] rooms, int i, int j) {
+	            for (int[] dir : dirs) {
+	                int x = dir[0] + i;
+	                int y = dir[1] + j;
+	                if (x >= 0 && x < rooms.length && y >= 0 
+	                	&& y < rooms[0].length && rooms[x][y] > rooms[i][j] + 1) {
+	                	//do not have to add visited[][] in dfs method here???
+	                    rooms[x][y] = rooms[i][j] + 1;
+	                    dfs(rooms, x, y);
+	                
+	            }
+	        }
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
