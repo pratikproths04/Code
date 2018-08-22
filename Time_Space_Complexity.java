@@ -1198,6 +1198,32 @@ LeetCode:
             sb.setLength(len);
         }
     }
+
+
+    //another method
+    class Solution {
+	    public List<String> generateParenthesis(int n) {
+	        List<String> res = new ArrayList<>();
+	        dfs(res, new StringBuilder(), 0, 0, n);
+	        return res;
+	    }
+	    
+	    private void dfs(List<String> res, StringBuilder sb, int left, int right, int pairs) {
+	        if (left == right && left == pairs) {
+	            res.add(sb.toString());
+	            return;
+	        }
+	        if (left < right || left > pairs) {
+	            return;
+	        }
+	        //only difference, add another termination terms
+	        int len = sb.length();
+	        dfs(res, sb.append('('), left + 1, right, pairs);
+	        sb.setLength(len);
+	        dfs(res, sb.append(')'), left, right + 1, pairs);
+	        sb.setLength(len);
+	    }
+	}
 	
 10.
 	//NB!!!
@@ -4790,8 +4816,6 @@ Practice Q9:
 378.
 	time complexity is O(n^2logk)
 	space complexity is O(k)
-	//any better idea to solve this problem???
-	//I remeber there is another way!!!
 	public int kthSmallest(int[][] matrix, int k) {
         PriorityQueue<Integer> pq = new PriorityQueue<>(k, ((Integer a, Integer b) -> - a.compareTo(b)));
         
@@ -4807,6 +4831,52 @@ Practice Q9:
         
         return pq.peek();
     }
+
+
+    //second method, poll one and offer two, BFS
+    time complexity is O(klogk)
+    space complexity is O(k)
+    class Solution {
+	    public int kthSmallest(int[][] matrix, int k) {
+	        PriorityQueue<MatrixElement> pq = new PriorityQueue<>(k, new Comparator<MatrixElement>(){
+	            @Override
+	            public int compare(MatrixElement a, MatrixElement b) {
+	                return a.val - b.val;
+	            }
+	        });
+	        boolean[][] visited = new boolean[matrix.length][matrix[0].length];
+	        
+	        pq.offer(new MatrixElement(0,0,matrix));
+	        visited[0][0] = true;
+	        for (int i = 1; i < k; i ++) {
+	            MatrixElement tmp = pq.poll(), tmpR, tmpD;
+	            if (tmp.col + 1 < matrix[0].length && !visited[tmp.row][tmp.col + 1]) {
+	                tmpR = new MatrixElement(tmp.row, tmp.col + 1, matrix);
+	                visited[tmpR.row][tmpR.col] = true;
+	                pq.offer(tmpR);
+	            } 
+	            if (tmp.row + 1 < matrix.length && !visited[tmp.row + 1][tmp.col]) {
+	                tmpD = new MatrixElement(tmp.row + 1, tmp.col, matrix);
+	                visited[tmpD.row][tmpD.col] = true;
+	                pq.offer(tmpD);
+	            }
+	        }
+	        
+	        return pq.poll().val;
+	    }
+	    
+	    //inner class, can be declared as private
+	    class MatrixElement {
+	        int row;
+	        int col;
+	        int val;
+	        public MatrixElement(int a, int b, int[][] matrix){
+	            row = a;
+	            col = b;
+	            val = matrix[a][b];
+	        }
+	    }
+	}
 
 
 174.
@@ -6620,6 +6690,28 @@ Practice Q9:
         //addAll() API, add all element from another list
         return result;
     }
+
+
+    //another good method
+    class Solution {
+	    public List<List<Integer>> combine(int n, int k) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), k, 1, n);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int k, int start, int n) {
+	        if (k == 0) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        } 
+	        if (start > n && k > 0 || k < 0) return;
+	        list.add(start);
+	        dfs(res, list, k - 1, start + 1, n);
+	        list.remove(list.size() - 1);
+	        dfs(res, list, k, start + 1, n);        
+	    }
+	}
 
 
 60.
@@ -9944,6 +10036,261 @@ LintCode 11.
 	        }
 	    }
 	}
+
+
+
+78.
+	//subsets, no duplicate number at first
+	//find all subsets, no duplicate numbers
+	//do not have to add boolean[] visited
+	class Solution {
+	    public List<List<Integer>> subsets(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), nums, 0);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int[] nums, int start) {
+	        res.add(new ArrayList<Integer>(list));
+	        for (int i = start; i < nums.length; i ++) {
+	            list.add(nums[i]);	        
+	            dfs(res, list, nums, i + 1);	            
+	            list.remove(list.size() - 1);	            
+	        }
+	    }
+	}
+	//dfs tree, each node is the result, so no if statement for the result
+	//add, remove, they are the key steps for dfs backward
+	//using start and for loop, step over some possible number
+
+
+	//another method for 78, subsets
+	//do not need for loop here, add number directly
+	class Solution {
+	    public List<List<Integer>> subsets(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), nums, 0);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int[] nums, int start) {
+	        if (start == nums.length) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        }
+	        list.add(nums[start]);
+	        dfs(res, list, nums, start + 1);//case for adding number
+	        list.remove(list.size() - 1);
+	        dfs(res, list, nums, start + 1);//case for not adding number
+	    }
+	}
+	//for loop will create more lists than needed
+	//that is, they are all connnected to the root points, so no need for for loop 
+	//to switch the branch
+
+
+	//BFS method
+	class Solution {
+	    public List<List<Integer>> subsets(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        res.add(new ArrayList<>());
+	        int size;
+	        for (int i = 0; i < nums.length; i ++) {
+	            size = res.size();
+	            for (int j = 0; j < size; j ++) {
+	                List<Integer> tmpList = res.get(0);
+	                res.remove(0);
+	                res.add(new ArrayList<>(tmpList));
+	                tmpList.add(nums[i]);
+	                res.add(new ArrayList<>(tmpList));
+	            }
+	        }
+	        return res;
+	    }
+	}
+
+
+90.	
+	//subsets, contains duplicate numbers
+	class Solution {
+	    public List<List<Integer>> subsetsWithDup(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        Arrays.sort(nums);
+	        dfs(res, new ArrayList<>(), nums, 0);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int[] nums, int start) {
+	        res.add(new ArrayList<>(list));
+	        for (int i = start; i < nums.length; i ++) {
+	            if (i > start && nums[i] == nums[i - 1]) continue;
+	            //only calculate once
+	            list.add(nums[i]);
+	            dfs(res, list, nums, i + 1);
+	            list.remove(list.size() - 1);
+	        }
+	    }
+	}
+
+
+
+20.
+	//better method, use a stack
+	//check isValid parenthese
+	class Solution {
+	    public boolean isValid(String s) {
+	        if (s == null || s.length() == 0) return true;
+	        Stack<Character> st = new Stack<>();
+	        for (char each : s.toCharArray()) {
+	            if (each == '(' || each == '[' || each == '{') st.push(each);
+	            else {
+	                if (st.isEmpty()) return false;
+	                char tmp = st.pop();
+	                if (each == ')' && tmp != '(') return false;
+	                if (each == ']' && tmp != '[') return false;
+	                if (each == '}' && tmp != '{') return false;
+	            }
+	        }
+	        return st.isEmpty();
+	    }
+	}
+
+
+39.
+	//combination sum
+	//with repeat numbers possible
+	//can only use for loop not switch branches
+	class Solution {
+	    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), target, candidates, 0);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int target, int[] candidates, int start) {
+	        if (target == 0) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        }
+	        for (int i = start; i < candidates.length; i ++) {
+	            if (target - candidates[i] >= 0) {
+	                list.add(candidates[i]);
+	                dfs(res, list, target - candidates[i], candidates, i);
+	                list.remove(list.size() - 1);
+	            }
+	        }
+	    } 
+	}
+
+
+40.
+	//combination sum II
+	//can only use once for each number, may contains duplicate elements in the init array
+	class Solution {
+	    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        Arrays.sort(candidates);
+	        dfs(res, new ArrayList<>(), candidates, new boolean[candidates.length], target, 0);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int[] candidates, boolean[] visited, int target, int start) {
+	        if (target == 0) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        }
+	        for (int i = start; i < candidates.length; i ++) {
+	            if (i > start && candidates[i] == candidates[i - 1]) continue;
+	            //for the duplicate conditions, cut the first level branch
+	            if (target - candidates[i] >= 0 && !visited[i]) {
+	                list.add(candidates[i]);
+	                visited[i] = true;
+	                dfs(res, list, candidates, visited, target - candidates[i], i + 1);
+	                //use i + 1 here, for each element can only use once!
+	                list.remove(list.size() - 1);
+	                visited[i] = false;
+	            }
+	        }
+	    }
+	}
+
+
+
+216.
+	//combination sum III
+	//dfs method to solve it
+	//add some break can shorten the time spent
+	class Solution {
+	    public List<List<Integer>> combinationSum3(int k, int n) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), k, 1, n);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int k, int start, int n) {
+	        int len = list.size();
+	        if (len == k && n == 0) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        }
+	        for (int i = start; i <= 9; i ++) {
+	            if (len < k && n > 0) {
+	                list.add(i);
+	                dfs(res, list, k, i + 1, n - i);
+	                list.remove(list.size() - 1);
+	            }
+	        }
+	    } 
+	}
+
+
+377.
+	//combination sum IV
+	//init array, all positive and no duplicate
+	//can use multiple times for one number and different sequence is different combination
+	//method 1, might be slower
+	class Solution {
+	    public int combinationSum4(int[] nums, int target) {
+	        int[] dp = new int[target + 1];
+	        int min = Integer.MAX_VALUE;
+	        for (int each : nums) {
+	            min = Math.min(each, min);
+	            if (each <= target) dp[each] = 1;
+	        }
+	        for (int i = min + 1; i <= target; i ++) {
+	            for (int each : nums) {
+	                if (i - each >= min) {
+	                    dp[i] += dp[i - each];
+	                }
+	            }
+	        }
+	        return dp[target];
+	    }
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
