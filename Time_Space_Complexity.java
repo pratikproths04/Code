@@ -10270,10 +10270,45 @@ LintCode 11.
 
 
 
+47.
+	//permutation with duplicate number
+	class Solution {
+	    public List<List<Integer>> permuteUnique(int[] nums) {
+	        List<List<Integer>> res = new ArrayList<>();
+	        Arrays.sort(nums);
+	        dfs(res, new ArrayList<>(), nums, new boolean[nums.length]);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<Integer>> res, List<Integer> list, int[] nums, boolean[] visited) {
+	        if (list.size() == nums.length) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        }
+	        for (int i = 0; i < nums.length; i ++) {
+	            if (visited[i] || i > 0 && nums[i] == nums[i - 1] && !visited[i - 1]) continue;
+	            //key step to skip over the duplicate number
+	            //different with combination, combination with start index
+	            //permutation look at the number before itself
+	            list.add(nums[i]);
+	            visited[i] = true;
+	            dfs(res, list, nums, visited);
+	            visited[i] = false;
+	            list.remove(list.size() - 1);
+	        }
+	    }
+	}
 
 
-
-
+//Bit operations:
+	public String binaryConversion(int nums) {
+		StringBuilder sb = new StringBuilder();
+		while (nums > 0) {
+			sb.append(nums % 2);
+			nums /= 2;
+		}
+		return sb.reverse().toString();
+	}
 
 
 
