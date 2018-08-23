@@ -63,27 +63,30 @@ assign value
 	"$WORD" select the variable
 	//single quotes do not expand the variable
 
-	//when reassigning, codes below will change 
+	//when reassigning, codes below will change
 	USER_NAME=$(id -un)
 			=`id -un`
 
 check file type
 	:set ff
-	:set ff=unix 
+	:set ff=unix
 
 
 help file:
 	man bash
 	/UID for search UID
 
+!'command'
+	last command start with 'command'
+
+date +%s
+	seconds since unix time
 
 
 
 
 
 
-
-	
 
 
 
@@ -109,25 +112,12 @@ linux script:
 
 ! = Bang
 
-#! = Shebang, 
+#! = Shebang,
 //it starts with it, it defines the type of commands
 
 echo
 	print on the screen
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+sudo//excute as root user
+	super user do
