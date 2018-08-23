@@ -55,6 +55,30 @@ touch filename
 type instruction
 	if shellbuiltin
 
+assign value
+	WORD='script'
+	//no space near the = sign
+	//can start with chars and underscore
+
+	"$WORD" select the variable
+	//single quotes do not expand the variable
+
+	//when reassigning, codes below will change 
+	USER_NAME=$(id -un)
+			=`id -un`
+
+check file type
+	:set ff
+	:set ff=unix 
+
+
+help file:
+	man bash
+	/UID for search UID
+
+
+
+
 
 
 
