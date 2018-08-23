@@ -1137,6 +1137,69 @@ LeetCode:
 		return String.join(" ", words);
 	}
 
+
+	//another method
+	public class Solution {
+	    public String reverseWords(String s) {
+	        String result = "";
+	        Scanner in = new Scanner(s);   
+	        ArrayList<String> list = new ArrayList<>();
+	        while (in.hasNext()) {
+	            list.add(in.next());
+	        }
+	        
+	        for (int i = list.size() - 1; i >= 0; i--) {
+	            result += list.get(i) + " ";
+	        }
+	        
+	        return result.trim();
+	    }
+	}
+
+
+	//in-place solution
+	//2 swap operations
+	public class Solution {
+	    public String reverseWords(String s) {
+	        char[] arr = s.trim().toCharArray();
+	        for (int i = 0; i < arr.length / 2; i ++) {
+	            swap(arr, i, arr.length - 1 - i);
+	        }
+	        
+	        int slow = 0, fast = 0, cur = 0, left, right;
+	        while (fast < arr.length) {
+	            if (!(slow > 0 && arr[fast] == ' ' && arr[slow - 1] == ' ')) {
+	                arr[slow ++] = arr[fast];
+	                if (arr[slow - 1] == ' ') {
+	                    left = cur; 
+	                    right = slow - 2;
+	                    while (left < right) {
+	                        swap(arr, left, right);
+	                        left ++;
+	                        right --;
+	                    }
+	                    cur = slow;
+	                }
+	            }
+	            fast ++;
+	        }
+	        left = cur; 
+	        right = slow - 1;
+	        while (left < right) {
+	            swap(arr, left, right);
+	            left ++;
+	            right --;            
+	        }
+	        return new String(arr, 0, slow);
+	    }
+	    
+	    private void swap(char[] arr, int a, int b) {
+	        char tmp = arr[a];
+	        arr[a] = arr[b];
+	        arr[b] = tmp;
+	    }
+	}
+
 17.
 	//pretty normal DFS
 	private final String[] MAPPING = new String[]{"","","abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"}; 
@@ -4485,45 +4548,48 @@ Practice Q9:
 
 
 220.
-	public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
-     
-        if(nums == null || nums.length < 2 || k < 1) return false;
-        TreeSet<Long> set = new TreeSet<>();
-        
-        
-        
-        for(int i = 0; i < nums.length; i++){
-            long l = (long) nums[i]; 
-                       
-            Long floor = set.floor(l);
-            Long ceil = set.ceiling(l);
-            // the tricky part I modified to easily understood way.
-            //the key of this method
+    // the tricky part I modified to easily understood way.
+    //the key of this method
 
-            //set.floor() *TreeSet
-            //Returns the greatest element in this set less than or 
-            //equal to the given element, or null if there is no such element.
+    //set.floor() *TreeSet
+    //Returns the greatest element in this set less than or 
+    //equal to the given element, or null if there is no such element.
 
-            //set.ceiling() *TreeSet
-            //Returns the least element in this set greater than 
-            //or equal to the given element, or null if there is 
-            //no such element.
+    //set.ceiling() *TreeSet
+    //Returns the least element in this set greater than 
+    //or equal to the given element, or null if there is 
+    //no such element.
 
-            //They use binary seach in these two methods
-            //therefore O(logk)
-            if((floor != null && l - floor <= t) ||
-               (ceil != null && ceil - l <= t) )
-                return true;
-            
-            set.add(l);
-            
-            if(i >= k)
-                set.remove((long)nums[i -k]);
-            
-        }
-        
-        return false;
-    }
+    //They use binary seach in these two methods
+    //therefore O(logk)
+
+	//the right version
+    class Solution {
+	    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+	        if(nums == null || nums.length < 2 || k < 1) return false;
+	        
+	        TreeSet<Long> set = new TreeSet<>();
+	        for (int i = 0; i < nums.length; i ++) {
+	            long l = nums[i];
+	            
+	            if (i > k) {
+	                set.remove((long) nums[i - k - 1]);
+	            }
+	            //remove first, always keep useful number inside
+	            
+	            Long floor = set.floor(l);
+	            //here, use wrapper type, because of the null below
+	            Long ceil = set.ceiling(l);
+	            
+	            if (floor != null && l - floor <= t 
+	                || ceil != null && ceil - l <= t) return true;
+	            
+	            
+	            set.add(l);
+	        }
+	        return false;
+	    }
+	}
 
 
 99.
@@ -7524,6 +7590,32 @@ Practice Q9:
 	}
 
 
+326.
+	//pow of 3
+	//method: check maxPowOfN % n == 0 && n > 0
+	class Solution {
+	    public boolean isPowerOfThree(int n) {
+	        int maxPowerOfThree = (int) Math.pow(3, (int)(Math.log(Integer.MAX_VALUE) / Math.log(3)));
+	        //Math.pow() return double
+	        //Math.log() return double
+	        return (n > 0 && maxPowerOfThree % n == 0);
+	        //here can only check prime number, composite number cannot be checked here
+	    }
+	}
+
+
+342.
+	//pow of 4, composite number
+	//num > 0 && maxPowOfFour ==> check if pow of 2
+	//(num & 0x55555555) == num check bit position
+	class Solution {
+	    public boolean isPowerOfFour(int num) {
+	        int maxPowOfFour = (int) Math.pow(4, 15);
+	        return (num > 0 && maxPowOfFour % num == 0 && (num & 0x55555555) == num);
+	    }
+	}
+
+
 //7/12
 	//bit operation for check
 	//use 8 length of int can represent all characters
@@ -10311,31 +10403,211 @@ LintCode 11.
 	}
 
 
+217.
+	//find duplicate 1
+	//method: use Set API
+	//set api, add successful ==> true, Or false
+    public boolean containsDuplicate(int[] nums) {
+        Set<Integer> set = new HashSet<>();
+        for (int each : nums) {
+            boolean res = set.add(each);
+            if (!res) return true;
+        }
+        return false;
+    }
+
+219.
+	//use HashMap, key is the value and value is the index
 
 
 
+190.
+	//reverse bits
+	public class Solution {
+    // you need treat n as an unsigned value
+	    public int reverseBits(int n) {
+	        int res = 0;
+	        for (int i = 0; i < 32; i ++) {
+	            res <<= 1;
+	            res += (n >> i) & 1;
+	        }
+	        return res;
+	    }
+	}
+
+
+7.
+	//reverse integer
+	class Solution {
+	    public int reverse(int x) {
+	        boolean lessTz= x < 0 ? true : false;
+	        x = Math.abs(x);
+	        long res = 0;
+	        while (x > 0) {
+	            res *= 10;
+	            res += x % 10;
+	            x /= 10;
+	        }
+	        if (lessTz) res *= -1;
+	        if (res < Integer.MIN_VALUE || res > Integer.MAX_VALUE) return 0;
+	        return (int) res;
+	        //must use (int) to convert long to int
+	        //cannot use the default, default is for int convert to long
+	    }
+	}
+
+
+344.
+	//reverse string
+	class Solution {
+	    public static String reverseString(String s) {
+	        char[] ch = s.toCharArray();
+	        int halfLength = s.length() / 2;
+	        char temp;
+	        for (int i = 0; i < halfLength; i++) {
+	            temp = ch[s.length() - 1 - i];
+	            ch[s.length() - 1 - i] = ch[i];
+	            ch[i] = temp;
+	        }
+	        return new String(ch);
+	    }
+	}
+
+
+26.
+	//old version
+	class Solution {
+	    public int removeDuplicates(int[] nums) {
+	        if (nums.length <= 1) {return nums.length;}
+	        int counter = 1;
+	        for (int i = 1; i < nums.length; i ++) {
+	            if (nums[i - 1] != nums[i]) {
+	                nums[counter] = nums[i];
+	                counter ++;
+	            }
+	        }
+	        return counter;
+	    }
+	}
+
+	//new version
+	class Solution {
+	    public int removeDuplicates(int[] nums) {
+	        int slow = 0, fast = 0;
+	        while (fast < nums.length) {
+	            if (!(slow > 0 && nums[fast] == nums[slow - 1])) {
+	                nums[slow ++] = nums[fast];
+	            }
+	            fast ++;
+	        }
+	        return slow;
+	    }
+	}
+
+
+80.
+	//remove and keep at least 2
+	//another written version of slow and fast pointers
+	class Solution {
+	    public int removeDuplicates(int[] nums) {
+	        int i = 0;
+	        for (int n : nums)
+	            if (i < 2 || n > nums[i-2])
+	                nums[i++] = n;
+	        return i;
+	    }
+	}
+
+	//another method, slow and fast pointers
+	class Solution {
+	    public int removeDuplicates(int[] nums) {
+	        int slow = 0, fast = 0;
+	        while (fast < nums.length) {
+	            if (!(slow >= 2 && nums[fast] == nums[slow - 2])) {
+	                nums[slow ++] = nums[fast];
+	            }
+	            fast ++;
+	        }
+	        return slow;
+	    }
+	}
+
+
+//remove duplicate with no one remaining
+	//pay attention to the case where the duplicates are in the end of the array
+	//in that case, check the flag in the end, for it will not loop and check 
+	public class Solution {
+	    public static void main (String[] args) {
+	        int[] case1 = {1 , 2, 3, 4};
+	        int[] case2 = {2,2,2,3,4};
+	        int[] case3 = {3,4,5,5,5,5};
+	        int[] case4 = {1,1,1,1};
+	        System.out.println("\ncase1: " + remove(case1) + " " + Arrays.toString(case1));
+	        System.out.println("\ncase2: " + remove(case2) + " " + Arrays.toString(case2));
+	        System.out.println("\ncase3: " + remove(case3) + " " + Arrays.toString(case3));
+	        System.out.println("\ncase4: " + remove(case4) + " " + Arrays.toString(case4));
+	    }
+
+	    private static int remove(int[] nums) {
+	        int slow = 0, fast = 0;
+	        boolean flag = false;
+	        while (fast < nums.length) {
+	            if (flag) {
+	                if (nums[fast] != nums[slow - 1]) {
+	                    slow --;
+	                    fast --;
+	                    flag = false;
+	                }
+	            } else {
+	                if (!(slow > 0 && nums[fast] == nums[slow - 1])) {
+	                    nums[slow ++] = nums[fast];
+	                } else {
+	                    flag = true;
+	                }
+	            }
+	            fast ++;
+	        }
+	        return (flag) ? slow - 1 : slow;
+	    }
+	}
 
 
 
+796.
+	//rotate string
+	class Solution {
+	    public boolean rotateString(String A, String B) {
+	        return A.length() == B.length() && (A + A).contains(B);
+	        //(B + B).contains(A) also work
+	    }
+	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+189.
+	//rotate array
+	//three parts rotation
+	class Solution {
+	    public void rotate(int[] nums, int k) {
+	        k %= nums.length;
+	        if (k != 0){
+	            reverse(nums, 0, nums.length);
+	            reverse(nums, 0, k);
+	            reverse(nums, k, nums.length);   
+	        }        
+	    }
+	    
+	    private void reverse(int[] nums, int start, int end){
+	        end --;
+	        int temp;
+	        while (start < end){
+	            temp = nums[start];
+	            nums[start] = nums[end];
+	            nums[end] = temp;
+	            start ++;
+	            end --;
+	        }
+	    } 
+	}
 
 
 
