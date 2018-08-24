@@ -1954,35 +1954,67 @@ Practice Q9:
     }
 
 
-    //another writing of DP
+    //another writing of DP, faster
     class Solution {
 	    public boolean isMatch(String s, String p) {
-	        int lenS = s.length(), lenP = p.length();
-	        if (lenS == 0 && lenP == 0) return true;
+	        int m=s.length(),n=p.length();
+	        boolean[][] dp=new boolean[m+1][n+1];
+	        dp[0][0]=true;
 	        
-	        boolean[][] dp = new boolean[lenS + 1][lenP + 1];
-	        
-	        //initialize
-	        dp[0][0] = true;        
-	        
-	        for (int i = 0; i <= lenS; i ++) {
-	            for (int j = 0; j <= lenP; j ++) {
-	                if (i > 0 && s.charAt(i - 1) == '*') {
-	                    for (int k = 0; k <= j && !dp[i][j]; k ++) {
-	                        dp[i][j] = dp[i][j] || dp[i - 1][k];
-	                    }
-	                } else if (j > 0 && p.charAt(j - 1) == '*') {
-	                    for (int k = 0; k <= i && !dp[i][j]; k ++) {
-	                        dp[i][j] = dp[i][j] || dp[k][j - 1];
-	                    }
-	                } else if ((i > 0 && j > 0) && (s.charAt(i - 1) == p.charAt(j - 1) || 
-	                          s.charAt(i - 1) == '?' || p.charAt(j - 1) == '?')) {
-	                    dp[i][j] = dp[i - 1][j - 1];
-	                }
+	        for(int j=1;j<=n;j++)
+	        {
+	            if(p.charAt(j-1)=='*' && dp[0][j-1])
+	                dp[0][j]=true;
+	        }
+	        for(int i=1;i<=m;i++)
+	        {
+	            for(int j=1;j<=n;j++)
+	            {
+	                if(s.charAt(i-1)==p.charAt(j-1) || p.charAt(j-1)=='?')
+	                    dp[i][j]=dp[i-1][j-1];
+	                
+	                else if(p.charAt(j-1)=='*')
+	                    dp[i][j]=dp[i-1][j] || dp[i][j-1];
+	                else
+	                    dp[i][j]=false;
 	            }
 	        }
+	        return dp[m][n];
+	    }
+	}
+
+
+	//using 2 pointers instead of dp
+	class Solution {
+	    public boolean isMatch(String s, String p) {
+	        char[] input = s.toCharArray();
+	        char[] pattern = p.toCharArray();
+	        int startMatch = -1;
+	        int i =0, j = 0, matched = 0;
 	        
-	        return dp[lenS][lenP];
+	        while (i < input.length) {
+	            if (j < pattern.length && pattern[j] == '*') {
+	                startMatch = j;
+	                matched = i;
+	                ++j;
+	            } else {
+	                if (j < pattern.length && (pattern[j] == '?' || pattern[j] == input[i])) {
+	                    ++i;
+	                    ++j;
+	                } else if (startMatch != -1) {
+	                    j = startMatch + 1;
+	                    ++matched;
+	                    i = matched;
+	                } else {
+	                    return false;
+	                }
+	            } 
+	        }
+	        
+	        while (j < pattern.length && pattern[j] == '*') {
+	            ++j;
+	        }
+	        return j == pattern.length;
 	    }
 	}
 
