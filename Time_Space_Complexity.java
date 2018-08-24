@@ -1954,6 +1954,39 @@ Practice Q9:
     }
 
 
+    //another writing of DP
+    class Solution {
+	    public boolean isMatch(String s, String p) {
+	        int lenS = s.length(), lenP = p.length();
+	        if (lenS == 0 && lenP == 0) return true;
+	        
+	        boolean[][] dp = new boolean[lenS + 1][lenP + 1];
+	        
+	        //initialize
+	        dp[0][0] = true;        
+	        
+	        for (int i = 0; i <= lenS; i ++) {
+	            for (int j = 0; j <= lenP; j ++) {
+	                if (i > 0 && s.charAt(i - 1) == '*') {
+	                    for (int k = 0; k <= j && !dp[i][j]; k ++) {
+	                        dp[i][j] = dp[i][j] || dp[i - 1][k];
+	                    }
+	                } else if (j > 0 && p.charAt(j - 1) == '*') {
+	                    for (int k = 0; k <= i && !dp[i][j]; k ++) {
+	                        dp[i][j] = dp[i][j] || dp[k][j - 1];
+	                    }
+	                } else if ((i > 0 && j > 0) && (s.charAt(i - 1) == p.charAt(j - 1) || 
+	                          s.charAt(i - 1) == '?' || p.charAt(j - 1) == '?')) {
+	                    dp[i][j] = dp[i - 1][j - 1];
+	                }
+	            }
+	        }
+	        
+	        return dp[lenS][lenP];
+	    }
+	}
+
+
 87.
 	Time complexity should be ?;
 	Space complexity should be ?;	
