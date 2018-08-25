@@ -1955,6 +1955,7 @@ Practice Q9:
 
 
     //another writing of DP, faster
+    //666!!!
     class Solution {
 	    public boolean isMatch(String s, String p) {
 	        int m=s.length(),n=p.length();
@@ -1975,6 +1976,8 @@ Practice Q9:
 	                
 	                else if(p.charAt(j-1)=='*')
 	                    dp[i][j]=dp[i-1][j] || dp[i][j-1];
+	                	//dp[i - 1][j]: '*' matches one char now, continue matching
+	                	//dp[i][j - 1]: '*' does not match any
 	                else
 	                    dp[i][j]=false;
 	            }
@@ -10675,17 +10678,186 @@ LintCode 11.
 	}
 
 
+648.
+	//the application of Trie Tree
+	class Solution {
+	    public String replaceWords(List<String> dict, String sentence) {
+	        TrieNode root = buildTrie(dict);
+	        String[] words = sentence.split(" ");
+	        for (int i = 0; i < words.length; i ++) {
+	            words[i] = replace(root, words[i]);
+	        }
+	        return String.join(" ", words);
+	    }
+	    
+	    private String replace(TrieNode root, String s) {
+	        char[] arr = s.toCharArray();
+	        for (int i = 0; i < arr.length; i ++) {
+	            if (root.children[arr[i] - 'a'] == null) break; 
+	            root = root.children[arr[i] - 'a'];
+	            if (root.isWord) return new String(arr, 0, i + 1);
+	        }
+	        return s;
+	    }
+	    
+	    
+	    private TrieNode buildTrie(List<String> dict) {
+	        TrieNode root = new TrieNode(' ');
+	        for (String word : dict) {
+	            TrieNode tmp = root;
+	            for (char c : word.toCharArray()) {
+	                if (tmp.children[c - 'a'] == null) {
+	                    tmp.children[c - 'a'] = new TrieNode(c);
+	                }
+	                tmp = tmp.children[c - 'a'];
+	            }
+	            tmp.isWord = true;
+	        }
+	        return root;
+	    }
+	    
+	}
+
+	class TrieNode {
+	    char val;
+	    TrieNode[] children;
+	    boolean isWord;
+	    
+	    public TrieNode(char val) {
+	        this.val = val;
+	        children = new TrieNode[26];
+	        isWord = false;
+	    }
+	}
+
+
+91.
+	//dp
+	//dp method for replace string problems
+	class Solution {
+	    public int numDecodings(String s) {
+	        if (s == null || s.length() == 0 || s.charAt(0) == '0') return 0;
+	        
+	        char[] chars = s.toCharArray();      
+	        int[] dp = new int[chars.length + 1];
+	        dp[1] = 1;
+	        dp[0] = 1;
+	        
+	        for (int i = 2; i < dp.length; i ++) {
+	            if (chars[i - 1] == '0' && chars[i - 2] <= '2' && chars[i - 2] > '0') {
+	                dp[i] = dp[i - 2];
+	            } else if (chars[i - 1] == '0') {
+	                return 0;
+	            } else if (chars[i - 2] == '1' || chars[i - 2] == '2' && chars[i - 1] <= '6') {
+	                dp[i] = dp[i - 1] + dp[i - 2];
+	            } else {
+	                dp[i] = dp[i - 1];
+	            }
+	        }
+	        
+	        return dp[chars.length];
+	    }
+	}
+
+
+38.
+	//recursion
+	class Solution {
+	    public String countAndSay(int n) {
+	        if (n == 1) {return "1";}
+
+	        String temp = countAndSay(n - 1);
+	        //recursively solving the problems
+
+	        char[] tempChar = temp.toCharArray();
+	        char nowCheck = tempChar[0];
+	        int num = 0;
+	        String res = "";
+	        for (char each : tempChar) {
+	            if (each == nowCheck) {
+	                num ++;
+	            }
+	            else {
+	                res = res + num + nowCheck;
+	                nowCheck = each;
+	                num = 1;
+	            }
+	        }
+	        res = res + num + nowCheck;
+	        return res;
+	    }
+	}
 
 
 
+28.
+	//check if a is b's substring
+	//method 1
+	//while loop, inside is the for loop,
+	//do not change hP, that is the recorder
+	//use nP to loop
+	class Solution {
+	    public int strStr(String haystack, String needle) {
+	        if (needle == null || needle.length() == 0) return 0;
+	        if (haystack == null || haystack.length() == 0) return -1;
+	        
+	        int hP = 0, nP = 0, len = haystack.length();
+	        
+	        while (hP < len) {
+	            if (haystack.charAt(hP) == needle.charAt(nP)) {
+	                for (; nP < needle.length() && hP + nP < len; nP ++) {
+	                    if (haystack.charAt(hP + nP) != needle.charAt(nP)) {
+	                        break;
+	                    }
+	                    if (haystack.charAt(hP + nP) == needle.charAt(nP) 
+	                        && nP == needle.length() - 1) {
+	                        return hP;
+	                    }
+	                }
+	                nP = 0;
+	            }
+	            hP ++;
+	        }
+	        
+	        return -1;
+	    }
+	}
 
 
-
-
-
-
-
-
+	//method 2
+	//using hash, 0~25, 26 for a level
+	//constantly sliding window hash calculation
+	class Solution {
+	    public int strStr(String haystack, String needle) {
+	        if (needle == null || needle.length() == 0) return 0;
+	        if (haystack == null || haystack.length() == 0 || haystack.length() < needle.length()) return -1;
+	        
+	        char[] pattern = needle.toCharArray();
+	        char[] input = haystack.toCharArray();
+	        
+	        long pSum = hashChar(pattern, 0, pattern.length - 1);
+	        int lenH = haystack.length(), lenN = needle.length(); 
+	        
+	        long init = 0;
+	        for (int i = 0; i <= lenH - lenN; i ++) {
+	            init = hashChar(input, i, i + lenN - 1);
+	            if (init == pSum) return i;
+	        }
+	        
+	        return -1;
+	    }
+	    
+	    //this method of hashing is for check each position
+	    //every position must be the same
+	    private long hashChar(char[] arr, int start, int end) {
+	        long sum = 0;
+	        for (int i = start; i <= end; i ++) {
+	            sum *= 26;
+	            sum += arr[i] - 'a';
+	        }
+	        return sum;
+	    }
+	}
 
 
 
