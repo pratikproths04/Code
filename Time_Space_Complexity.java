@@ -191,6 +191,37 @@ LeetCode:
 	Time complexity should be O(n);
 	Space complexity should be O(1);
 	//Use Array and one counter instead of map will be quicker
+	class Solution {
+	    public int lengthOfLongestSubstringTwoDistinct(String s) {
+	        if (s.length() <= 2) return s.length();
+	        
+	        Map<Character, Integer> map = new HashMap<>();
+	        int left = 0, right = 0, max = 0;
+	        while (right < s.length()) {
+	            char tmp = s.charAt(right);
+	            if (!map.containsKey(tmp) && map.size() < 2) {
+	                map.put(tmp, right);
+	                max = Math.max(right - left + 1, max);
+	            } else if (!map.containsKey(tmp)) {
+	                map.put(tmp, right);
+	                while (map.size() > 2) {
+	                    char leftTmp = s.charAt(left);
+	                    if (map.get(leftTmp) == left) {
+	                        map.remove(leftTmp);
+	                    }
+	                    left ++;
+	                }
+	            } else {
+	                map.remove(tmp);
+	                map.put(tmp, right);
+	                max = Math.max(right - left + 1, max);
+	            }
+	            right ++;
+	        }
+	        
+	        return max;
+	    }
+	}
 	
 243.
 	Time complexity should be O(n);
@@ -369,6 +400,39 @@ LeetCode:
         
         return sb.toString();
     }
+
+
+    //set up the map directly!
+    class Solution {
+	    public boolean isIsomorphic(String s, String t) {
+	        //if (s != null && t == null || s == null && t != null || 
+	        //    s != null && s.length() != t.length()) return false;
+	        
+	        int[] mapA = new int[256];
+	        int[] mapB = new int[256];
+	        Arrays.fill(mapA, -1);
+	        Arrays.fill(mapB, -1);
+	        //Arrays.fill(arr, num);
+	        
+	        for (int i = 0; i < s.length(); i ++) {
+	            int schar = (int) s.charAt(i);
+	            int tchar = (int) t.charAt(i);
+	            if (mapA[schar] == -1) {
+	                mapA[schar] = tchar;
+	            } else if (mapA[schar] != tchar) {
+	                return false;
+	            }
+
+	            if (mapB[tchar] == -1) {
+	                mapB[tchar] = schar;
+	            } else if (mapB[tchar] != schar) {
+	                return false;
+	            }            
+	        }
+	        
+	        return true;
+	    }
+	}
 	
 
 350.
@@ -2466,6 +2530,23 @@ Practice Q9:
         head.next = null;
         return pointer;
     }
+/*
+	private ListNode findMid(ListNode head) {
+        ListNode cur = head;
+        if (cur != null && cur.next != null && cur.next.next == null) {
+            cur = cur.next;
+            head.next = null;
+            return cur;
+        }
+        while (cur != null && cur.next != null) {
+            cur = cur.next.next;
+            head = head.next;
+        }
+        ListNode res = head.next;
+        head.next = null;
+        return res;
+    }
+*/
     
     
     private ListNode mergeSortedLinkedList(ListNode l1, ListNode l2) {
@@ -6631,7 +6712,37 @@ Practice Q9:
         
         return small.next;
     }
+
+
     //in-place operation: the start corner case (value less than x) must avoid!
+    class Solution {
+	    public ListNode partition(ListNode head, int x) {
+	        if (head == null || head.next == null) return head;
+	        ListNode dummy = new ListNode(0);
+	        dummy.next = head;
+	        
+	        ListNode less = dummy, more = head, moreStart = head;
+	        while (moreStart != null && moreStart.val < x) {
+	            moreStart = moreStart.next;
+	            more = more.next;
+	            less = less.next;
+	        }
+	        if (moreStart == null) return head;
+	        
+	        while (more != null && less != null) {
+	            while (more.next != null && more.next.val >= x) more = more.next;
+	            if (more.next == null) break;
+	            less.next = more.next;
+	            while (less.next != null && less.next.val < x) less = less.next;
+	            more.next = less.next;
+	            more = more.next;
+	        }
+	        
+	        less.next = moreStart;
+	        
+	        return dummy.next;
+	    }
+	}
 
 
 455.
@@ -10861,35 +10972,356 @@ LintCode 11.
 
 
 
+5.
+	//using dp
+	class Solution {
+	    public String longestPalindrome(String s) {
+	        char[] sArr = s.toCharArray();
+	        int stringLen = sArr.length;
+	        if (stringLen == 0) return s;
+	        int start = 0;
+	        int end = 0;
+	        
+	        boolean[][] dp = new boolean[stringLen][stringLen];
+	        for (int i = 0; i < stringLen; i ++) dp[i][i] = true;
+	        for (int len = 1; len < stringLen; len ++) {
+	            for (int i = 0; i < stringLen - len; i ++) {
+	                if (len == 1) {
+	                    if (sArr[i] == sArr[i + len]) {
+	                        dp[i][i + len] = true;
+	                        start = i;
+	                        end = i + len;
+	                    }
+	                }
+	                else {
+	                    if (sArr[i] == sArr[i + len] && dp[i + 1][i + len - 1]) {
+	                        dp[i][i + len] = true;
+	                        if (end - start < len) {
+	                            start = i;
+	                            end = i + len;
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	        
+	        String res = s.substring(start, end + 1);
+	        return res;
+	    }
+	}
+
+
+	//another writing of dp
+	class Solution {
+	    public String longestPalindrome(String s) {
+	        char[] sArr = s.toCharArray();
+	        int stringLen = sArr.length;
+	        if (stringLen == 0) return s;
+	        
+	        boolean[][] dp = new boolean[stringLen][stringLen];
+	        int start = Integer.MAX_VALUE, recordLen = 0;
+	        for (int len = 1; len <= stringLen; len ++) {
+	            for (int i = 0; i + len <= stringLen; i ++) {
+	                if (len == 1 || len == 2 && sArr[i] == sArr[i + len - 1] ||
+	                   sArr[i] == sArr[i + len - 1] && dp[i + 1][i + len - 2]) {
+	                    dp[i][i + len - 1] = true;
+	                    if (recordLen < len) {
+	                        start = i;
+	                        recordLen = len;
+	                    }
+	                }
+	            }
+	        }
+	        
+	        return new String(sArr, start, recordLen);
+	    }
+	}
+
+
+	//another way, similar to dp, but do not have do multiple work
+	class Solution {
+	    private int start = 0, recordLen = 0;
+	    
+	    public String longestPalindrome(String s) {
+	        int sLen = s.length();
+	        if (sLen <= 1) return s;
+	        
+	        for (int i = 0; i < sLen; i ++) {
+	            help(s, i, i, sLen);
+	            help(s, i, i + 1, sLen);
+	        }
+	        
+	        return s.substring(start, recordLen + start);
+	        
+	    }
+	    
+	    private void help(String s, int left, int right, int sLen) {
+	        while (left >= 0 && right < sLen && s.charAt(left) == s.charAt(right)) {
+	            left --;
+	            right ++;
+	        }
+	        left ++;
+	        right --;
+	        
+	        int maxLength = right - left + 1;
+	        if (maxLength > recordLen) {
+	            start = left;
+	            recordLen = maxLength;
+	        }
+	    }
+	}
+
+
+3.
+	//use boolean array can reduce time
+	class Solution {
+	    public int lengthOfLongestSubstring(String s) {
+	        if (s.length() <= 1) return s.length();
+	        
+	        Set<Character> set = new HashSet<>();
+	        int max = 0;
+	        int left = 0, right = 0;
+	        for (; right < s.length(); right ++) {
+	            char tmp = s.charAt(right);
+	            if (set.contains(tmp)) {
+	                while (s.charAt(left) != tmp) {
+	                    set.remove(s.charAt(left));
+	                    left ++;
+	                }
+	                left ++;
+	            } else {
+	                set.add(tmp);
+	                max = Math.max(set.size(), max);
+	            }
+	        }
+	        
+	        return max;
+	    }
+	}
 
 
 
+141.
+	//without extra space
+	//find if cycle
+	public class Solution {
+	    public boolean hasCycle(ListNode head) {
+	        if (head == null || head.next == null) return false;
+	        
+	        ListNode fast = head;
+	        ListNode slow = head;
+	        while (fast != null && fast.next != null) {
+	            fast = fast.next.next;
+	            slow = slow.next;
+	            if (slow == fast) return true;
+	        }
+	        
+	        return false;
+	    }
+	}
+
+142.
+	//find the cycle start point
+	public class Solution {
+	    public ListNode detectCycle(ListNode head) {
+	        if (head == null || head.next == null) return null;
+	        
+	        ListNode fast = head;
+	        ListNode slow = head;
+	        while (fast != null && fast.next != null) {
+	            fast = fast.next.next;
+	            slow = slow.next;
+	            if (slow == fast) {
+	                ListNode one = head;
+	                while (fast != one) {
+	                    fast = fast.next;
+	                    one = one.next;
+	                }
+	                return one;
+	            }
+	        }
+	        
+	        return null;
+	    }
+	}
 
 
+160.
+	//find the intersection node
+	public class Solution {
+	    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+	        if (headA == null || headB == null) return null;
+	        
+	        ListNode pointerA = headA, pointerB = headB;
+	        int times = 2;
+	        //avoid infinite loop
+	        while (pointerA != pointerB && times > 0) {
+	            if (pointerA.next == null) {
+	                pointerA = headB;
+	                times --;
+	            } else {
+	                pointerA = pointerA.next;
+	            }
+	            if (pointerB.next == null) {
+	                pointerB = headA;
+	            } else {
+	                pointerB = pointerB.next;
+	            }
+	        }
+	        return pointerA == pointerB ? pointerA : null;
+	        //final test
+	    }
+	}
 
 
+147.
+	//insert node
+	//better method
+	class Solution {
+	    public ListNode insertionSortList(ListNode head) {
+	        if (head == null || head.next == null) return head;
+	        ListNode dum = new ListNode(0);
+	        dum.next = head;
+	        ListNode pre, temp = null;
+	        ListNode cur = head;
+	        while (cur != null && cur.next != null) {
+	            if (cur.val <= cur.next.val) cur = cur.next;
+	            else {
+	                pre = dum;
+	                temp = cur.next;
+	                cur.next = temp.next;
+	                while (temp.val >= pre.next.val) pre = pre.next;
+	                temp.next = pre.next;
+	                pre.next = temp;
+	            }
+	        }
+	        return dum.next;
+	    }
+	}
 
 
+237.
+	//delete the given node in the linkedlist
+	class Solution {
+	    public void deleteNode(ListNode node) {
+	        node.val = node.next.val;
+	        while (node.next.next != null) {
+	            node.val = node.next.val;
+	            node = node.next;
+	        }
+	        //move the value left
+	        node.val = node.next.val;
+	        node.next = null;
+	        //delete the last one
+	        //before that, move
+	    }
+	}
 
 
+83.
+	//remove duplicate in sorted list
+	//with only one left
+	class Solution {
+	    public ListNode deleteDuplicates(ListNode head) {
+	        if (head == null) return head;
+	        ListNode cur = head;
+	        int record = cur.val;;
+	        while (cur != null && cur.next != null) {
+	            if (cur.next.val == record) {
+	                cur.next = cur.next.next;
+	            } else {
+	                cur = cur.next;
+	                record = cur.val;
+	            }
+	            //cannot move the pointer now!!!
+	        }
+	        return head;
+	    }
+	}
 
 
+82.
+	//remove duplicate in sorted list
+	//with 0 left
+	class Solution {
+	    public ListNode deleteDuplicates(ListNode head) {
+	        if (head == null || head.next == null) return head;
+	        
+	        ListNode dummy = new ListNode(0);
+	        dummy.next = head;
+	        ListNode cur = head, prev = dummy;
+	        int record = head.val;
+	        
+	        while (cur != null && cur.next != null) {
+	            if (cur.next.val != record) {
+	                cur = cur.next;
+	                prev = prev.next;
+	                record = cur.val;
+	            } else {
+	                while (cur != null && cur.val == record) cur = cur.next;
+	                prev.next = cur;
+	                if (cur != null) record = cur.val;
+	            }
+	        }
+	        
+	        return dummy.next;
+	    }
+	}
 
 
+328.
+	//list even and odd partition
+	class Solution {
+	    public ListNode oddEvenList(ListNode head) {
+	        if (head == null || head.next == null) return head;
+	        
+	        ListNode oddPointer = head, evenPointer = head.next, evenHead = head.next;
+	        //why store such a pointer?
+	        
+	        while (evenPointer != null && evenPointer.next != null) {
+	            oddPointer.next = evenPointer.next;
+	            oddPointer = oddPointer.next;
+	            evenPointer.next = oddPointer.next;
+	            evenPointer = evenPointer.next;
+	        }
+	        
+	        oddPointer.next = evenHead;
+	        
+	        return head;
+	    }
+	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+415.
+	//add two string
+	class Solution {
+	    public String addStrings(String num1, String num2) {
+	        StringBuilder res = new StringBuilder();
+	        int pointer1 = num1.length() - 1, pointer2 = num2.length() - 1, overflow = 0, number1, number2;
+	        
+	        while (pointer1 >= 0 || pointer2 >= 0) {
+	            if (pointer1 >= 0 && pointer2 >= 0) {
+	                number1 = num1.charAt(pointer1) - '0';
+	                number2 = num2.charAt(pointer2) - '0';
+	            } else if (pointer1 >= 0) {
+	                number1 = num1.charAt(pointer1) - '0';
+	                number2 = 0;
+	            } else {
+	                number1 = 0;
+	                number2 = num2.charAt(pointer2) - '0';
+	            }
+	            int sum = number1 + number2 + overflow;
+	            overflow = sum / 10;
+	            sum %= 10;
+	            res.append(sum);
+	            pointer1 --;
+	            pointer2 --;
+	        }
+	        
+	        if (overflow > 0) res.append(overflow);
+	        return res.reverse().toString();
+	    }
+	}
 
 
 
