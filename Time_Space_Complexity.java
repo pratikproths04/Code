@@ -11324,12 +11324,79 @@ LintCode 11.
 	}
 
 
+55.
+	//jump game
+	//greedy method or dp
+	class Solution {
+	    public boolean canJump(int[] nums) {
+	        int max = 0;
+	        for (int i = 0; i < nums.length && i <= max; i ++) {
+	            max = Math.max(max, i + nums[i]);
+	        }
+	        return max >= nums.length - 1;
+	    }
+	}
+
+45.
+	//jump game II
+	//greedy method, record the number of turns
+	class Solution {
+	    public int jump(int[] nums) {
+	        int max = 0, turn = 0, pointer = 0;
+	        while (max < nums.length - 1) {
+	            int tmpLimit = max;
+	            for (; pointer <= tmpLimit && pointer < nums.length; pointer ++) {
+	                max = Math.max(pointer + nums[pointer], max);
+	            }
+	            turn ++;
+	        }
+	        return turn;
+	    }
+	}
 
 
+GeeksForGeeks
+	//cur rod to get the max product
+	//dp, cut once for length i and the max product it can get
+	private static int cutRope(int n) {
+        int[] dp = new int[n + 1];
+        dp[1] = 1;
+        dp[2] = 1;
+
+        for (int i = 3; i <= n; i ++) {
+            for (int j = 1; j <= i / 2; j ++) {
+                int leftPart = Math.max(dp[j], j);
+                int rightPart = Math.max(dp[i - j], i - j);
+                dp[i] = Math.max(leftPart * rightPart, dp[i]);
+            }
+        }
+
+        return dp[n];
+    }
 
 
+    //merge 2 stones
+    private static int mergeStone(int[] stones) {
+        if (stones == null || stones.length == 0) return 0;
+        int[][] dp = new int[stones.length][stones.length];
 
+        for (int len = 2; len <= stones.length; len ++) {
+            for (int start = 0; start + len <= stones.length; start ++) {
+                for (int i = start; i <= start + len - 1; i ++) {
+                    dp[start][start + len - 1] += stones[i];
+                }
+                //add all elements
+                int tmp = Integer.MAX_VALUE;
+                for (int i = start; i < start + len - 1; i ++) {
+                    tmp = Math.min(dp[start][i] + dp[i + 1][start + len - 1], tmp);
+                }
+                dp[start][start + len - 1] += tmp;
+                //choose the best adding method
+            }
+        }
 
+        return dp[0][stones.length - 1];
+    }
 
 
 
