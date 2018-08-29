@@ -366,6 +366,56 @@ user.findOne({email: "example@email.com"}).populate('posts').exec(function(err, 
 //execute all with function
 
 
+CSCI 571
+HTML: points, something necessary
+browsers to interpret the languages
+
+<!DOCTYPE> 声明不是一个 HTML 标签；它是用来告知 Web 浏览器页面使用了哪种 HTML 版本。
+<!DOCTYPE html> for HTML5
+
+<p>:
+The <p> tag defines a paragraph.
+Browsers automatically add some space (margin) before and after each <p> element. 
+The margins can be modified with CSS (with the margin properties).
+The align attribute is not supported in HTML5. Used CSS instead.
+
+<B> bold
+<I> italic
+
+link the css:
+<link rel="stylesheet" href="file.css">
+//the type can be omited
+
+Attribute names are case insensitive, but not the values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
