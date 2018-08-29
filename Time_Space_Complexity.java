@@ -11400,9 +11400,53 @@ GeeksForGeeks
 
 
 
-140.
-	//word break
-	
+LintCode 1384.
+	public int getMinimumCost(int n, int left, int right, int[] weight) {
+        // Write your code here
+        int[] pre = new int[n + 1];
+        //pre-processing, the first k number's sum is in pre[k]
+        for (int i = 1; i <= n; i ++) {
+            pre[i] = pre[i - 1] + weight[i - 1];
+        }
+        
+        //from ith to jth, include both; k piles
+        int[][][] dp = new int[n][n][n + 1];
+        int INF = 1000000000;
+        
+        //initialization
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < n; j ++) {
+                for (int k = 1; k <= n; k ++) {
+                    if (i == j && k == 1) {
+                        dp[i][j][k] = 0;
+                    } else {
+                        dp[i][j][k] = INF;
+                    }
+                }
+            }
+        }
+        
+        for (int len = 1; len <= weight.length; len ++) {
+            for (int i = 0; i + len <= weight.length; i ++) {
+                int j = i + len - 1;
+                for (int k = 2; k <= len; k ++) {
+                    for (int t = i; t + 1 <= j; t ++) {
+                        dp[i][j][k] = Math.min(dp[i][j][k], dp[i][t][k - 1] + dp[t + 1][j][1]);
+                    }
+                }
+                
+                for (int k = left; k <= right; k++) {
+                    dp[i][j][1] = Math.min(dp[i][j][1], dp[i][j][k] + pre[j + 1] - pre[i]);   
+                }                
+            }
+        }
+        if (dp[0][n - 1][1] >= INF) {
+            return 0;
+        }
+        return dp[0][n - 1][1];        
+        
+    }
+
 
 
 
