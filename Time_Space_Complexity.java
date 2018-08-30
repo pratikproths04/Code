@@ -11448,7 +11448,32 @@ LintCode 1384.
     }
 
 
-
+140.
+	//dfs method, using map for accelerating
+	//this is not dp
+	//dp method, using map as the dp recording, but space needed
+	public List<String> wordBreak(String s, List<String> wordDict) {
+        return dfs(s, wordDict, new HashMap<>());
+    }
+    
+    private List<String> dfs(String s, List<String> wordDict, Map<String, List<String>> map) {
+        if (map.containsKey(s)) return map.get(s);
+        List<String> list = new ArrayList<>();
+        for (String each : wordDict) {
+            if (s.startsWith(each)) {
+                String tmp = s.substring(each.length());
+                if (tmp.length() == 0) list.add(each);
+                else {
+                    List<String> tmpList = dfs(tmp, wordDict, map);
+                    for (String ele : tmpList) {
+                        list.add(each + " " + ele);
+                    }
+                }
+            }
+        }
+        map.put(s, list);
+        return list;
+    }
 
 
 
