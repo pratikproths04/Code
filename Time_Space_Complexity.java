@@ -11477,21 +11477,243 @@ LintCode 1384.
 
 
 
+472.
+	//Trie and DFS
+	public List<String> findAllConcatenatedWordsInADict(String[] words) {
+        List<String> res = new ArrayList<String>();
+        if (words == null || words.length == 0) {
+            return res;
+        }
+        TrieNode root = new TrieNode();
+        for (String word : words) { // construct Trie tree
+            if (word.length() == 0) {
+                continue;
+            }
+            addWord(word, root);
+        }
+        for (String word : words) { // test word is a concatenated word or not
+            if (word.length() == 0) {
+                continue;
+            }
+            if (testWord(word.toCharArray(), 0, root, 0)) {
+                res.add(word);
+            }
+        }
+        return res;
+    }
+    public boolean testWord(char[] chars, int index, TrieNode root, int count) { // count means how many words during the search path
+        TrieNode cur = root;
+        int n = chars.length;
+        for (int i = index; i < n; i++) {
+            if (cur.sons[chars[i] - 'a'] == null) {
+                return false;
+            }
+            if (cur.sons[chars[i] - 'a'].isEnd) {
+                if (i == n - 1) { // no next word, so test count to get result.
+                    return count >= 1;
+                }
+                if (testWord(chars, i + 1, root, count + 1)) {
+                    return true;
+                }
+            }
+            cur = cur.sons[chars[i] - 'a'];
+        }
+        return false;
+    }
+    public void addWord(String str, TrieNode root) {
+        char[] chars = str.toCharArray();
+        TrieNode cur = root;
+        for (char c : chars) {
+            if (cur.sons[c - 'a'] == null) {
+                cur.sons[c - 'a'] = new TrieNode();
+            }
+            cur = cur.sons[c - 'a'];
+        }
+        cur.isEnd = true;
+    }
+	
+	class TrieNode {
+	    TrieNode[] sons;
+	    boolean isEnd;
+	    public TrieNode() {
+	        sons = new TrieNode[26];
+	    }
+	}
+
+
+72.
+	//Edit distance
+	public int minDistance(String word1, String word2) {
+        int len1 = word1.length(), len2 = word2.length();
+        int[][] dp = new int[len1 + 1][len2 + 1];
+        
+        for (int i = 1; i <= len1; i ++) {
+            dp[i][0] = i;
+        }
+        for (int j = 1; j <= len2; j ++) {
+            dp[0][j] = j;
+        }
+        
+        for (int i = 1; i <= len1; i ++) {
+            for (int j = 1; j <= len2; j ++) {
+                int tmp = Math.min(dp[i - 1][j], dp[i][j - 1]);
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dp[i][j] = Math.min(tmp + 1, dp[i - 1][j - 1]);
+                } else {
+                    dp[i][j] = Math.min(tmp, dp[i - 1][j - 1]);
+                    dp[i][j] ++;
+                }
+            }
+        }
+        
+        return dp[len1][len2];
+    }
+
+
+36.
+	//sudoku
+	//reuse the method
+	//key is to check if write error
+	class Solution {
+	    public boolean isValidSudoku(char[][] board) {
+	        for (int i = 0; i < 9; i ++) {
+	            if (!isValidLine(board, i, true)) return false;
+	            if (!isValidLine(board, i, false)) return false;
+	        }
+	        
+	        for (int i = 0; i < 3; i ++) {
+	            for (int j = 0; j < 3; j ++) {
+	                if (!isValidPart(board, i, j)) return false;
+	            }
+	        }
+	        return true;
+	    }
+	    
+	    private boolean isValidPart(char[][] board, int row, int col) {
+	        boolean[] arr = new boolean[9];
+	        for (int i = row * 3; i < (row + 1) * 3; i ++) {
+	            for (int j = col * 3; j < (col + 1) * 3; j ++) {
+	                if (board[i][j] == '.') continue;
+	                int index = board[i][j] - '1';
+	                if (arr[index]) return false;
+	                arr[index] = true;
+	            }
+	        }
+	        return true;
+	    }
+	    
+	    private boolean isValidLine(char[][] board, int line, boolean isRow) {
+	        boolean[] arr = new boolean[9];
+	        if (isRow) {
+	            for (int i = 0; i < 9; i ++) {
+	                if (board[line][i] == '.') continue;
+	                int index = board[line][i] - '1';
+	                if (arr[index]) return false;
+	                arr[index] = true;
+	            }
+	        } else {
+	            for (int i = 0; i < 9; i ++) {
+	                if (board[i][line] == '.') continue;
+	                int index = board[i][line] - '1';
+	                if (arr[index]) return false;
+	                arr[index] = true;
+	            }
+	        }
+	        return true;
+	    }
+	}
 
 
 
+37.
+	//soduko solver
+	//big dfs method
+	public void solveSudoku(char[][] board) {
+        if (board == null || board.length == 0 || board[0].length == 0) return;
+        solve(board);
+    }
+    
+    private boolean solve(char[][] board) {
+        for (int i = 0; i < 9; i ++) {
+            for (int j = 0; j < 9; j ++) {
+                if (board[i][j] == '.') {
+                    for (char letter = '1'; letter <= '9'; letter ++){
+                        if (isValid(board, i, j, letter)) {
+                            board[i][j] = letter;
+                            if (solve(board)) return true;
+                            //under the condition of filling this letter
+                            else {
+                                board[i][j] = '.';
+                            }
+                        }
+                    }
+                    return false;
+                    //try all the possible solution
+                }
+            }
+        }
+        return true;
+    }
+    
+    //key 1: isValid, use only one for loop for 
+    //row, column, and square
+    private boolean isValid(char[][] board, int row, int col, char letter) {
+        for (int i = 0; i < 9; i ++) {
+            if (board[i][col] == letter) return false;
+            if (board[row][i] == letter) return false;
+            if (board[row / 3 * 3 + i / 3][col / 3 * 3 + i % 3] == letter) return false;
+        }
+        return true;
+    }
 
 
 
-
-
-
-
-
-
-
-
-
+51.
+	//N-Queen problem
+	//col, diag1, diag2 is kind of bigger visited boolean array
+	//key is to understand the row, col, diag relationship
+	class Solution {
+	    private boolean[] col;
+	    private boolean[] diag1;
+	    private boolean[] diag2;
+	    
+	    public List<List<String>> solveNQueens(int n) {
+	        col = new boolean[n];
+	        diag1 = new boolean[2 * n - 1];
+	        diag2 = new boolean[2 * n - 1];
+	        List<List<String>> res = new ArrayList<>();
+	        dfs(res, new ArrayList<>(), 0, n);
+	        return res;
+	    }
+	    
+	    private void dfs(List<List<String>> res, List<String> list, int row, int n) {
+	        if (list.size() == n) {
+	            res.add(new ArrayList<>(list));
+	            return;
+	        } else {
+	            char[] newRow = new char[n];
+	            Arrays.fill(newRow, '.');
+	            for (int i = 0; i < n; i ++) {
+	                if (col[i] || diag1[n - 1 - row + i] || diag2[row + i]) continue;
+	                //row, col, diag relationship
+	                
+	                newRow[i] = 'Q';
+	                list.add(new String(newRow));
+	                col[i] = true;
+	                diag1[n - 1 - row + i] = true;
+	                diag2[row + i] = true;
+	                
+	                dfs(res, list, row + 1, n);
+	                
+	                col[i] = false;
+	                diag1[n - 1 - row + i] = false;
+	                diag2[row + i] = false;
+	                newRow[i] = '.';
+	                list.remove(list.size() - 1);
+	            }
+	        }
+	    }
+	}
 
 
 
