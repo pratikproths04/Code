@@ -11716,20 +11716,217 @@ LintCode 1384.
 	}
 
 
+54.
+	//spiral matrix, clockwise 
+	class Solution {
+	    public List<Integer> spiralOrder(int[][] matrix) {
+	        ArrayList<Integer> myArr = new ArrayList<Integer>();
+	        if (matrix.length == 0){return myArr;}
+	        return spiralRe(matrix, myArr, 0, matrix[0].length, 0, matrix.length);
+	    }
+	    
+	    private ArrayList<Integer> spiralRe(int[][] matrix, ArrayList<Integer> myArr, int p1, int n, int q1, int m){
+	        for (int i = p1; i < n; i ++){
+	            myArr.add(matrix[q1][i]);
+	        }
+	        for (int j = q1 + 1; j < m; j ++){
+	            myArr.add(matrix[j][n-1]);
+	        }
+	        for (int i = n - 2; i >= p1; i --){
+	            if (m - 1 != q1){myArr.add(matrix[m-1][i]);}
+	        }
+	        for (int j = m - 2; j >= q1 + 1; j --){
+	            if (n - 1 != p1){myArr.add(matrix[j][p1]);}
+	        }
+	        if (m <= 2 || n <= 2){return myArr;}
+	        return spiralRe(matrix, myArr, p1 + 1, n - 1, q1 + 1, m - 1);
+	    }
+	}	
+
+
+	//another writing method of this problem
+	//do not forget the corner cases
+	class Solution {
+	    public List<Integer> spiralOrder(int[][] matrix) {
+	        List<Integer> list = new ArrayList<>();
+	        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return list;
+	        clockwise(matrix, 0, list);
+	        return list;
+	    }
+	    
+	    private void clockwise(int[][] matrix, int index, List<Integer> list) {
+	        int rowStart = index, rowEnd = matrix.length - 1 - index, colStart = index, colEnd = matrix[0].length - 1 - index;
+	        if (rowStart > rowEnd || colStart > colEnd) return;
+	        if (rowStart == rowEnd) {
+	            for (int i = colStart; i <= colEnd; i ++) {
+	                list.add(matrix[rowStart][i]);
+	            }
+	        } else if (colStart == colEnd) {
+	            for (int i = rowStart; i <= rowEnd; i ++) {
+	                list.add(matrix[i][colStart]);
+	            }
+	        } else {
+	            for (int i = colStart; i < colEnd; i ++) {
+	                list.add(matrix[rowStart][i]);
+	            }
+	            for (int i = rowStart; i < rowEnd; i ++) {
+	                list.add(matrix[i][colEnd]);
+	            }
+	            for (int i = colEnd; i > colStart; i --) {
+	                list.add(matrix[rowEnd][i]);
+	            }
+	            for (int i = rowEnd; i > rowStart; i --) {
+	                list.add(matrix[i][colStart]);
+	            }
+	            clockwise(matrix, index + 1, list);
+	        }
+	    }
+	}	
+
+
+	//spiral matrix for anti-clockwise
 
 
 
 
 
 
+59.
+	//spiral for input n and out put the matrix
+	class Solution {
+	    public int[][] generateMatrix(int n) {
+	        if (n == 0){
+	            int[][] myTable = new int[0][0];
+	            return myTable;
+	        }
+	        int[][] myTable = new int[n][n];
+	        return generateRe(myTable, n, 0, 1);
+	    }
+	    
+	    private int[][] generateRe(int[][] myTable, int n, int counter, int start){
+	        if (n % 2 == 0 && counter == n / 2 - 1){
+	            myTable[counter][counter] = n * n - 3;
+	            myTable[counter][counter + 1] = n * n - 2;
+	            myTable[counter + 1][counter + 1] = n * n - 1;
+	            myTable[counter + 1][counter] = n * n;
+	            return myTable;
+	        }
+	        if (n % 2 == 1 && (counter == n / 2)){
+	            myTable[counter][counter] = n * n;
+	            return myTable;
+	        }
+	        for (int i = counter; i < n - counter; i ++){
+	            myTable[counter][i] = start;
+	            start ++;
+	        }
+	        for (int i = counter + 1; i < n - counter; i ++){
+	            myTable[i][n - counter - 1] = start;
+	            start ++;
+	        }
+	        for (int i = n - counter - 2; i >= counter; i --){
+	            myTable[n - counter - 1][i] = start;
+	            start ++;
+	        }
+	        for (int i = n - counter - 2; i > counter; i --){
+	            myTable[i][counter] = start;
+	            start ++;
+	        }
+	        counter ++;
+	        return generateRe(myTable, n, counter, start);
+	    }
+	}
 
 
 
+	//another writing method
+	class Solution {
+	    public int[][] generateMatrix(int n) {
+	        if (n == 0) return new int[0][0];
+	        int[][] res = new int[n][n];
+	        fillIn(res, 0, n, 1);
+	        return res;
+	    }
+	    
+	    private void fillIn(int[][] res, int index, int n, int number) {
+	        int rowStart = index, colStart = index, rowEnd = n - 1 - index, colEnd = n - 1 - index;
+	        if (rowStart == rowEnd) {
+	            res[rowStart][colStart] = number;
+	            return;
+	        }
+	        if (rowStart > rowEnd || colStart > colEnd) return;
+	        for (int i = colStart; i < colEnd; i ++) {
+	            res[rowStart][i] = number ++;
+	        }
+	        for (int i = rowStart; i < rowEnd; i ++) {
+	            res[i][colEnd] = number ++;
+	        }
+	        for (int i = colEnd; i > colStart; i --) {
+	            res[rowEnd][i] = number ++;
+	        }
+	        for (int i = rowEnd; i > rowStart; i --) {
+	            res[i][colStart] = number ++;
+	        }
+	        fillIn(res, index + 1, n, number);
+	    }
+	}
 
 
 
+236.
+	//LCA problem
+	//normal binary tree
+	public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) return null;
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if (root.val == p.val || root.val == q.val || left != null && right != null) return root;
+        if (left != null) return left;
+        if (right != null) return right;
+        return null;
+    }
 
 
+    //binary search tree
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (p.val > q.val) return lowestCommonAncestor(root, q, p);
+        if (root == null || root.val >= p.val && root.val <= q.val) return root;
+        //corner case here, might just be one of the p or q
+        if (root.val > q.val) return lowestCommonAncestor(root.left, p, q);
+        return lowestCommonAncestor(root.right, p, q);
+    }
+
+
+124.
+	//Binary Tree Max Path sum
+	class Solution {
+	    public int maxPathSum(TreeNode root) {
+	        int[] record = new int[]{Integer.MIN_VALUE};
+	        int temp = helper(root, record);
+	        if (root == null) {
+	            return 0;
+	        }
+	        return record[0];
+	    }
+	    
+	    private int helper(TreeNode root, int[] record) {
+	        if (root == null) {return 0;}
+	        if (root.left == null && root.right == null) {
+	            record[0] = Math.max(record[0], root.val);
+	            return root.val;
+	        }
+	        
+	        int sumleft = helper(root.left, record);
+	        int sumright = helper(root.right, record);
+	        int chosen = 0;
+	        chosen = Math.max(sumleft, sumright);
+	        
+	        record[0] = Math.max(record[0], sumleft + sumright + root.val);
+	        record[0] = Math.max(record[0], root.val + chosen);
+	        record[0] = Math.max(record[0], root.val);
+	        
+	        return (chosen > 0) ? (chosen + root.val) : root.val;
+	    }
+	}	
 
 
 

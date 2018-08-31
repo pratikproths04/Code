@@ -390,7 +390,11 @@ Attribute names are case insensitive, but not the values.
 
 
 
-
+CSS:
+	css separate file: better performace, browser cache, branding
+	DOCTYPE - strict: start and close
+			- loose: do not have to close with the same
+			
 
 
 
