@@ -11929,15 +11929,116 @@ LintCode 1384.
 	}	
 
 
+	//another method
+	//much more clearer
+	class Solution {
+	    private int res;
+	    
+	    public int maxPathSum(TreeNode root) {
+	        res = Integer.MIN_VALUE;
+	        maxSum(root);
+	        return res;
+	    }
+	    
+	    private int maxSum(TreeNode root) {
+	        if (root == null) return Integer.MIN_VALUE;
+	        int left = maxSum(root.left);
+	        int right = maxSum(root.right);
+	        int result = root.val;
+	        
+	        if (left >= 0) result += left;
+	        if (right >= 0) result += right;
+	        
+	        res = Math.max(res, result);
+	        int potential = Math.max(left, right);
+	        return potential > 0 ? root.val + potential : root.val;
+	    }
+	}
 
 
+113.
+	//path sum II
+	class Solution {
+	    public List<List<Integer>> pathSum(TreeNode root, int sum) {
+	        List<List<Integer>> resFinal = new ArrayList<List<Integer>>();
+	        List<Integer> temp = new ArrayList<Integer>();
+	        if (root != null) {
+	            helper(root, sum, temp, resFinal);
+	        }
+	        return resFinal;
+	    }
+	    
+	    private void helper(TreeNode root, int sum, List<Integer> temp, List<List<Integer>> resFinal) {
+	        if (sum - root.val == 0 && root.left == null && root.right == null) {
+	            List<Integer> newList = new ArrayList<>(temp);
+	            newList.add(root.val);
+	            resFinal.add(newList);
+	        }
+	        if (root.left != null) {
+	            List<Integer> newList = new ArrayList<>(temp);
+	            newList.add(root.val);
+	            helper(root.left, sum - root.val, newList, resFinal);
+	        }
+	        if (root.right != null) {
+	            List<Integer> newList = new ArrayList<>(temp);
+	            newList.add(root.val);
+	            helper(root.right, sum - root.val, newList, resFinal);            
+	        }
+	    }
+	    //the dfs stoped at the leave node level
+	}	
 
 
+114.
+	//recursion solving
+	//assume the function return the right solution
+	class Solution {
+	    public void flatten(TreeNode root) {
+	        if (root == null) return;
+	        correct(root);
+	    }
+	    
+	    private TreeNode correct(TreeNode root) {
+	        if (root.left != null && root.right != null) {
+	            TreeNode leftEnd = correct(root.left);
+	            TreeNode rightEnd = correct(root.right);
+	            leftEnd.right = root.right;
+	            root.right = root.left;
+	            root.left = null;
+	            return rightEnd;
+	        } else if (root.left != null) {
+	            TreeNode leftEnd = correct(root.left);
+	            root.right = root.left;
+	            root.left = null;
+	            return leftEnd;
+	        } else if (root.right != null) {
+	            TreeNode rightEnd = correct(root.right);
+	            return rightEnd;
+	        } else {
+	            return root;
+	        }
+	        //also can do, after it return and make judgement
+	        
+	    }
+	}	
 
 
-
-
-
+437.
+	class Solution {
+	    
+	    public int pathSum(TreeNode root, int sum) {
+	        if (root == null) return 0;
+	        return pathSumFrom(root, sum) + pathSum(root.left, sum) + pathSum(root.right, sum);
+	    }
+	    
+	    private int pathSumFrom(TreeNode node, int sum) {
+	        if (node == null) return 0;
+	        return (node.val == sum ? 1 : 0) 
+	            + pathSumFrom(node.left, sum - node.val) + pathSumFrom(node.right, sum - node.val);
+	    }
+	    //count at the end root level
+	    //cannot count at the next level, which double the number
+	}
 
 
 
