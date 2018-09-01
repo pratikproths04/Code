@@ -12022,6 +12022,52 @@ LintCode 1384.
 	    }
 	}	
 
+//Tree to inorder sequence and reverse
+//Tree to postorder sequence and reverse
+//Tree to levelorder sequence and reverse
+
+
+297.
+	//Tree to preorder sequence and reverse
+	public class Codec {
+	    
+	    // Encodes a tree to a single string.
+	    public String serialize(TreeNode root) {
+	        StringBuilder sb = new StringBuilder();
+	        buildTree(root, sb);
+	        return sb.toString();
+	    }
+	    
+	    private void buildTree(TreeNode root, StringBuilder sb) {
+	        if (root == null) {
+	            sb.append("null").append(",");
+	            return;
+	        }
+	        sb.append(root.val + "").append(",");
+	        buildTree(root.left, sb);
+	        buildTree(root.right, sb);
+	    }
+
+	    // Decodes your encoded data to tree.
+	    public TreeNode deserialize(String data) {
+	        Queue<String> qu = new LinkedList<>();
+	        qu.addAll(Arrays.asList(data.split(",")));
+	        return construct(qu);
+	    }
+	    
+	    private TreeNode construct(Queue<String> qu) {
+	        String tmp = qu.poll();
+	        if (tmp.equals("null")) return null;
+	        TreeNode root = new TreeNode(Integer.parseInt(tmp));
+	        TreeNode left = construct(qu);
+	        TreeNode right = construct(qu);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	    
+	}
+
 
 437.
 	class Solution {
@@ -12039,6 +12085,55 @@ LintCode 1384.
 	    //count at the end root level
 	    //cannot count at the next level, which double the number
 	}
+=======
+
+
+//similar to 114
+//build the inorder double linked list	  
+    Node bintree2listUtil(Node node) 
+    {
+        // Base case
+        if (node == null)
+            return node;
+  
+        // Convert the left subtree and link to root
+        if (node.left != null) 
+        {
+            // Convert the left subtree
+            Node left = bintree2listUtil(node.left);
+  
+            // Find inorder predecessor. After this loop, left
+            // will point to the inorder predecessor
+            for (; left.right != null; left = left.right);
+            //key step
+  
+            // Make root as next of the predecessor
+            left.right = node;
+  
+            // Make predecssor as previous of root
+            node.left = left;
+        }
+  
+        // Convert the right subtree and link to root
+        if (node.right != null) 
+        {
+            // Convert the right subtree
+            Node right = bintree2listUtil(node.right);
+  
+            // Find inorder successor. After this loop, right
+            // will point to the inorder successor
+            for (; right.left != null; right = right.left);
+  
+            // Make root as previous of successor
+            right.left = node;
+  
+            // Make successor as next of root
+            node.right = right;
+        }
+  
+        return node;
+    }
+>>>>>>> fc1e273104edd4d8a6e2a17ab1773faedbcebb06
 
 
 
