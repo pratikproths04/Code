@@ -12085,7 +12085,6 @@ LintCode 1384.
 	    //count at the end root level
 	    //cannot count at the next level, which double the number
 	}
-=======
 
 
 //similar to 114
@@ -12133,63 +12132,594 @@ LintCode 1384.
   
         return node;
     }
->>>>>>> fc1e273104edd4d8a6e2a17ab1773faedbcebb06
+
+
+106.
+	//build binary tree from inorder and postorder
+	class Solution {
+	    public TreeNode buildTree(int[] inorder, int[] postorder) {
+	        return helper(postorder.length - 1, 0, inorder.length - 1, inorder, postorder);
+	    }
+	    
+	    private TreeNode helper(int rootIndex, int inBegin, int inEnd, int[] inorder, int[] postorder) {
+	        if (rootIndex < 0 || inBegin > inEnd) {
+	            return null;
+	        }
+	        
+	        TreeNode root = new TreeNode(postorder[rootIndex]);
+	        
+	        int mid = 0;
+	        while (mid < inorder.length && inorder[mid] != postorder[rootIndex]) {
+	            mid ++;
+	        }
+	        
+	        root.left = helper(rootIndex - (inEnd - mid) - 1, inBegin, mid - 1, inorder, postorder);
+	        root.right = helper(rootIndex - 1, mid + 1, inEnd, inorder, postorder);
+	        
+	        return root;
+	    }
+	}
+
+
+	//2nd writing method
+	//postorder array only need rootindex
+	//inorder need start and end to give left and right subtree
+	class Solution {
+	    public TreeNode buildTree(int[] inorder, int[] postorder) {
+	        if (inorder == null || inorder.length == 0) return null;
+	        return reconstruct(inorder, postorder, 0, inorder.length - 1, 0, postorder.length - 1);
+	    }
+	    
+	    private TreeNode reconstruct(int[] inorder, int[] postorder, int instart, int inend, int poststart, int postend) {
+	        if (instart > inend || poststart > postend) return null;
+	        if (instart == inend) {
+	            return new TreeNode(inorder[instart]);
+	        }
+	        int rootVal = postorder[postend];
+	        int rootIndex = instart;
+	        while (inorder[rootIndex] != rootVal) {
+	            rootIndex ++;
+	        }
+	        int leftLen = rootIndex - instart;
+	        TreeNode root = new TreeNode(rootVal);
+	        TreeNode left = reconstruct(inorder, postorder, instart, rootIndex - 1, poststart, poststart + leftLen - 1);
+	        TreeNode right = reconstruct(inorder, postorder, rootIndex + 1, inend, poststart + leftLen, postend - 1);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	}
+
+
+105.
+	//build binary tree from inorder and preorder 
+	class Solution {
+	    public TreeNode buildTree(int[] preorder, int[] inorder) {
+	        return helper(0, 0, inorder.length - 1, preorder, inorder);
+	    }
+	    
+	    private TreeNode helper(int preStart, int inStart, int inEnd, int[] preorder, int[] inorder) {
+	        if (preStart > preorder.length - 1 || inStart > inEnd) {
+	            return null;
+	        }
+	        
+	        TreeNode root = new TreeNode(preorder[preStart]);
+	        
+	        int mid = 0;
+	        while (mid < inorder.length && inorder[mid] != preorder[preStart]) {
+	            mid ++;
+	        }
+	        
+	        root.left = helper(preStart + 1, inStart, mid - 1, preorder, inorder);
+	        root.right = helper(preStart + mid - inStart + 1, mid + 1, inEnd, preorder, inorder);
+	        
+	        return root;
+	    }
+	}	
+
+
+	//2nd writing method
+	class Solution {
+	    public TreeNode buildTree(int[] preorder, int[] inorder) {
+	        if (inorder == null || inorder.length == 0) return null;
+	        return reconstruct(preorder, inorder, 0, 0, inorder.length - 1);
+	    }
+	    
+	    private TreeNode reconstruct(int[] preorder, int[] inorder, int rootIndex, int instart, int inend) {
+	        if (instart > inend) return null;
+	        if (instart == inend) return new TreeNode(inorder[instart]);
+	        TreeNode root = new TreeNode(preorder[rootIndex]);
+	        int inRootIndex = instart;
+	        while (inorder[inRootIndex] != preorder[rootIndex]) {
+	            inRootIndex ++;
+	        }
+	        int leftRootIndex = rootIndex + 1;
+	        int rightRootIndex = rootIndex + inRootIndex - instart + 1;
+	        TreeNode left = reconstruct(preorder, inorder, leftRootIndex, instart, inRootIndex - 1);
+	        TreeNode right = reconstruct(preorder, inorder, rightRootIndex, inRootIndex + 1, inend);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	}
 
 
 
+889.
+	//build binary tree using preorder and postorder
+	class Solution {
+	    public TreeNode constructFromPrePost(int[] pre, int[] post) {
+	        Map<Integer, Integer> postmap = new HashMap<>();
+	        for (int i = 0; i < pre.length; i ++) {
+	            postmap.put(post[i], i);
+	        }
+	        return reconstruct(pre, post, 0, pre.length - 1, 0, post.length - 1, postmap);
+	    }
+	    
+	    private TreeNode reconstruct(int[] pre, int[] post, int prestart, int preend, 
+	                                 int poststart, int postend, Map<Integer, Integer> postmap) {
+	        if (prestart > preend) return null;
+	        TreeNode root = new TreeNode(pre[prestart]);
+	        if (prestart == preend) return root;
+	        int leftLen = postmap.get(pre[prestart + 1]) - poststart + 1;
+	        TreeNode left = reconstruct(pre, post, prestart + 1, prestart + leftLen, poststart, poststart + leftLen - 1, postmap);
+	        TreeNode right = reconstruct(pre, post, prestart + leftLen + 1, preend, poststart + leftLen, postend - 1, postmap);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	}
+
+
+606.
+	//convert binary tree to string
+	class Solution {
+	    public String tree2str(TreeNode t) {
+	        if (t == null) return "";
+	        StringBuilder sb = new StringBuilder();
+	        construct(sb, t);
+	        return sb.toString();
+	    }
+	    
+	    private void construct(StringBuilder sb, TreeNode root) {
+	        if (root.left == null && root.right == null) {
+	            sb.append(root.val);
+	        }
+	        else if (root.left == null) {
+	            sb.append(root.val).append("()").append("(");
+	            construct(sb, root.right);
+	            sb.append(")");
+	        }
+	        else if (root.right == null) {
+	            sb.append(root.val).append("(");
+	            construct(sb, root.left);
+	            sb.append(")");
+	        }
+	        else {
+	            sb.append(root.val).append("(");
+	            construct(sb, root.left);
+	            sb.append(")");
+	            sb.append("(");
+	            construct(sb, root.right);
+	            sb.append(")");
+	        }
+	    }
+	}	
+
+
+536.
+	//from string to tree
+	class Solution {
+	    public TreeNode str2tree(String s) {
+	        if (s.equals("")) return null;
+	        if (s.indexOf('(') == -1) return new TreeNode(nextVal(s, 0));
+	        return construct(s, 0, s.length() - 1);
+	    }
+	    
+	    private TreeNode construct(String s, int start, int end) {
+	        if (start > end) return null;
+	        TreeNode root = new TreeNode(nextVal(s, start));
+	        if (start == end) return root;
+	        int counter = 1, cur = s.indexOf('(', start) + 1; 
+	        if(cur == 0) return root;
+	        start = cur;
+	        while (counter != 0 && cur < end) {
+	            if (s.charAt(cur) == '(') counter ++;
+	            else if (s.charAt(cur) == ')') counter --;
+	            cur ++;
+	        }
+	        TreeNode left = construct(s, start, cur - 1);
+	        TreeNode right = construct(s, cur + 1, end - 1);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	    
+	    private int nextVal(String s, int start) {
+	        int index1 = s.indexOf('(', start);
+	        int index2 = s.indexOf(')', start);
+	        int index;
+	        if (index1 != -1 && index2 != -1) {
+	            index = Math.min(index1, index2);
+	        } else {
+	            index = index2;
+	        }
+	        return (index == -1) ? Integer.parseInt(s) : Integer.parseInt(s.substring(start, index));
+	    }
+	}
+
+
+108.
+	//convert sorted array to binary search tree
+	//nothing much to say
+	class Solution {
+	    public TreeNode sortedArrayToBST(int[] nums) {
+	        if (nums == null || nums.length == 0) return null;
+	        return construct(nums, 0, nums.length - 1);
+	    }
+	    
+	    private TreeNode construct(int[] nums, int start, int end) {
+	        if (start > end) return null;
+	        if (start == end) return new TreeNode(nums[start]);
+	        int mid = start + (end - start) / 2;
+	        TreeNode root = new TreeNode(nums[mid]);
+	        TreeNode left = construct(nums, start, mid - 1);
+	        TreeNode right = construct(nums, mid + 1, end);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	}
 
 
 
+109.
+	//convert sorted linkedlist to binary search tree, hight balanced
+	//method 1 translate to sorted array and convert
+	class Solution {
+	    public TreeNode sortedListToBST(ListNode head) {
+	        if (head == null) return null;
+	        List<Integer> list = new ArrayList<>();
+	        while (head != null) {
+	            list.add(head.val);
+	            head = head.next;
+	        }
+	        return construct(list, 0, list.size() - 1);
+	    }
+	    
+	    private TreeNode construct(List<Integer> list, int start, int end) {
+	        if (start > end) return null;
+	        if (start == end) return new TreeNode(list.get(start));
+	        int mid = start + (end - start) / 2;
+	        TreeNode root = new TreeNode(list.get(mid));
+	        TreeNode left = construct(list, start, mid - 1);
+	        TreeNode right = construct(list, mid + 1, end);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	}
+
+	//method 2
+	//find the mid by two pointer, fast and slow
+	//divide and conquer
+	class Solution {
+	    public TreeNode sortedListToBST(ListNode head) {
+	        if (head == null) return null;
+	        if (head.next == null) return new TreeNode(head.val);
+	        
+	        ListNode leftHead = head;
+	        ListNode leftEnd = head;
+	        ListNode rightHead = head.next;
+	        while(rightHead != null && rightHead.next != null) {
+	            leftEnd = head;
+	            head = head.next;
+	            rightHead = rightHead.next.next;
+	        }
+	        
+	        TreeNode result = new TreeNode(head.val);
+	        rightHead = head.next;
+	        leftEnd.next = null;
+	        if (leftHead == head) {
+	            leftHead = null;
+	        }
+	        result.left = sortedListToBST(leftHead);
+	        result.right = sortedListToBST(rightHead);
+	        
+	        return result;
+	    }
+	}
+
+
+48.
+	class Solution {
+	    public void rotate(int[][] matrix) {
+	        rotateOneLine(matrix, 0);
+	    }
+	    
+	    private void rotateOneLine(int[][] matrix, int index) {
+	        int rowStart = index, colStart = index, rowEnd = matrix[0].length - index - 1, colEnd = matrix.length - index - 1;
+	        if (rowStart >= rowEnd) return;
+	        int tmp;
+	        for (int i = 0; i < colEnd - colStart; i ++) {
+	            tmp = matrix[rowStart][colStart + i];
+	            matrix[rowStart][colStart + i] = matrix[rowEnd - i][colStart];
+	            matrix[rowEnd - i][colStart] = matrix[rowEnd][colEnd - i];
+	            matrix[rowEnd][colEnd - i] = matrix[rowStart + i][colEnd];
+	            matrix[rowStart + i][colEnd] = tmp;
+	        }
+	        rotateOneLine(matrix, index + 1);
+	    }
+	}
+
+179.
+	//sort by ab and ba string
+	//can use compareTo() method
+	class Solution {
+	    public String largestNumber(int[] nums) {
+	        if (nums == null || nums.length == 0) return "";
+	        String[] res = new String[nums.length];
+	        for (int i = 0; i < nums.length; i ++) {
+	            res[i] = nums[i] + "";
+	        }
+	        Arrays.sort(res, new Comparator<String>(){
+	            @Override
+	            public int compare(String a, String b) {
+	                String ab = a + b;
+	                String ba = b + a;
+	                return - ab.compareTo(ba);
+	            }
+	        });
+	        String result = String.join("", res);
+	        return (result.charAt(0) == '0') ? "0" : result;
+	    }
+	}	
 
 
 
+1. 
+	//2 sum
+	class Solution {
+	    public int[] twoSum(int[] nums, int target) {
+	        Map<Integer, Integer> map = new HashMap<>();
+	        int one = 0, two = 0, require;
+	        for (int i = 0; i < nums.length; i ++) {
+	            require = target - nums[i];
+	            if (map.containsKey(require)) {
+	                one = map.get(require);
+	                two = i;
+	                break;
+	            }
+	            map.put(nums[i], i);
+	        }
+	        return new int[]{one, two};
+	    }
+	}
+
+	//2 sum sorted
+	class Solution {
+	    public int[] twoSum(int[] numbers, int target) {
+	        int left = 0, right = numbers.length - 1;
+	        while (left < right) {
+	            if (numbers[left] + numbers[right] < target) {
+	                left ++;
+	            } else if (numbers[left] + numbers[right] > target) {
+	                right --;
+	            } else {
+	                break;
+	            }
+	        }
+	        return new int[]{left + 1, right + 1};
+	    }
+	}
+
+	//2sum data structure design
+	class TwoSum {
+	    
+	    Map<Integer, Integer> map;
+
+	    /** Initialize your data structure here. */
+	    public TwoSum() {
+	        map = new HashMap<>();
+	    }
+	    
+	    /** Add the number to an internal data structure.. */
+	    public void add(int number) {
+	        int count = map.getOrDefault(number, 0) + 1;
+	        map.remove(number);
+	        map.put(number, count);
+	    }
+	    
+	    /** Find if there exists any pair of numbers which sum is equal to the value. */
+	    public boolean find(int value) {
+	        for (Map.Entry<Integer, Integer> element : map.entrySet()) {
+	            int num1 = element.getKey();
+	            int num2 = value - num1;
+	            if (map.containsKey(num2) && num2 != num1 || num2 == num1 && element.getValue() > 1) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	}
+
+
+	//2 sum BST input
+	class Solution {
+	    public boolean findTarget(TreeNode root, int k) {
+	        if (root == null || root.left == null && root.right == null) return false;
+	        List<Integer> list = new ArrayList<>();
+	        find(root, list);
+	        int left = 0, right = list.size() - 1;
+	        while (left < right) {
+	            int sum = list.get(left) + list.get(right);
+	            if (sum == k) return true;
+	            else if (sum < k) left ++;
+	            else right --;
+	        }
+	        return false;
+	    }
+	    
+	    private void find(TreeNode root, List<Integer> list) {
+	        if (root == null) return;
+	        find(root.left, list);
+	        list.add(root.val);
+	        find(root.right, list);
+	    }
+	}
 
 
 
+15.
+	//3 sum, duplicate
+	class Solution {
+	    public List<List<Integer>> threeSum(int[] nums) {
+	        Arrays.sort(nums);
+	        List<List<Integer>> res = new ArrayList<>();
+	        if (nums == null || nums.length <= 2) return res;
+	        int left, right;
+	        for (int i = 0; i < nums.length - 2 && nums[i] <= 0; i ++) {
+	            if (i > 0 && nums[i] == nums[i - 1]) continue;
+	            left = i + 1;
+	            right = nums.length - 1;
+	            while (left < right) {
+	                if (left > i + 1 && nums[left] == nums[left - 1]) {
+	                    left ++;
+	                    continue;
+	                }
+	                if (right < nums.length - 1 && nums[right] == nums[right + 1]) {
+	                    right --;
+	                    continue;
+	                }
+	                int sum = nums[i] + nums[left] + nums[right];
+	                if (sum == 0) {
+	                    List<Integer> list = new ArrayList<>();
+	                    list.add(nums[i]);
+	                    list.add(nums[left]);
+	                    list.add(nums[right]);
+	                    res.add(list);
+	                    left ++;
+	                } else if (sum < 0) {
+	                    left ++;
+	                } else {
+	                    right --;
+	                }
+	            }
+	        }
+	        return res;
+	    }
+	}
 
 
+16.
+	//3 sum, closest
+	class Solution {
+	    public int threeSumClosest(int[] nums, int target) {
+	        Arrays.sort(nums);
+	        int left, right, sum, recordSum = nums[0] + nums[1] + nums[2];
+	        for (int i = 0; i <= nums.length - 3; i ++) {
+	            left = i + 1;
+	            right = nums.length - 1;
+	            while (left < right) {
+	                sum = nums[i] + nums[left] + nums[right];
+	                if (sum < target) {left ++;}
+	                else if (sum > target) {right --;}
+	                else {return sum;}
+	                if (Math.abs(recordSum - target) > Math.abs(sum - target)) {
+	                    recordSum = sum;
+	                }
+	            }
+	        }
+	        return recordSum;
+	    }
+	}
 
 
+259.
+	//3 sum, smaller
+	class Solution {
+	    public int threeSumSmaller(int[] nums, int target) {
+	        int left, right, sum, record = 0;
+	        if (nums.length < 3) {return record;}
+	        Arrays.sort(nums);
+	        for (int i = 0; i <= nums.length - 3; i ++) {
+	            left = i + 1;
+	            right = nums.length - 1;
+	            while (left < right) {
+	                sum = nums[i] + nums[left] + nums[right];
+	                if (sum < target) {
+	                    record += right - left;
+	                    left ++;
+	                }
+	                else {
+	                    right --;
+	                }
+	            }
+	        }
+	        return record;
+	    }
+	}
 
 
+18.
+	class Solution {
+	    public List<List<Integer>> fourSum(int[] nums, int target) {
+	        Arrays.sort(nums);
+	        int left, right;
+	        List<List<Integer>> res = new ArrayList<>();
+	        for (int i = 0; i < nums.length - 3; i ++) {
+	            while (i > 0 && i < nums.length - 3 && nums[i] == nums[i - 1]) i ++;
+	            for (int j = i + 1;j < nums.length - 2; j ++) {
+	                while (j > i + 1 && j < nums.length - 2 && nums[j] == nums[j - 1]) j ++;
+	                left = j + 1;
+	                right = nums.length - 1;
+	                while (left < right) {
+	                    int sum = nums[i] + nums[j] + nums[left] + nums[right];
+	                    if (sum == target) {
+	                        List<Integer> list = Arrays.asList(nums[i], nums[j], nums[left], nums[right]);
+	                        //initialize list
+	                        //cannot remove element in this kind of list
+	                        //must use new ArrayList(Arrays.asList(...))
+	                        res.add(list);
+	                        left ++;
+	                    } else if (sum < target) left ++;
+	                    else right --;
+	                    while (left > j + 1 && left < right && nums[left] == nums[left - 1]) left ++;
+	                    while (right < nums.length - 1 && left < right && nums[right] == nums[right + 1]) right --;
+	                }
+	            }
+	        }
+	        return res;
+	    }
+	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+454.
+	class Solution {
+	    public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
+	        int len = A.length, sum;
+	        Map<Integer, Integer> map = new HashMap<>();
+	        for (int i = 0; i < len; i ++) {
+	            for (int j = 0; j < len; j ++) {
+	                sum = A[i] + B[j];
+	                map.put(sum, map.getOrDefault(sum, 0) + 1);
+	                //Associates the specified value with the specified key in this map (optional operation). 
+	                //If the map previously contained a mapping for the key, the old value is replaced by the specified value.
+	            }
+	        }
+	        
+	        int res = 0;
+	        for (int i = 0; i < len; i ++) {
+	            for (int j = 0; j < len; j ++) {
+	                sum = C[i] + D[j];
+	                if (map.containsKey(- sum)) res += map.get(- sum);
+	                //containsKey before get
+	            }
+	        }
+	        
+	        return res;
+	    }
+	}
 
 
 
