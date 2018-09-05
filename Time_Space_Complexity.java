@@ -12722,23 +12722,210 @@ LintCode 1384.
 	}
 
 
+4.
+	//find the median in two sorted array
+	class Solution {
+	    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+	        int k = (nums1.length + nums2.length + 1) / 2;
+	        double number1 = helper(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k);
+	        if ((nums1.length + nums2.length) % 2 == 1) return number1;
+	        double number2 = helper(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k + 1);
+	        return (number1 + number2) / 2;
+	    }
+	    
+	    private double helper(int[] a, int[] b, int aleft, int aright, int bleft, int bright, int k) {
+	        if (aleft > aright) return (double) b[bleft + k - 1];
+	        if (bleft > bright) return (double) a[aleft + k - 1];
+	        
+	        int amid = aleft + (aright - aleft) / 2;
+	        int bmid = bleft + (bright - bleft) / 2;
+	        int temp = amid - aleft + bmid - bleft + 1;
+	        
+	        if (a[amid] > b[bmid] && k > temp) {
+	            return helper(a, b, aleft, aright, bmid + 1, bright, k - (bmid - bleft + 1));
+	        }
+	        else if (a[amid] > b[bmid]) {
+	            return helper(a, b, aleft, amid - 1, bleft, bright, k);
+	        }
+	        else if (k > temp) {
+	            return helper(a, b, amid + 1, aright, bleft, bright, k - (amid - aleft + 1));
+	        }
+	        else {
+	            return helper(a, b, aleft, aright, bleft, bmid - 1, k);
+	        }
+	    }  
+	}
+
+
+	//my understanding version
+	class Solution {
+	    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+	        int k = (nums1.length + nums2.length + 1) / 2;
+	        double res = find(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k);
+	        if ((nums1.length + nums2.length) % 2 == 0) {
+	            res += find(nums1, nums2, 0, nums1.length - 1, 0, nums2.length - 1, k + 1);
+	            res /= 2;
+	        }
+	        return res;
+	    }
+	    
+	    private double find(int[] nums1, int[] nums2, int left1, int right1, int left2, int right2, int k) {
+	        if (left1 > right1) return nums2[left2 + k - 1];
+	        if (left2 > right2) return nums1[left1 + k - 1];
+	        
+	        int mid1 = left1 + (right1 - left1) / 2;
+	        int mid2 = left2 + (right2 - left2) / 2;
+	        int tmp = mid1 - left1 + mid2 - left2 + 1;
+	        
+	        if (nums1[mid1] >= nums2[mid2] && k > tmp) {
+	            return find(nums1, nums2, left1, right1, mid2 + 1, right2, k - (mid2 - left2 + 1));
+	        } else if (nums1[mid1] > nums2[mid2]) {
+	            return find(nums1, nums2, left1, mid1 - 1, left2, right2, k);
+	        } else if (nums1[mid1] <= nums2[mid2] && k > tmp) {
+	            return find(nums1, nums2, mid1 + 1, right1, left2, right2, k - (mid1 - left1 + 1));
+	        } else {
+	            return find(nums1, nums2, left1, right1, left2, mid2 - 1, k);
+	        }
+	    }
+	}
 
 
 
+239.
+	//sliding window, my method, use deque
+	class Solution {
+	    public int[] maxSlidingWindow(int[] nums, int k) {
+	        Deque<Integer> qu = new LinkedList<>();
+	        if (k == 0 || nums.length - k + 1 <= 0) return new int[0];
+	        int[] res = new int[nums.length - k + 1];
+	        
+	        for (int i = 0; i < k; i ++) {
+	            if (qu.isEmpty()) {
+	                qu.offerLast(nums[i]);
+	            } else {
+	                while (!qu.isEmpty() && qu.peekLast() < nums[i]) {
+	                    qu.pollLast();
+	                }
+	                qu.offerLast(nums[i]);
+	            }
+	        }
+	        res[0] = qu.peekFirst();
+	        int counter = 0;
+	        
+	        while (counter < res.length - 1) {
+	            if (nums[counter] == qu.peekFirst()) qu.pollFirst();
+	            while (!qu.isEmpty() && qu.peekLast() < nums[counter + k]) {
+	                qu.pollLast();
+	            }
+	            qu.offerLast(nums[counter + k]);
+	            res[++ counter] = qu.peekFirst();
+	        }
+	        
+	        return res;
+	    }
+	}
 
 
+	//good method, unite the inital condition and following conditions
+	class Solution {
+	    public int[] maxSlidingWindow(int[] nums, int k) {
+	        
+	        if(nums==null || nums.length==0){
+	            return new int[0];
+	        }
+	        
+	        int[] res=new int[nums.length-k+1];
+	        LinkedList<Integer> list=new LinkedList<Integer>();
+	        
+	        for(int i=0; i<nums.length; i++){
+	            while(list.size()!=0 && nums[list.getLast()]<nums[i]){
+	                list.removeLast();
+	            }
+	            list.addLast(i);
+	            
+	            if(i-list.getFirst()>=k){
+	                list.removeFirst();
+	            }
+	            //use this to unite the initial condition
+	            //add index instead of values
+	            
+	            if(i+1>=k){
+	                res[i+1-k]=nums[list.getFirst()];
+	            }
+	        }
+	        
+	        return res;
+	    }
+	}
 
 
+138.
+	//copy linkedlist with random pointer
+	public RandomListNode copyRandomList(RandomListNode head) {
+        if (head == null) return null;
+        
+        RandomListNode root = new RandomListNode(0);
+        RandomListNode cur2 = root, cur1 = head;
+        
+        Map<RandomListNode, RandomListNode> map = new HashMap<>();
+        while (cur1 != null) {
+            RandomListNode tmp = new RandomListNode(cur1.label);
+            cur2.next = tmp;
+            map.put(cur1, tmp);
+            cur2 = cur2.next;
+            cur1 = cur1.next;
+        }
+        
+        cur2 = root.next;
+        cur1 = head;
+        while (cur1 != null) {
+            if (cur1.random != null) {
+                cur2.random = map.get(cur1.random);
+            }
+            cur1 = cur1.next;
+            cur2 = cur2.next;
+        }
+        
+        return root.next;
+    }
 
 
-
-
-
-
-
-
-
-
+    //another method, copy and connect to the tail
+	public class Solution {
+	    public RandomListNode copyRandomList(RandomListNode head) {
+	        if (head == null) return null;
+	        
+	        RandomListNode cur = head;
+	        while (cur != null) {
+	            RandomListNode copy = new RandomListNode(cur.label);
+	            copy.next = cur.next;
+	            cur.next = copy;
+	            cur = cur.next.next;
+	        }
+	        
+	        cur = head;
+	        while (cur != null) {
+	            if (cur.random != null) {
+	                cur.next.random = cur.random.next;
+	            }
+	            cur = cur.next.next;
+	        }
+	        
+	        RandomListNode root = head.next;
+	        RandomListNode cur2 = root;
+	        cur = head;
+	        
+	        while (cur2.next != null) {
+	            cur.next = cur.next.next;
+	            cur = cur.next;
+	            cur2.next = cur2.next.next;
+	            cur2 = cur2.next;
+	        }
+	        cur.next = null;
+	        
+	        return root;
+	    }
+	}
 
 
 
