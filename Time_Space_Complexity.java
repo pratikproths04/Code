@@ -1748,7 +1748,35 @@ Practice Q9:
             }
         }
         return result;
+        //same idea, pushing while calculating
     }
+
+
+    //my own method
+    //deque, save invalid index, calculate valid period length
+    class Solution {
+	    public int longestValidParentheses(String s) {
+	        if (s == null || s.length() <= 1) return 0;
+	        
+	        Deque<Integer> dq = new LinkedList<>();
+	        int counter = -1, max = 0;
+	        //counter start from -1, for index 0 can be in the deque
+	        char[] sArr = s.toCharArray();
+	        for (int i = 0; i < sArr.length; i ++) {
+	            if (sArr[i] == ')' && !dq.isEmpty() && sArr[dq.peekLast()] == '(') dq.pollLast();
+	            else dq.offerLast(i);
+	        }
+	        dq.offerLast(sArr.length);
+	        while (!dq.isEmpty()) {
+	            int tmp = dq.pollFirst();
+	            int len = tmp - counter - 1;
+	            max = Math.max(len, max);
+	            counter = tmp;
+	            //keep reading and calculate valid period length
+	        }
+	        return max;
+	    }
+	}
 
 
 125.
@@ -2997,6 +3025,31 @@ Practice Q9:
 	        }
 	    }
 	    return ans;
+	}
+
+
+	//second time writing method
+	class Solution {
+	    public int trap(int[] height) {
+	        int left = 0, right = height.length - 1;
+	        int counter = 0, record;
+	        while (left < right) {
+	            if (height[left] <= height[right]) {
+	                record = height[left];
+	                while (left < right && height[left] <= record) {
+	                    left ++;
+	                    if (record > height[left]) counter += record - height[left];
+	                }
+	            } else {
+	                record = height[right];
+	                while (left < right && height[right] <= record) {
+	                    right --;
+	                    if (record > height[right]) counter += record - height[right];
+	                }
+	            }
+	        }
+	        return counter;
+	    }
 	}
 
 
@@ -6526,6 +6579,7 @@ Practice Q9:
         Set<String> res = new HashSet<>();
         helper(s, 0, new StringBuilder(), res, wl, wr, 0);
         return new ArrayList<>(res);
+        //classic!
     }
     
     private void helper(String s, int i, StringBuilder sb, Set<String> list, int wl, int wr, int open) {
@@ -12928,21 +12982,218 @@ LintCode 1384.
 	}
 
 
+156.
+	class Solution {
+	    public TreeNode upsideDownBinaryTree(TreeNode root) {
+	        if (root == null || root.left == null) return root;
+	        TreeNode head = findNewRoot(root);
+	        convert(root);
+	        return head;
+	    }
+	    
+	    private TreeNode findNewRoot(TreeNode root) {
+	        if (root.left == null) return root;
+	        return findNewRoot(root.left);
+	    }
+	    
+	    private void convert(TreeNode root) {
+	        if (root == null || root.left == null) return;
+	        convert(root.left);
+	        root.left.left = root.right;
+	        root.left.right = root;
+	        root.right = null;
+	        root.left = null;
+	            
+	    }
+	}
 
 
 
+318.
+	//sort it
+	//BFS add into PriorityQueue
+	//Hashing techniques
+	class Solution {
+	    public int maxProduct(String[] words) {
+	        if (words == null || words.length <= 1) return 0;
+	        
+	        Arrays.sort(words, new Comparator<String>(){
+	            @Override
+	            public int compare(String a, String b) {
+	                return b.length() - a.length();
+	            }
+	        });
+	        int len = words.length;
+	        PriorityQueue<Integer> qu = new PriorityQueue<>(new Comparator<Integer>(){
+	            @Override
+	            public int compare(Integer a, Integer b) {
+	                int aLen = words[a / len].length() * words[a % len].length();
+	                int bLen = words[b / len].length() * words[b % len].length();
+	                return bLen - aLen;
+	            }
+	        });
+	        boolean[][] visited = new boolean[len][len];
+	        qu.offer(1);
+	        visited[0][1] = true;
+	        while (!qu.isEmpty()) {
+	            int tmp = qu.poll();
+	            int i = tmp / len;
+	            int j = tmp % len;
+	            if (check(words[i], words[j])) return words[i].length() * words[j].length();
+	            int newI = i + 1;
+	            int newJ = j + 1;
+	            if (newI != j && newI <= j && !visited[newI][j]) {
+	                qu.offer(newI * len + j);
+	                visited[newI][j] = true;
+	            }
+	            if (newJ != i && newJ < len && !visited[i][newJ]) {
+	                qu.offer(i * len + newJ);
+	                visited[i][newJ] = true;
+	            }
+	        }
+	        return 0;        
+	    }
+	    
+	    private boolean check(String a, String b) {
+	        boolean[] map = new boolean[26];
+	        for (char ele : a.toCharArray()) {
+	            map[ele - 'a'] = true;
+	        }
+	        for (char ele : b.toCharArray()) {
+	            if (map[ele - 'a']) return false;
+	        }
+	        return true;
+	    }
+	}
+
+
+	//other method, much cleaner and better
+	class Solution {
+	    public int maxProduct(String[] words) {
+	        int res = 0;
+	        int[] bytes = new int[words.length];
+	        for (int i = 0; i < words.length; i++) {
+	            int val = 0;
+	            for (int j = 0; j < words[i].length(); j++) {
+	                val |= (1 << (words[i].charAt(j) - 'a'));
+	            }
+	            bytes[i] = val; 
+	        }
+	        //use bit operation, save the char
+	        for (int i = 0; i < bytes.length; i++) {
+	            for (int j = i + 1; j < bytes.length; j++) {
+	                if ((bytes[i] & bytes[j]) == 0) {
+	                	//judge if have the same chars
+	                    res = Math.max(words[i].length() * words[j].length(), res);
+	                }
+	            }
+	        }
+	        return res;
+	    }
+	}
 
 
 
+317.
+	//long and complicate
+	//but the algorithm is simple, BFS
+	//remember to add the visited boolean matrix
+	//remember to offer after each poll
+	class Solution {
+	    
+	    private int[][] around = new int[][]{{1,0},{0,1},{-1,0},{0,-1}};
+	    
+	    public int shortestDistance(int[][] grid) {
+	        if (grid == null || grid.length == 0 || grid[0].length == 0) return -1;
+	        
+	        int rows = grid.length, cols = grid[0].length;
+	        int[][] allDistance = new int[rows][cols];
+	        
+	        int houseNum = 0;
+	        Queue<int[]> qu = new LinkedList<>();
+	        for (int i = 0; i < rows; i ++) {
+	            for (int j = 0; j < cols; j ++) {
+	                allDistance[i][j] = -1;
+	                if (grid[i][j] == 1) {
+	                    qu.offer(new int[]{i, j, houseNum});
+	                    houseNum ++;
+	                }
+	            }
+	        }
+	        
+	        boolean[][][] visited = new boolean[rows][cols][houseNum];
+	        for (int i = 0; i < rows; i ++) {
+	            for (int j = 0; j < cols; j ++) {
+	                if (grid[i][j] == 1 || grid[i][j] == 2) {
+	                    for (int k = 0; k < houseNum; k ++) {
+	                        visited[i][j][k] = true;
+	                    }
+	                }
+	            }
+	        }
+	        
+	        int size;
+	        int[] tmp;
+	        int distance = 1;
+	        while (!qu.isEmpty()) {
+	            size = qu.size();
+	            for (int k = 0; k < size; k ++) {
+	                tmp = qu.poll();
+	                for (int[] each : around) {
+	                    int newRow = each[0] + tmp[0];
+	                    int newCol = each[1] + tmp[1];
+	                    int house = tmp[2];
+	                    if (newRow < 0 || newCol < 0 || newRow >= rows || newCol >= cols || visited[newRow][newCol][house]) continue;
+	                    if (allDistance[newRow][newCol] == -1) {
+	                        allDistance[newRow][newCol] = distance;
+	                    } else {
+	                        allDistance[newRow][newCol] += distance;
+	                    }
+	                    visited[newRow][newCol][house] = true;
+	                    qu.offer(new int[]{newRow, newCol, house});
+	                }
+	            }
+	            distance ++;
+	        }
+	        
+	        int minDistance = Integer.MAX_VALUE;
+	        for (int i = 0; i < rows; i ++) {
+	            for (int j = 0; j < cols; j ++) {
+	                if (allDistance[i][j] == -1) continue;
+	                boolean flag = true;
+	                for (int k = 0; k < houseNum; k ++) {
+	                    flag = flag && visited[i][j][k];
+	                }
+	                if (flag) {
+	                    minDistance = Math.min(minDistance, allDistance[i][j]);
+	                }                
+	            }
+	        }
+	        
+	        return minDistance == Integer.MAX_VALUE ? -1 : minDistance;
+	    }
+	}
 
 
-
-
-
-
-
-
-
+84.
+	//use a stack, saving index, calculate the area, like one leetcode before
+	class Solution {
+	    public int largestRectangleArea(int[] heights) {
+	        if (heights == null || heights.length == 0) return 0;
+	        
+	        Stack<Integer> st = new Stack<>();
+	        st.push(-1);
+	        int max = 0;
+	        for (int i = 0; i <= heights.length; i ++) {
+	            while (st.peek() != -1 && (i == heights.length || heights[st.peek()] > heights[i])) {
+	                int tmp = st.pop();
+	                max = Math.max((i - st.peek() - 1) * heights[tmp], max);
+	            }
+	            st.push(i);
+	        }
+	        return max;
+	    }
+	}
 
 
 
