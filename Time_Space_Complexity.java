@@ -13197,10 +13197,119 @@ LintCode 1384.
 
 
 
+315.
+	//FUCK!!!
+	//solution, using merge sort, add number when merge the right number
+	//sort by index, instead of number, this can be very wrapping
+	class Solution {
+	    public List<Integer> countSmaller(int[] nums) {
+	        List<Integer> res = new ArrayList<>();
+	        if (nums.length == 0) return res;
+	        
+	        int[] count = new int[nums.length];
+	        int[] indexes = new int[nums.length];
+	        for (int i = 0; i < nums.length; i ++) {
+	            indexes[i] = i;
+	        }
+	        
+	        divide(nums, indexes, count, 0, nums.length - 1);
+	        for (int ele : count) {
+	            res.add(ele);
+	        }
+	        return res;
+	    }
+	    
+	    private void divide(int[] nums, int[] indexes, int[] count, int start, int end) {
+	        if (end <= start) return;
+	        int mid = start + (end - start) / 2;
+	        divide(nums, indexes, count, start, mid);
+	        divide(nums, indexes, count, mid + 1, end);
+	        
+	        merge(nums, indexes, count, start, mid, mid + 1, end);
+	    }
+	    
+	    private void merge(int[] nums, int[] indexes, int[] count, int leftstart, int leftend, int rightstart, int rightend) {
+	        int[] tmp = new int[rightend - leftstart + 1];
+	        int newIndex = 0;
+	        int rightcount = 0;
+	        int recordLeft = leftstart;
+	        while (leftstart <= leftend && rightstart <= rightend) {
+	            if (nums[indexes[leftstart]] > nums[indexes[rightstart]]) {
+	                rightcount ++;
+	                tmp[newIndex ++] = indexes[rightstart ++];
+	            } else {
+	                tmp[newIndex ++] = indexes[leftstart];
+	                count[indexes[leftstart ++]] += rightcount;
+	            }
+	        }
+	        while (leftstart <= leftend) {
+	            tmp[newIndex ++] = indexes[leftstart];
+	            count[indexes[leftstart ++]] += rightcount;
+	        }
+	        while (rightstart <= rightend) {
+	            tmp[newIndex ++] = indexes[rightstart ++];
+	        }
+	        for (int i = recordLeft; i <= rightend; i ++) {
+	            indexes[i] = tmp[i - recordLeft];
+	        }
+	    }
+	}
+	//Arrays.asList() can only convert the same type of list
+	//can not convert int to Integer
 
 
+	//second method
+	//using binary search tree
+	class Solution {
+	    public List<Integer> countSmaller(int[] nums) {
+	        List<Integer> res = new ArrayList<>();
+	        if (nums.length == 0) return res;
+	        
+	        int[] count = new int[nums.length];
+	        TreeNode root = null;
+	        for (int i = nums.length - 1; i >= 0; i --) {
+	            root = insert(root, count, i, nums, 0);
+	        }
+	        for (int ele : count) {
+	            res.add(ele);
+	        }
+	        return res;
+	    }
+	    
+	    private TreeNode insert(TreeNode root, int[] count, int index, int[] nums, int sumup) {
+	        if (root == null) {
+	            count[index] = sumup;
+	            return new TreeNode(nums[index]);
+	        }
+	        if (root.val == nums[index]) {
+	            root.dup ++;
+	            count[index] = root.num + sumup;
+	        } else if (root.val < nums[index]) {
+	            root.right = insert(root.right, count, index, nums, sumup + root.num + root.dup);
+	        } else {
+	            root.num ++;
+	            root.left = insert(root.left, count, index, nums, sumup);
+	        }
+	        return root;
+	    }
+	}
 
-
+	class TreeNode{
+	    int val;
+	    //the value of this treenode
+	    int num;
+	    //the number of nodes in the left subtree
+	    int dup;
+	    //dup, duplicate numbers
+	    TreeNode left;
+	    TreeNode right;
+	    public TreeNode(int val){
+	        this.val = val;
+	        dup = 1;
+	        left = null;
+	        right = null;
+	    }
+	}
 
 
 
