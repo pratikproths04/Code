@@ -7599,6 +7599,71 @@ Practice Q9:
 
 
 
+	//my method
+	//actually, it is another version of trap water
+	//from 2 pointer boundary to around boundary
+	class Solution {
+	    private int count = 0;
+	    private int max = 0;
+	    private int[][] around = new int[][]{{0,1},{1,0},{-1,0},{0,-1}};
+	    
+	    public int trapRainWater(int[][] heightMap) {
+	        if (heightMap == null || heightMap.length <= 1 || heightMap[0].length <= 1) return 0;
+	        
+	        PriorityQueue<Cell> pq = new PriorityQueue<>(new Comparator<Cell>(){
+	            @Override
+	            public int compare(Cell a, Cell b) {
+	                return a.height - b.height;
+	            }
+	        });
+	        boolean[][] visited = new boolean[heightMap.length][heightMap[0].length];
+	        for (int i = 0; i < heightMap.length; i ++) {
+	            pq.offer(new Cell(i, 0, heightMap));
+	            pq.offer(new Cell(i, heightMap[0].length - 1, heightMap));
+	            visited[i][0] = true;
+	            visited[i][heightMap[0].length - 1] = true;
+	        }
+	        for (int i = 0; i < heightMap[0].length; i ++) {
+	            pq.offer(new Cell(0, i, heightMap));
+	            pq.offer(new Cell(heightMap.length - 1, i, heightMap));
+	            visited[0][i] = true;
+	            visited[heightMap.length - 1][i] = true;
+	        }
+	        while (!pq.isEmpty()) {
+	            find(heightMap, visited, pq);
+	        }
+	        return count;
+	    }
+	    
+	    private void find(int[][] heightMap, boolean[][] visited, PriorityQueue<Cell> pq) {
+	        Cell cur = pq.poll();
+	        int rowCur = cur.row, colCur = cur.col;
+	        max = Math.max(max, cur.height);
+	        for (int[] each : around) {
+	            int newRow = rowCur + each[0];
+	            int newCol = colCur + each[1];
+	            if (newRow < 0 || newCol < 0 || newRow >= heightMap.length || newCol >= heightMap[0].length 
+	                || visited[newRow][newCol]) continue;
+	            count += heightMap[newRow][newCol] < max ? max - heightMap[newRow][newCol] : 0;
+	            pq.offer(new Cell(newRow, newCol, heightMap));
+	            visited[newRow][newCol] = true;
+	        }
+	    }
+	}
+
+	class Cell{
+	    int row;
+	    int col;
+	    int height;
+	    public Cell(int a, int b, int[][] heightMap) {
+	        row = a;
+	        col = b;
+	        height = heightMap[a][b];
+	    }
+	}
+
+
+
 //Lesson 10
 	//Q2 L 103
 	public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
