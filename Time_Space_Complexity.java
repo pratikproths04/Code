@@ -13378,9 +13378,94 @@ LintCode 1384.
 
 
 
-
+149.
+	/**
+	 * Definition for a point.
+	 * class Point {
+	 *     int x;
+	 *     int y;
+	 *     Point() { x = 0; y = 0; }
+	 *     Point(int a, int b) { x = a; y = b; }
+	 * }
+	 */
+	class Solution {
+	    public int maxPoints(Point[] points) {
+	        if (points == null || points.length == 0) {
+	            return 0;
+	        }
+	        Map<String,Integer> map = new HashMap<>();
+	        int n = points.length;
+	        int max = 1;
+	        for (int i = 0; i < n - 1; i++) {
+	            map.clear();
+	            int curMax = 1, samePoints = 0;
+	            for (int j = i + 1; j < n; j++) {
+	                int dx = points[i].x - points[j].x;
+	                int dy = points[i].y - points[j].y;
+	                if (dx == 0 && dy == 0) {
+	                    samePoints++;
+	                    continue;
+	                }
+	                int gcd = getGCD(dx,dy);
+	                String slope = dy/gcd + "_" + dx/gcd;
+	                //do not use double to give slope
+	                //use string!!!
+	                //brilliant
+	                map.put(slope,map.getOrDefault(slope,1) + 1);
+	                curMax = Math.max(curMax,map.get(slope));
+	            }
+	            max = Math.max(max, curMax + samePoints);
+	            //add at the last second
+	        }
+	        
+	        return max;
+	    }
+	    
+	    //the method to get the greatest common divider
+	    private int getGCD(int a, int b) {
+	        if (b == 0) {
+	            return a;
+	        }
+	        return getGCD(b,a % b);
+	    }
+	}
 
     
+    //BigDecimal
+    import java.math.BigDecimal;
+	import java.math.MathContext;
+
+	class Solution {
+	    
+	    public int maxPoints(Point[] points) {
+	        if (points == null) return 0;
+	        if (points.length <= 2) return points.length;
+	        
+	        int maxNum = 0;
+	        for (int i = 0; i < points.length; i ++) {
+	            int samep = 1;
+	            int samex = 0;
+	            Map<BigDecimal, Integer> map = new HashMap<>();
+	            for (int j = 0; j < points.length; j ++) {
+	                if (j == i) continue;
+	                if (points[i].x == points[j].x && points[i].y == points[j].y) {
+	                    samep ++;
+	                } else if (points[i].x == points[j].x) {
+	                    samex ++;
+	                }
+	            }
+	            for (int j = 0; j < points.length; j ++) {
+	                if (j == i || points[i].x == points[j].x) continue;
+	                BigDecimal k = BigDecimal.valueOf(points[j].y - points[i].y).divide(BigDecimal.valueOf(points[j].x - points[i].x), new MathContext(20));
+	                map.put(k, map.getOrDefault(k, samep) + 1);
+	                maxNum = Math.max(maxNum, map.get(k));
+	            }
+	            maxNum = Math.max(maxNum, samex + samep);
+	        }
+	        
+	        return maxNum;
+	    }
+	}
 
 
 
