@@ -111,6 +111,35 @@ LeetCode:
 	Time complexity should be O(n^2);
 	Space complexity without considering the function stack is O(n^2);
 	
+	class Solution {
+	    public int numIslands(char[][] grid) {
+	        if (grid.length == 0 || grid[0].length == 0) {return 0;}
+	        boolean[][] record = new boolean[grid.length][grid[0].length];
+	        int counter = 0;
+	        for (int i = 0; i < grid.length; i ++) {
+	            for (int j = 0; j < grid[0].length; j ++) {
+	                if (!record[i][j] && grid[i][j] == '1') {
+	                    counter ++;
+	                    findIsland(grid, record, i, j);
+	                }
+	            }
+	        }
+	        return counter;
+	    }
+	    
+	    private void findIsland(char[][] grid, boolean[][] record, int row, int colum) {
+	        if (row < 0 || row >= grid.length || colum >= grid[0].length 
+	            || colum < 0 || grid[row][colum] == '0' || record[row][colum]) {
+	            return;
+	        }
+	        record[row][colum] = true;
+	        findIsland(grid, record, row - 1, colum);
+	        findIsland(grid, record, row + 1, colum);
+	        findIsland(grid, record, row, colum - 1);
+	        findIsland(grid, record, row, colum + 1);
+	    }
+	}
+	
 130.
 	Time complexity should be O(n^2);
 	Space complexity without considering the function stack is O(1);
@@ -1614,6 +1643,36 @@ Practice Q9:
 	//		These special characters are often called "metacharacters".	
 	//"Bob. " split("\\.| ") return
 	//		"Bob" ""
+	class Solution {
+	    public String mostCommonWord(String paragraph, String[] banned) {
+	        String[] para = paragraph.split(" ");
+	        Map<String, Integer> map = new HashMap<>();
+
+	        for (int i = 0; i < para.length; i ++) {
+	            para[i] = corp(para[i]);
+	            map.put(para[i], map.getOrDefault(para[i], 0) + 1);
+	        }
+	        
+	        for (String ele : banned) {
+	            map.remove(ele);
+	        }
+	        
+	        String res = null;
+	        for (Map.Entry<String, Integer> each : map.entrySet()) {
+	            if (res == null || map.get(res) < each.getValue()) res = each.getKey();
+	        }
+	        return res;        
+	    }
+	    
+	    private String corp(String a) {
+	        int len = a.length();
+	        char tmp = a.charAt(len - 1);
+	        if (tmp - 'a' > 0 && tmp - 'a' < 26 || tmp - 'A' > 0 && tmp - 'A' < 26) {
+	            return a.toLowerCase();
+	        } 
+	        return a.substring(0, len - 1).toLowerCase();
+	    }
+	}
 
 
 43.
@@ -9954,7 +10013,88 @@ LintCode 11.
 272.
 	//find k closest elements
 	//convert to array, use binary search to find k values
+	class Solution {
+		//the use of stack, keep insert treenode inthe gap
+	    public List<Integer> closestKValues(TreeNode root, double target, int k) {
+	        List<Integer> list = new ArrayList<>();
+	        if (root == null || k == 0) return list;
+	        
+	        TreeNode cur = root;
+	        Stack<TreeNode> prev = new Stack<>();
+	        Stack<TreeNode> next = new Stack<>();
+	        while (cur != null) {
+	            if (cur.val <= target) {
+	                prev.push(cur);
+	                cur = cur.right;
+	            } else {
+	                next.push(cur);
+	                cur = cur.left;
+	            }
+	        }
+	        
+	        while (k -- > 0) {
+	            if (prev.isEmpty() && next.isEmpty()) return list;
+	            else if (prev.isEmpty()) {
+	                list.add(getNext(next));
+	            } else if (next.isEmpty()) {
+	                list.add(getPrev(prev));
+	            } else if (Math.abs(prev.peek().val - target) < Math.abs(next.peek().val - target)) {
+	                list.add(getPrev(prev));
+	            } else {
+	                list.add(getNext(next));
+	            }
+	        }
+	        
+	        return list;
+	    }
+	    
+	    private int getPrev(Stack<TreeNode> prev) {
+	        TreeNode popNode = prev.pop();
+	        TreeNode cur = popNode.left;
+	        while (cur != null) {
+	            prev.push(cur);
+	            cur = cur.right;
+	        }
+	        return popNode.val;
+	    }
+	    
+	    private int getNext(Stack<TreeNode> next) {
+	        TreeNode popNode = next.pop();
+	        TreeNode cur = popNode.right;
+	        while (cur != null) {
+	            next.push(cur);
+	            cur = cur.left;
+	        }
+	        return popNode.val;
+	    }
+	}
 
+
+	//primative but effient method
+	public class Solution {
+	    public List<Integer> closestKValues(TreeNode root, double target, int k) {
+	        List<Integer> res = new LinkedList<>();
+	        inorder(res, root, target, k);
+	        return res;
+	    }
+	    void inorder(List<Integer> res, TreeNode root, double target, int k){
+	        if(root == null){
+	            return;
+	        }
+	        inorder(res, root.left, target, k);
+	        if(res.size() < k){
+	            res.add(root.val);
+	        }else{
+	            if(Math.abs(res.get(0) - target) > Math.abs(root.val - target)){
+	                res.remove(0);
+	                res.add(root.val);
+	            }
+	        }
+	        //scan all treenode, only keep the right one
+	        inorder(res, root.right, target, k);
+	    }
+	   
+	}
 
 
 
