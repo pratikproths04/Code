@@ -205,6 +205,54 @@ public void buildGraph(String[] words, boolean[][] adj, int[] visited) {
 
 
 
+LC 692:
+
+//can you believe it? this method is very fast!
+class Solution {
+    public List<String> topKFrequent(String[] words, int k) {
+        if (words == null || words.length == 0 || k == 0) return new ArrayList<>();
+        
+        Map<String, Integer> map = new HashMap<>();
+        for (String word : words) {
+            map.put(word, map.getOrDefault(word, 0) + 1);
+        }
+        PriorityQueue<String> pq = new PriorityQueue<>(k, new Comparator<String>(){
+            @Override
+            public int compare(String a, String b) {
+                if (map.get(a) == map.get(b)) {
+                    return a.compareTo(b);
+                } else {
+                    return - map.get(a) + map.get(b);
+                }
+            }
+        });
+        for (Map.Entry<String, Integer> element : map.entrySet()) {
+            pq.offer(element.getKey());
+        }
+        List<String> res = new ArrayList<>();
+        for (int i = 0; i < k && !pq.isEmpty(); i ++) {
+            res.add(pq.poll());
+        }
+        return res;
+    }
+}
+//cannot use new ArrayList<>(pq) here
+//priorityqueue does not store data in the decreasing or increasing order
+//it is like the binary tree, something like that
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
