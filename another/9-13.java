@@ -491,7 +491,11 @@ class Solution {
 }
 
 
-LC 819:
+LC 879:
+
+//dp[k][i][j] means for first k crime with i members and at least j profit, what is total schemes can be chosen.
+//exactly i memebers, no more and no less
+//And we need this Math.max(0, j - p), because this is for at least j profit.
 class Solution {
     private int mod = (int)1e9 + 7;
     public int profitableSchemes(int G, int P, int[] group, int[] profit) {
@@ -518,32 +522,66 @@ class Solution {
 }
 
 
+//all the initial conditions are inside these three loops
+//mod new writing method
+//1e9 is long type
+class Solution {
+    private int mod = (int)1e9 + 7;
+    
+    public int profitableSchemes(int G, int P, int[] group, int[] profit) {
+        if (group == null || group.length == 0) return 0;
+        
+        int[][][] dp = new int[group.length + 1][G + 1][P + 1];
+        dp[0][0][0] = 1;
+        
+        for (int i = 1; i <= group.length; i ++) {
+            for (int j = 0; j <= G; j ++) {
+                for (int k = 0; k <= P; k ++) {
+                    dp[i][j][k] = dp[i - 1][j][k];
+                    if (j >= group[i - 1]) {
+                        dp[i][j][k] += dp[i - 1][j - group[i - 1]][Math.max(0, k - profit[i - 1])];
+                        dp[i][j][k] %= mod;
+                    }
+                }
+            }
+        }
+        
+        int res = 0;
+        for (int i = 0; i <= G; i ++) {
+            res += dp[group.length][i][P];
+            res %= mod;
+        }
+        return res;
+    }
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//2D dp method
+class Solution {
+    private int mod = (int)1e9 + 7;
+    
+    public int profitableSchemes(int G, int P, int[] group, int[] profit) {
+        if (group == null || group.length == 0) return 0;
+        
+        int[][] dp = new int[G + 1][P + 1];
+        dp[0][0] = 1;
+        
+        for (int i = 0; i < group.length; i ++) {
+            for (int j = G; j >= 0; j --) {
+                for (int k = P; k >= 0; k --) {
+                    if (j >= group[i]) {
+                        dp[j][k] += dp[j - group[i]][Math.max(0, k - profit[i])];
+                        dp[j][k] %= mod;
+                    }
+                }
+            }
+        }
+        
+        int res = 0;
+        for (int i = 0; i <= G; i ++) {
+            res += dp[i][P];
+            res %= mod;
+        }
+        return res;
+    }
+}
