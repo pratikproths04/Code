@@ -443,8 +443,62 @@ class Solution {
 //key of this method is to transform the probability to the length
 
 
+Like the amazon:
 
+class Solution {
 
+  static String[][] wordCountEngine(String document) {
+    // your code goes here
+    String[] arr = document.split(" +");
+    Map<String, Integer> map = new HashMap<>();
+    int maxNum = 0;
+    for (int i = 0; i < arr.length; i ++) {
+      arr[i] = process(arr[i]);
+      if (arr[i].length() == 0) continue;
+      map.put(arr[i], map.getOrDefault(arr[i], 0) + 1);
+      maxNum = Math.max(maxNum, map.get(arr[i]));
+    }
+    String[][] res = new String[map.size()][2];
+    
+    Map<Integer, List<String>> bucket = new HashMap<>();
+    for (int i = 0; i < arr.length; i ++) {
+      if (!map.containsKey(arr[i])) continue;
+      int frequent = map.get(arr[i]);
+      if (bucket.containsKey(frequent)) {
+        bucket.get(frequent).add(arr[i]);
+      } else {
+        List<String> tmpList = new ArrayList<>();
+        tmpList.add(arr[i]);
+        bucket.put(frequent, tmpList);
+      }
+      map.remove(arr[i]);
+    }
+
+    int row = 0;
+    for (int i = maxNum; i > 0; i --) {
+      if (!bucket.containsKey(i)) continue;
+      List<String> tmpList = bucket.get(i);
+      for (int j = 0; j < tmpList.size(); j ++) {
+        res[row][0] = tmpList.get(j);
+        res[row][1] = Integer.toString(i);
+        row ++;
+      }
+    }
+    return res;
+  }
+  
+  static String process(String str) {
+    StringBuilder sb = new StringBuilder();
+    for (char each : str.toCharArray()) {
+      if (each <= 'z' && each >= 'a' || each <= 'Z' && each >= 'A') {
+        sb.append(each);
+      }
+    }
+    return sb.toString().toLowerCase();
+  }
+}
+//use the bucket sort to get the order
+//do not have to sort exclusively
 
 
 
