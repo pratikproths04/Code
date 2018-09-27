@@ -159,6 +159,53 @@ class Solution {
 //the normal DFS method, cost a lot
 
 
+class Solution {
+    public int shortestDistance(int[][] maze, int[] start, int[] dst) {
+        if (maze == null || maze.length == 0) return -1;
+		Queue<int[]> q = new LinkedList<>();
+		int row = maze.length;
+		int col = maze[0].length;
+        int[][] dist = new int[row][col];
+        for (int i = 0; i < row; i++) {
+            Arrays.fill(dist[i], Integer.MAX_VALUE);
+        }
+        dist[start[0]][start[1]] = 0;
+		q.offer(start);
+		boolean[][] visited = new boolean[row][col];
+		int[][] dir = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+        boolean found = false;
+
+		while (q.isEmpty() == false) {
+			int[] cur = q.poll();
+			if (dst[0] == cur[0] && dst[1] == cur[1]) {
+                found = true;
+            }
+			for (int[] d : dir) {
+				int nextX = cur[0];
+				int nextY = cur[1];
+				int cost = 0;
+				while (nextX >= 0 && nextX < row && nextY >= 0 && nextY < col && maze[nextX][nextY] == 0) {
+					nextX += d[0];
+					nextY += d[1];
+                    cost++;
+				}
+				nextX -= d[0];
+				nextY -= d[1];
+                cost--;
+				if ( cost + dist[cur[0]][cur[1]] < dist[nextX][nextY]) {
+					visited[nextX][nextY] = true;
+                    dist[nextX][nextY] = cost + dist[cur[0]][cur[1]];
+					q.offer(new int[] {nextX, nextY});
+				}           
+			}
+		}
+		if (found == false) return -1;
+        return dist[dst[0]][dst[1]] == Integer.MAX_VALUE? -1: dist[dst[0]][dst[1]];
+    }
+}
+//much more quickly solution
+
+
 LC 684:
 
 class Solution {
