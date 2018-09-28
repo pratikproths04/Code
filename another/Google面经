@@ -1,0 +1,18 @@
+2018(7-9月) 码农类General 硕士 全职@Google
+
+(1) 系统设计获取唯一id
+Recruiter说没有系统设计的。觉得被误导了，我一天都没准备。
+
+(2) house robber III
+
+(3) boolean checkWin(char[][] board, chap player), board存着X, O, player 是 X 或 O，怎样高效判断赢了（行，列或对角线都为player的棋子为赢）
+
+(4) 比较两句话是否同义，输入是String, String, String[][] dict, dict是每行一对同义词。UNION FIND. 
+
+(5) jade2html，输入是字符串，输出是字符串
+输入: html\n\thead\n\tbody\n\t\tdiv\n\t\tdiv
+输出: <html>\n<head></head><body><div><div></div></div></body></html>
+
+
+
+
