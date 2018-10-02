@@ -1253,58 +1253,624 @@ Given a complete binary tree, count the number of nodes.
 
 
 
+//=================================================================================================================
+LC 308: Range Sum Query 2D - Mutable
+
+Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by 
+ts upper left corner (row1, col1) and lower right corner (row2, col2).
+
+corner case thinking:
+	1. how is number of calls to update and sumRegion function distributed?
+
+key thinking:
+	1. O(n) and O(n^2)
+
+solution:
+	class NumMatrix {
+	    
+	    //set the fields, which is the sum recording matrix
+	    int[][] sumMatrix;
+
+	    public NumMatrix(int[][] matrix) {
+	        //initialize the sum matrix
+	        if (matrix.length == 0) sumMatrix = new int[0][0];
+	        else {
+	            sumMatrix = new int[matrix.length][matrix[0].length];   //coner case?
+	            for (int i = 0; i < matrix.length; i ++) {
+	                for (int j = 0; j < matrix[0].length; j ++) {
+	                    sumMatrix[i][j] = matrix[i][j];
+	                    if (j > 0) sumMatrix[i][j] += sumMatrix[i][j - 1];      
+	                }
+	            }
+	        }
+	        
+	    }//O(n^2)
+	    
+	    public void update(int row, int col, int val) {
+	        //update the sum matrix, update the same row
+	        int origin = (col == 0) ? sumMatrix[row][col] : sumMatrix[row][col] - sumMatrix[row][col - 1];
+	        int diff = val - origin;
+	        for (int i = col; i < sumMatrix[0].length; i ++) {
+	            sumMatrix[row][i] += diff;
+	        }
+	    }//O(n)
+	    
+	    public int sumRegion(int row1, int col1, int row2, int col2) {
+	        //use the sum matrix to get the final results
+	        int sumPrevCol = 0, sumAll = 0;
+	        for (int i = row1; i <= row2 && col1 > 0; i ++) {
+	            sumPrevCol += sumMatrix[i][col1 - 1];
+	        }
+	        for (int i = row1; i <= row2; i ++) {
+	            sumAll += sumMatrix[i][col2];
+	        }
+	        return sumAll - sumPrevCol;
+	    }//O(n)
+	}
+//=================================================================================================================
+LC 312: Burst Balloons
+
+Given n balloons, indexed from 0 to n-1. Each balloon is painted with a number on it represented by array nums. 
+You are asked to burst all the balloons. If the you burst balloon i you will get nums[left] * nums[i] * nums[right] coins. 
+Here left and right are adjacent indices of i. After the burst, the left and right then becomes adjacent.
+
+Find the maximum coins you can collect by bursting the balloons wisely.
+
+corner case thinking:
+	1. will there be any negative or double numbers?
+
+key thinking:
+	1. dynamic programming, how to write the recurrence relationship?
+	2. the problem of index, so you can add 2 to make it a new len, but the ends cannot be choose
+
+solution:
+	class Solution {
+	    public int maxCoins(int[] nums) {
+	        if (nums == null || nums.length == 0) {
+	            return 0;
+	        }
+	        int len = nums.length + 2;
+	        int[] value = new int[len];
+	        value[0] = value[len - 1] = 1;
+	        for (int i = 0; i < nums.length; i ++) {
+	            value[i + 1] = nums[i];
+	        }
+	        int[][] dp = new int[len][len];
+	        
+	        for (int i = 1; i < len; i ++) {
+	            for(int lo = 0; lo < len - i; lo++) {   // left part
+	                int hi = lo + i;                    // right part boundary
+	                for(int k = lo + 1; k < hi; k++) {      
+	                    dp[lo][hi] = Math.max(dp[lo][hi], value[lo] * value[k] * value[hi] + dp[lo][k] + dp[k][hi]);
+	                }
+	            }  
+	        }
+	        
+	        return dp[0][len - 1];
+	    }
+	}
+	//dp[lo][hi] from lo to hi, max number of money can get
+	//then scan all the array to find the best one, largest can get from array lo to hi
+//=================================================================================================================
+LC 334: Increasing Triplet Subsequence
+
+Given an unsorted array return whether an increasing subsequence of length 3 exists or not in the array.
+
+Formally the function should:
+
+Return true if there exists i, j, k 
+such that arr[i] < arr[j] < arr[k] given 0 ≤ i < j < k ≤ n-1 else return false.
+Note: Your algorithm should run in O(n) time complexity and O(1) space complexity.
+
+corner case thinking:
+	1. will the subsequence request in array order?
+
+key thinking:
+	1. keep scanning, keep updating
+
+solution:
+	class Solution {
+	    public boolean increasingTriplet(int[] nums) {
+	        if (nums == null || nums.length < 3) {return false;}
+	        int[] dp = new int[nums.length];
+	        dp[0] = 1;
+	        int res = 1;
+	        for (int i = 1; i < nums.length; i ++) {
+	            int max = 1;
+	            dp[i] = 1;
+	            for (int j = 0; j < i; j ++) {
+	                if (nums[j] < nums[i]) {
+	                    max = Math.max(max, dp[j] + 1);
+	                    dp[i] = max;
+	                }
+	            }
+	            res = Math.max(dp[i], res);
+	        }
+	        return res >= 3;
+	    }
+	}
 
 
+	class Solution {
+	    public boolean increasingTriplet(int[] nums) {
+	        if (nums == null || nums.length < 3) {return false;}
+	        int min = Integer.MAX_VALUE, secondMin = Integer.MAX_VALUE;
+	        for (int num : nums) {
+	            if (num <= min) {	//pay attention to the = here, for cases [1,1,-2,6]
+	                min = num;
+	            } else if (num < secondMin) {
+	                secondMin = num;
+	            } else if (num > secondMin) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	}
+//=================================================================================================================
+LC 337: House Robber III
+
+The thief has found himself a new place for his thievery again. There is only one entrance to this area, called the "root." 
+Besides the root, each house has one and only one parent house. After a tour, 
+the smart thief realized that "all houses in this place forms a binary tree". 
+It will automatically contact the police if two directly-linked houses were broken into on the same night.
+
+key thinking:
+	1. dp using tree
+
+solution:
+	class Solution {
+	    public int rob(TreeNode root) {
+	        return helper(root, new HashMap<TreeNode, Integer>());
+	    }
+	    
+	    private int helper(TreeNode root, Map<TreeNode, Integer> map) {
+	        if (root == null) return 0;
+	        if (map.containsKey(root)) return map.get(root);
+	        int sum = root.val;
+	        if (root.left != null) sum = sum + helper(root.left.left, map) + helper(root.left.right, map);
+	        if (root.right != null) sum = sum + helper(root.right.left, map) + helper(root.right.right, map);
+	        int temp = Math.max(sum, helper(root.left, map) + helper(root.right, map));
+	        map.put(root, temp);
+	        //use this map to do the dp, overlap part!
+	        return temp;
+	    }
+	}
+	or use an array to store the two possible values
+//=================================================================================================================
+LC 340: Longest Substring with At Most K Distinct Characters
+
+Given a string, find the length of the longest substring T that contains at most k distinct characters.
+
+corner case thinking:
+	1. null string? empty string?
+	2. can the k be 0?
+	3. will the characters only have letters?
+
+key thinking:
+	1. 2 pointers and a map to store, map size can be used for k
+	2. do not forget the quick pointer increasing
+
+solution:
+	class Solution {
+	    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+	        char[] arr = s.toCharArray();
+	        Map<Character, Integer> map = new HashMap<>();
+	        int slow = 0, quick = 0, record = 0;
+	        while (map.size() <= k && quick < arr.length) {
+	            
+	            map.put(arr[quick], quick);
+	            
+	            if (map.size() > k) {
+	                record = Math.max(record, quick - slow);
+	                
+	                slow = arr.length;
+	                for (char each : map.keySet()) {
+	                    slow = Math.min(map.get(each), slow);
+	                }
+	                for (char each : map.keySet()) {
+	                    if (slow == map.get(each)) {
+	                        map.remove(each);
+	                        break;
+	                    }
+	                }
+	                
+	                slow ++;
+	            }
+	            else if (map.size() <= k) {
+	                record = Math.max(record, quick + 1 - slow);
+	            }
+	            
+	            quick ++;
+	        }
+	        
+	        return record;
+	    }
+	}
+//=================================================================================================================
+LC 346: Moving Average from Data Stream
+
+Given a stream of integers and a window size, calculate the moving average of all integers in the sliding window.
+
+corner case thinking:
+	1. how large is the sliding window, how many numbers in it
+
+key thinking:
+	1. data structure, queue and sum
+
+	class MovingAverage {
+	    private int size;
+	    private int counter;
+	    private double sum;
+	    private Queue<Integer> data;
+
+	    /** Initialize your data structure here. */
+	    public MovingAverage(int size) {
+	        this.size = size;
+	        counter = 0;
+	        sum = 0;
+	        data = new LinkedList<>();
+	    }
+	    
+	    public double next(int val) {
+	        if (counter < size) {
+	            data.add(val);
+	            sum += val;
+	            counter ++;
+	            return sum / counter;
+	        }
+	        else {
+	            int temp = data.poll();
+	            data.add(val);
+	            sum = sum - temp + val;
+	            return sum / counter;
+	        }
+	    }
+	}
+//=================================================================================================================
+LC 359: Logger Rate Limiter
+
+Design a logger system that receive stream of messages along with its timestamps, 
+each message should be printed if and only if it is not printed in the last 10 seconds.
+
+Given a message and a timestamp (in seconds granularity), return true if the message should be printed in the given timestamp, 
+otherwise returns false.
+
+It is possible that several messages arrive roughly at the same time.
+
+solution:
+		class Logger {
+
+		    private Map<String, Integer> myMap;
+		    /** Initialize your data structure here. */
+		    public Logger() {
+		        myMap = new HashMap<>();
+		    }
+		    
+		    /** Returns true if the message should be printed in the given timestamp, otherwise returns false.
+		        If this method returns false, the message will not be printed.
+		        The timestamp is in seconds granularity. */
+		    public boolean shouldPrintMessage(int timestamp, String message) {
+		        if (!myMap.containsKey(message) || myMap.get(message) <= timestamp - 10) {
+		            myMap.put(message, timestamp);
+		            return true;
+		        }
+		        else {
+		            return false;
+		        }
+		    }
+		}
+//=================================================================================================================
+LC 362: Design Hit Counter
+
+Design a hit counter which counts the number of hits received in the past 5 minutes.
+
+Each function accepts a timestamp parameter (in seconds granularity) and 
+you may assume that calls are being made to the system in chronological order (ie, the timestamp is monotonically increasing). 
+You may assume that the earliest timestamp starts at 1.
+
+It is possible that several hits arrive roughly at the same time.
+
+key thinking:
+	1. circular array, and another array record the corresponding time
+
+solution:
+	class HitCounter {
+	    
+	    private int[] counter;
+	    private int[] time;
+
+	    /** Initialize your data structure here. */
+	    public HitCounter() {
+	        counter = new int[300];
+	        time = new int[300];
+	    }
+	    
+	    /** Record a hit.
+	        @param timestamp - The current timestamp (in seconds granularity). */
+	    public void hit(int timestamp) {
+	        int pointer = timestamp % 300;
+	        if (time[pointer] == timestamp) {
+	            counter[pointer] ++;
+	        }
+	        else {
+	            counter[pointer] = 1;
+	            time[pointer] = timestamp;
+	        }
+	        
+	    }
+	    
+	    /** Return the number of hits in the past 5 minutes.
+	        @param timestamp - The current timestamp (in seconds granularity). */
+	    public int getHits(int timestamp) {
+	        int total = 0;
+	        for (int i = 0; i < 300; i ++) {
+	            if (timestamp - time[i] < 300 ) total += counter[i];
+	        }
+	        return total;
+	    }
+	}
+//=================================================================================================================
+LC 392: Is Subsequence
+
+Given a string s and a string t, check if s is subsequence of t.
+
+You may assume that there is only lower case English letters in both s and t. 
+t is potentially a very long (length ~= 500,000) string, and s is a short string (<=100).
+
+A subsequence of a string is a new string which is formed from the original string by deleting 
+some (can be none) of the characters without disturbing the relative positions of the remaining characters. 
+(ie, "ace" is a subsequence of "abcde" while "aec" is not).
+
+key thinking:
+	1. 2 pointers
+
+solution:
+	class Solution {
+	    public boolean isSubsequence(String s, String t) {
+	        if (s.length() == 0) {return true;}
+	        int sIndex = 0, tIndex = 0;
+	        while (tIndex < t.length()) {
+	            if (s.charAt(sIndex) == t.charAt(tIndex)) {
+	                sIndex ++;
+	                tIndex ++;
+	            }
+	            else {
+	                tIndex ++;
+	            }
+	            if (sIndex == s.length()) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+	}
+//=================================================================================================================
+LC 394: Decode String
+Given an encoded string, return it is decoded string.
+
+The encoding rule is: k[encoded_string], where the encoded_string inside the square brackets is being repeated exactly k times. 
+Note that k is guaranteed to be a positive integer.
+
+You may assume that the input string is always valid; No extra white spaces, square brackets are well-formed, etc.
+
+Furthermore, you may assume that the original data does not contain any digits and that digits are only for those repeat numbers, k. 
+For example, there will not be input like 3a or 2[4].
+
+corner case thinking:
+	1. will there be nested brackets?
+	2. will the given string contain characters other than number and letters?
+	3. will there be any case that like 3a or 2[4]?
+
+solution:
+	class Solution {
+	    public String decodeString(String s) {
+	        if (s.length() == 0) return "";
+	        
+	        Stack<String> stack = new Stack<>();
+	        StringBuilder sb = new StringBuilder();
+	        String temp = "";
+	        for (int i = 0; i < s.length(); i ++) {
+	            if (s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - '0' < 10) {
+	                while (i < s.length() && s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - '0' < 10) {
+	                    temp = temp + s.charAt(i);
+	                    i ++;
+	                }
+	                stack.push(temp);
+	                i --;
+	                temp = "";
+	            }
+	            else if (s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - 'A' >= 0) {
+	                while (i < s.length() && s.charAt(i) != '[' && s.charAt(i) != ']' && s.charAt(i) - 'A' >= 0) {
+	                    temp = temp + s.charAt(i);
+	                    i ++;
+	                }
+	                stack.push(temp);
+	                i --;
+	                temp = "";
+	            }
+	            else if (s.charAt(i) == ']') {
+	                while (!stack.peek().equals("[")) {
+	                    sb.insert(0, stack.pop());		//insert() method
+	                }
+	                String repeat = sb.toString();
+	                sb.setLength(0);
+	                stack.pop();
+	                int count = Integer.parseInt(stack.pop());
+	                for (int j = 0; j < count; j ++) {
+	                    sb.append(repeat);
+	                }
+	                stack.push(sb.toString());
+	                sb.setLength(0);
+	            }
+	            else {
+	                stack.push("[");
+	            }
+	        }
+	        
+	        while (!stack.isEmpty()) {
+	            sb.insert(0, stack.pop());
+	        }
+	        return sb.toString();
+	    }
+	}
 
 
+	//another method, integer stack and string stack
+	class Solution {
+	    public String decodeString(String s) {
+	        String res = "";
+	        Stack<Integer> countStack = new Stack<>();
+	        Stack<String> resStack = new Stack<>();
+	        int idx = 0;
+	        while (idx < s.length()) {
+	            if (Character.isDigit(s.charAt(idx))) {
+	                int count = 0;
+	                while (Character.isDigit(s.charAt(idx))) {
+	                    count = 10 * count + (s.charAt(idx) - '0');
+	                    idx++;
+	                }
+	                countStack.push(count);
+	            }
+	            else if (s.charAt(idx) == '[') {
+	                resStack.push(res);
+	                res = "";
+	                idx++;
+	            }
+	            else if (s.charAt(idx) == ']') {
+	                StringBuilder temp = new StringBuilder (resStack.pop());
+	                int repeatTimes = countStack.pop();
+	                for (int i = 0; i < repeatTimes; i++) {
+	                    temp.append(res);
+	                }
+	                res = temp.toString();
+	                idx++;
+	            }
+	            else {
+	                res += s.charAt(idx++);
+	            }
+	        }
+	        return res;
+	    }
+	}
+	//Character.isDigit() / .isLetter()
+//=================================================================================================================
+LC 399: Evaluate Division
 
+Equations are given in the format A / B = k, where A and B are variables represented as strings, and k is a real number (floating point number). 
+Given some queries, return the answers. If the answer does not exist, return -1.0.
 
+key thinking:
+	1. the method of union find
 
+solution:
+	class Solution {
+	    public double[] calcEquation(String[][] equations, double[] values, String[][] queries) {
+	        Map<String, MapNode> map = new HashMap<>();
+	        for (int i = 0; i < equations.length; i ++) {
+	            String a = equations[i][0], b = equations[i][1];
+	            if (!map.containsKey(a)) map.put(a, new MapNode(a, 1.0));
+	            if (!map.containsKey(b)) map.put(b, new MapNode(b, 1.0));
+	            connect(a, b, values[i], map);
+	        }
+	        double[] res = new double[queries.length];
+	        
+	        // System.out.println(map.get("x1").root);
+	        // System.out.println(map.get("x1").times);
+	        
+	        for (int i = 0; i < queries.length; i ++) {
+	            res[i] = query(queries[i][0], queries[i][1], map);
+	        }
+	        
+	        // System.out.println(map.get("x1").root);
+	        // System.out.println(map.get("x1").times);
+	        
+	        return res;
+	    }
+	    
+	    private String find(String id, Map<String, MapNode> map) {
+	        MapNode original = map.get(id);
+	        double recordT = original.times;
+	        
+	        MapNode cur = original;
+	        while (!cur.root.equals(id)) {
+	            id = cur.root;
+	            MapNode parent = map.get(cur.root);
+	            cur.root = parent.root;
+	            cur.times *= parent.times;
+	            recordT *= parent.times;
+	            cur = parent;
+	        }
+	        original.root = id;
+	        original.times = recordT;
+	        
+	        return id;
+	    }
+	    
+	    private void connect(String id1, String id2, double val, Map<String, MapNode> map) {
+	        String root1 = find(id1, map);       //id1 / root1 = times1      id1 / id2 = val
+	        String root2 = find(id2, map);       //id2 / root2 = times2      --->    root1 / root2 = times2 / times1 * val
+	        if (root1.equals(root2)) return;
+	        // System.out.println("id1&root1: " + id1 + "," + root1 + ", id2&root2: " + id2 + "," + root2);
+	        // System.out.println();
+	        
+	        double rootTimes = map.get(id2).times / map.get(id1).times * val;
+	        map.get(root1).root = root2;
+	        map.get(root1).times = rootTimes;
+	    }
+	    
+	    private double query(String id1, String id2, Map<String, MapNode> map) {
+	        if (!map.containsKey(id1) || !map.containsKey(id2)) return -1;
+	        String root1 = find(id1, map), root2 = find(id2, map);
+	        
+	        
+	        // System.out.println("id1&root1: " + id1 + "," + root1 + ", id2&root2: " + id2 + "," + root2);
+	        // System.out.println();
+	        
+	        if (!root1.equals(root2)) return -1;
+	        return map.get(id1).times / map.get(id2).times;
+	    }
+	}
 
+	class MapNode{
+	    String root;
+	    double times;
+	    public MapNode(String str, double val) {
+	        root = str;
+	        times = val;
+	    }
+	}
+//=================================================================================================================
+LC 418: Sentence Screen Fitting
 
+Given a rows x cols screen and a sentence represented by a list of non-empty words, 
+find how many times the given sentence can be fitted on the screen.
 
+corner case thinking:
+	1. can there be any empty words or length of words is 0?
 
+solution:
+	class Solution {
+	    public int wordsTyping(String[] sentence, int rows, int cols) {
+	        char[] all = (String.join(" ", sentence) + " ").toCharArray();
+	        // System.out.println(String.join(" ", sentence) + " ");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	        int len = all.length;
+	        int start = 0, end = 0;
+	        while (rows > 0) {
+	            end = start + cols;
+	            while (end > start && all[end % len] != ' ') {
+	                end --;
+	            }
+	            if (start >= end) return 0;
+	            start = end + 1;
+	            // System.out.println(start);
+	            rows --;
+	        }
+	        return start / len;
+	    }
+	}
+//=================================================================================================================
 
 
 
