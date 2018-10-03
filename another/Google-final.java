@@ -1871,6 +1871,155 @@ solution:
 	    }
 	}
 //=================================================================================================================
+Lc 438: Find All Anagrams in a String
+
+Given a string s and a non-empty string p, find all the start indices of p s anagrams in s.
+
+Strings consists of lowercase English letters only and the length of both strings s and p will not be larger than 20,100.
+
+The order of output does not matter.
+
+
+Solution:
+	class Solution {
+	    public List<Integer> findAnagrams(String s, String p) {
+	        List<Integer> list = new ArrayList<>();
+	        int[] pChar = new int[256];
+	        int len =  p.length();
+	        char[] sArr = s.toCharArray();
+	        
+	        for (char a : p.toCharArray()) {
+	            pChar[a] ++;
+	        }
+	        
+	        int left = 0, right = 0;
+	        while (right < sArr.length) {
+	            if (pChar[sArr[right]] >= 1) len --;
+	            pChar[sArr[right]] --;
+	            right ++;
+	            
+	            if (len == 0) list.add(left);
+	            
+	            if (right - left == p.length()) {
+	                if (pChar[sArr[left]] >= 0) len ++;
+	                pChar[sArr[left]] ++;
+	                left ++;
+	            }
+	        }
+	        return list;
+	    }
+	}
+	//sliding window
+//=================================================================================================================
+LC 490: The Maze
+
+solution:
+
+	class Solution {
+	    private int[][] around = new int[][]{{1,0},{0,1},{-1,0},{0,-1}};
+	    
+	    public boolean hasPath(int[][] maze, int[] start, int[] destination) {
+	        boolean[][] visited = new boolean[maze.length][maze[0].length];
+	        visited[start[0]][start[1]] = true;
+	        return dfs(maze, visited, start, destination);
+	    }
+	    
+	    
+	    private boolean dfs(int[][] maze, boolean[][] visited, int[] start, int[] destination) {
+	        if (start[0] == destination[0] && start[1] == destination[1]) {
+	            return true;
+	        } else {
+	            for (int[] direction : around) {
+	                int row = start[0];
+	                int col = start[1];
+	                while (!(row < 0 || row >= maze.length || col < 0 || col >= maze[0].length || maze[row][col] == 1)) {
+	                    row += direction[0];
+	                    col += direction[1];
+	                }
+	                row -= direction[0];
+	                col -= direction[1];
+	                if (visited[row][col]) continue;
+	                visited[row][col] = true;
+	                if (dfs(maze, visited, new int[]{row, col}, destination)) return true;
+	            }
+	            return false;
+	        }
+	    }
+	}
+//only record the end position
+//=================================================================================================================
+LC 486: Predict the Winner
+
+solution:
+	class Solution {
+	    public boolean PredictTheWinner(int[] nums) {
+	        if (nums.length == 1) return true;
+	        
+	        int totalNum = nums.length;
+	        int[] dp = new int[totalNum];
+	        
+	        for (int len = 1; len <= totalNum; len ++) {
+	            for (int i = 0; i + len <= totalNum; i ++) {
+	                int j = i + len - 1;
+	                if (len == 1) {
+	                    dp[i] = nums[i];
+	                } else {
+	                    dp[i] = Math.max(nums[i] - dp[i + 1], nums[j] - dp[i]);
+	                }
+	            }
+	        }
+	        
+	        return dp[0] >= 0;
+	    }
+	}
+//dp how much more if you take
+//save space, space complexity save
+//=================================================================================================================
+LC 494: Target Sum
+
+primary solution: dfs
+better solution: dp
+
+solution:
+	class Solution {
+	    public int findTargetSumWays(int[] nums, int S) {
+	        int sum = 0; 
+	        for (int num : nums) {
+	            sum += num;
+	        }
+	        int[][] dp = new int[nums.length + 1][2 * sum + 1];
+	        dp[0][sum] = 1;	//for the target sum is 0
+	        
+	        for (int i = 1; i <= nums.length; i ++) {
+	            for (int j = - sum; j <= sum; j ++) {
+	                dp[i][j + sum] = (
+	                    (j - nums[i - 1] >= -sum && j - nums[i - 1] <= sum) ? dp[i - 1][j - nums[i - 1] + sum] : 0) + ((j + nums[i - 1] >= -sum && j + nums[i - 1] <= sum) ? dp[i - 1][j + nums[i - 1] + sum] : 0);
+	            }
+	        }
+	        
+	        if (S >= -sum && S <= sum) {
+	            return dp[nums.length][S + sum];
+	        }
+	        return 0;
+	    }
+	}
+//=================================================================================================================
+LC 496: Next Greater Element I
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
