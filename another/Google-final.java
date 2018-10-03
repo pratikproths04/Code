@@ -2006,36 +2006,799 @@ solution:
 //=================================================================================================================
 LC 496: Next Greater Element I
 
+can use only one stack
 
+solution:
+	class Solution {
+	    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+	        Map<Integer, Integer> map = new HashMap<>();
+	        Stack<Integer> st = new Stack<>();
+	        for (int num : nums2) {
+	            while (!st.isEmpty() && st.peek() < num) {
+	                map.put(st.pop(), num);
+	            }
+	            st.push(num);
+	        }
+	        int[] res = new int[nums1.length];
+	        for (int i = 0; i < res.length; i ++) {
+	            res[i] = map.getOrDefault(nums1[i], -1);
+	        }
+	        return res;
+	    }
+	}
+//=================================================================================================================
+LC 505: The Maze II
 
+solution:
+	class Solution {
+	    private int[] direction = new int[]{0, 1, 0, -1, 0};
+	    
+	    public int shortestDistance(int[][] maze, int[] start, int[] destination) {
+	        int[][] dist = new int[maze.length][maze[0].length];
+	        dist[start[0]][start[1]] = 1;
+	        dfs(maze, start[0], start[1], destination, dist);
+	        return dist[destination[0]][destination[1]] - 1;
+	    }
+	    
+	    private void dfs(int[][] maze, int row, int col, int[] dest, int[][] dist) {
+	        if (row == dest[0] && col == dest[1]) return;
+	        else {
+	            for (int i = 0; i < 4; i ++) {
+	                int newRow = row;
+	                int newCol = col;
+	                int len = dist[row][col];
+	                while (newRow + direction[i] < maze.length && newRow + direction[i] >= 0 &&
+	                      newCol + direction[i + 1] < maze[0].length && newCol + direction[i + 1] >= 0 &&
+	                      maze[newRow + direction[i]][newCol + direction[i + 1]] == 0) {
+	                    newRow += direction[i];
+	                    newCol += direction[i + 1];
+	                    len ++;
+	                }
+	                if (dist[newRow][newCol] > 0 && dist[newRow][newCol] <= len) continue;
+	                dist[newRow][newCol] = len;
+	                dfs(maze, newRow, newCol, dest, dist);
+	            }
+	        }
+	    }
+	}
+//=================================================================================================================
+LC 560: Subarray Sum Equals K
 
+Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose sum equals to k.
 
+solution:
+	class Solution {
+	    public int subarraySum(int[] nums, int k) {
+	        HashMap<Integer, Integer> myMap = new HashMap<>();
+	        int sum = 0, counter = 0;
+	        myMap.put(sum, 1);
+	        for (int i = 0; i < nums.length; i ++) {
+	            sum += nums[i];
+	            if (myMap.containsKey(sum - k)) {counter += myMap.get(sum - k);}
+	            myMap.put(sum, (myMap.containsKey(sum)) ? myMap.get(sum) + 1 : 1);
+	        }
+	        return counter;
+	    }
+	}
+//=================================================================================================================
+LC 621: Task Scheduler
 
+Given a char array representing tasks CPU need to do. 
+It contains capital letters A to Z where different letters represent different tasks.Tasks could be done without original order. 
+Each task could be done in one interval. For each interval, CPU could finish one task or just be idle.
 
+However, there is a non-negative cooling interval n that means between two same tasks, 
+there must be at least n intervals that CPU are doing different tasks or just be idle.
 
+You need to return the least number of intervals the CPU will take to finish all the given tasks.
 
+solution:
+	class Solution {
+	    public int leastInterval(char[] tasks, int n) {
+	        int[] map = new int[26];
+	        for (char each : tasks) {
+	            map[each - 'A'] ++;
+	        }
+	        int max = 0, maxnum = 0;
+	        for (int each : map) {
+	            if (each == max) {
+	                maxnum ++;
+	            }
+	            else if (each > max) {
+	                maxnum = 1;
+	                max = each;
+	            }
+	        }
+	        
+	        int temp = 0;
+	        if (maxnum - 1 > n) {
+	            temp = max * maxnum;
+	        }
+	        else {
+	            temp = (max - 1) * (n + 1) + maxnum;
+	        }
+	        return Math.max(temp, tasks.length);
+	    }
+	}
+//=================================================================================================================
+LC 652: Find Duplicate Subtrees
 
+solution:
+	class Solution {
+	    public List<TreeNode> findDuplicateSubtrees(TreeNode root) {
+	        if (root == null) return new ArrayList<>();
+	        
+	        Map<String, TreeNode> map = new HashMap<>();
+	        check(root, map);
+	        List<TreeNode> list = new ArrayList<>();
+	        for (Map.Entry<String, TreeNode> element : map.entrySet()) {
+	            if (element.getValue() != null) {
+	                list.add(element.getValue());
+	            }
+	        }
+	        return list;
+	    }
+	    
+	    private String check(TreeNode root, Map<String, TreeNode> map) {
+	        if (root == null) return "#";
+	        String sub = check(root.left, map) + "," + check(root.right, map) + "," + root.val;
+	        if (map.containsKey(sub)) {
+	            map.put(sub, root);
+	        } else {
+	            map.put(sub, null);
+	        }
+	        return sub;
+	    }
+	}
+//=================================================================================================================
+LC 659: Split Array into Consecutive Subsequences
 
+solution:
+	class Solution {
+	    public boolean isPossible(int[] nums) {
+	        if (nums.length < 3) return false;
+	        
+	        Map<Integer, Integer> freq = new HashMap<>(), array = new HashMap<>();
+	        for (int i : nums) {
+	            freq.put(i, freq.getOrDefault(i, 0) + 1);
+	        }
+	        for (int i : nums) {
+	            if (freq.get(i) == 0) {
+	                continue;
+	            } else if (array.getOrDefault(i, 0) > 0) {
+	                array.put(i + 1, array.getOrDefault(i + 1, 0) + 1);
+	                array.put(i, array.get(i) - 1);  
+	            } else if (freq.containsKey(i + 1) && freq.get(i + 1) > 0 && freq.containsKey(i + 2) && freq.get(i + 2) > 0) {
+	                array.put(i + 3, array.getOrDefault(i + 3, 0) + 1);
+	                freq.put(i + 1, freq.get(i + 1) - 1);
+	                freq.put(i + 2, freq.get(i + 2) - 1);
+	            } else {
+	                return false;
+	            }
+	            freq.put(i, freq.get(i) - 1);
+	        }
+	        return true;
+	    }
+	}
+//=================================================================================================================
+LC 674: Longest Continuous Increasing Subsequence
 
+solution:
+	class Solution {
+	    public int findLengthOfLCIS(int[] nums) {
+	        if (nums.length == 0) {return 0;}
+	        int maxLength = 1;
+	        int nowLength = 1;
+	        for (int i = 0; i < nums.length - 1; i ++){
+	            if (nums[i] < nums[i + 1]){
+	                nowLength ++;
+	            }
+	            else{
+	                nowLength = 1;
+	            }
+	            maxLength = Math.max(nowLength, maxLength);
+	        }
+	        return maxLength;
+	    }
+	}
+//=================================================================================================================
+LC 684: Redundant Connection
 
+solution:
+	class Solution {
+	    public int[] findRedundantConnection(int[][] edges) {
+	        if (edges.length == 1) return edges[0];
+	        UF uf = new UF(edges.length);
+	        int index = 0;
+	        for (; index < edges.length; index ++) {
+	            int id1 = edges[index][0];
+	            int id2 = edges[index][1];
+	            if (uf.isConnected(id1, id2)) break;
+	            uf.connect(id1, id2);
+	        }
+	        return edges[index];
+	    }
+	}
 
+	class UF {
+	    private int[] id;
+	    private int[] sz;
+	    private int count;
+	    public UF(int N) {
+	        id = new int[N + 1];
+	        sz = new int[N + 1];
+	        for (int i = 0; i <= N; i ++) {
+	            id[i] = i;
+	            sz[i] = 1;
+	        }
+	        count = N;
+	    }
+	    public int count() {
+	        return count;
+	    }
+	    public boolean isConnected(int id1, int id2) {
+	        return find(id1) == find(id2);
+	    }
+	    public int find(int idGiven) {
+	        while (id[idGiven] != idGiven) {
+	            id[idGiven] = id[id[idGiven]];
+	            idGiven = id[idGiven];
+	        }
+	        return idGiven;
+	    }
+	    public void connect(int id1, int id2) {
+	        int root1 = find(id1), root2 = find(id2);
+	        if (sz[root1] > sz[root2]) {
+	            connect(id2, id1);
+	            return;
+	        }
+	        id[root1] = root2;
+	        sz[root2] += sz[root1];
+	        count --;
+	    }
+	}
+//=================================================================================================================
+LC 685. Redundant Connection II
 
+solution:
+	class Solution {
+	    public int[] findRedundantDirectedConnection(int[][] edges) {
+	        int storeA = -1, storeB = -1;
+	        UF unf = new UF(edges.length);
+	        for (int i = 0; i < edges.length; i ++) {
+	            if (unf.isConnected(edges[i][0], edges[i][1])) {
+	                storeA = i;
+	            }
+	            if (!unf.connect(edges[i][0], edges[i][1])) {
+	                storeB = i;
+	            }
+	            // System.out.println("storeA: " + storeA + ", storeB: " + storeB + ", unf.count: " + unf.count);
+	        }
+	        if (storeA != -1 && unf.count <= 1) return edges[storeA];
+	        else if (unf.count <= 1) return edges[storeB];
+	        int j = 0;
+	        for (; j < storeB; j ++) {
+	            if (edges[j][1] == edges[storeB][1]) break;
+	        }
+	        return edges[j];
+	    }
+	}
 
+	class UF {
+	    int[] root;
+	    int count;
+	    public UF(int N) {
+	        root = new int[N + 1];
+	        for (int i = 0; i <= N; i ++) {
+	            root[i] = i;
+	        }
+	        count = N;
+	    }
+	    
+	    public int getCount() {
+	        return count;
+	    }
+	    
+	    public boolean isConnected(int id1, int id2) {
+	        return find(id1) == find(id2);
+	    }
+	    
+	    public int find(int id) {
+	        while (id != root[id]) {
+	            root[id] = root[root[id]];
+	            id = root[id];
+	        }
+	        return id;
+	    }
+	    
+	    public boolean connect(int rootId, int leafId) {
+	        int root1 = find(rootId);
+	        int root2 = find(leafId);
+	        if (root2 != leafId) return false;
+	        root[leafId] = root1;
+	        if (root1 != root2) count --;
+	        return true;
+	    }
+	}
+//=================================================================================================================
+LC 731: My Calendar II
 
+solution:
+	class MyCalendarTwo {
+	      private List<int[]> books;
+	      public MyCalendarTwo() {
+	          books=new ArrayList<>();
+	      }
 
+	      public boolean book(int start, int end) {
+	          MyCalendar overlaps = new MyCalendar();
+	          for(int []b:books){
+	              if (Math.max(b[0], start) < Math.min(b[1], end)){
+	                  if (!overlaps.book(Math.max(b[0], start), Math.min(b[1], end))) return false; // overlaps overlapped
+	              } // overlap exist
+	          }
+	          books.add(new int[]{ start, end });
+	          return true;
+	      }
+	      private class MyCalendar{
+	          List<int[]> books=new ArrayList<>();
+	          public boolean book(int start,int end){
+	              for(int []b:books){
+	                  if(Math.max(b[0],start)<Math.min(b[1],end)) return false;
+	              }
+	              books.add(new int[]{start,end});
+	              return true;
+	          }
+	      }
+	  }
+//=================================================================================================================
+LC 737
 
+solution:
+	public boolean areSentencesSimilarTwo(String[] words1, String[] words2, String[][] pairs) {
+	    if (words1.length != words2.length) 
+	        return false;
+	    
+	    //save the relationship of child-parent, key is child and value is parent
+	    Map<String, String> parent = new HashMap<>();
+	    
+	    for (String[] s : pairs) {
+	        String p1 = findParent(s[0], parent);
+	        String p2 = findParent(s[1], parent);
+	        
+	        //if p1 doesn't equal to p2, we need setup relationship between them.
+	        //make one as parent of the other. Here I make p2 as parent of p1.
+	        if (!p1.equals(p2)) {
+	            parent.put(p1, p2);
+	        }
+	    }
+	    
+	    int len = words1.length;
+	    
+	    for (int i = 0; i < len; i++) {
+	        String p1 = findParent(words1[i], parent);
+	        String p2 = findParent(words2[i], parent);
+	        
+	        //If no relationship found for p1 and p2, that means they're not similar word.
+	        if (!p1.equals(p2)) {
+	            return false;
+	        }
+	    }
+	    
+	    return true;
+	}
 
+	//Find the very top parent of s. If no parent found for s, return s itself.
+	String findParent(String s, Map<String, String> parent) {
+	    if (parent.containsKey(s)) {
+	        return findParent(parent.get(s), parent);
+	    }
+	    return s;
+	}
+	//the use of findParent(), this method is elegant and can give answer as well as
+	//if the map does not contains the key 
+//=================================================================================================================
+LC 739: Daily Temperatures
 
+solution:
+	class Solution {
+	    public int[] dailyTemperatures(int[] temperatures) {
+	        int[] res = new int[temperatures.length];
+	        Stack<Integer> myStack = new Stack<>();
+	        
+	        for (int i = 0; i < res.length; i ++) {
+	            
+	            while (!myStack.empty() && temperatures[myStack.peek()] < temperatures[i]) {
+	                int temp = myStack.pop();
+	                res[temp] = i - temp;
+	            }
+	            
+	            myStack.push(i);
+	        }
+	        
+	        return res;
+	    }
+	}
+//=================================================================================================================
+LC 753: Cracking the Safe
 
+solution:
+	class Solution {
+	    public String crackSafe(int n, int k) {
+	        StringBuilder sb = new StringBuilder();
+	        Set<String> store = new HashSet<>();
 
+	        helper(sb, store, n, k);
+	        return sb.toString();
+	    }
+	    
+	    private boolean helper(StringBuilder sb, Set<String> set, int n, int k) {
+	        int len = sb.length();
+	        if (set.size() == (int) Math.pow(k, n)) {
+	            return true;
+	        } else {
+	            for (int i = 0; i < k; i ++) {
+	                sb.append(i);
+	                //System.out.println(sb.toString());
+	                
+	                if (len - n + 1 >= 0)  {
+	                    String str = sb.substring(len - n + 1);
+	                    if (!set.contains(str)) {
+	                        set.add(str);
+	                        if (helper(sb, set, n, k)) return true;
+	                        set.remove(str);
+	                    }
+	                } else if (helper(sb, set, n, k)) {
+	                    return true;
+	                }
+	                sb.setLength(len);
+	            }
+	            return false;
+	        }
+	    }
+	}
+//=================================================================================================================
+LC 750:
 
+solution:
+	class Solution {
+	    public int countCornerRectangles(int[][] grid) {
+	        if (grid.length == 1 || grid[0].length == 1) return 0;
+	        int res = 0;
+	        for (int i = 0; i + 1 < grid.length; i ++) {
+	            for (int j = i + 1; j < grid.length; j ++) {
+	                int count = 0;
+	                for (int k = 0; k < grid[0].length; k ++) {
+	                    if (grid[i][k] == 1 && grid[j][k] == 1) count ++;
+	                }
+	                res += count * (count - 1) / 2;
+	            }
+	        }
+	        return res;
+	    }
+	}
+	//fix two row, find corresponding cols with 2 '1'
+	//time complexity O(n^2 * m) m = col.length, n = row.length
 
+	class Solution {
+	    public int countCornerRectangles(int[][] grid) {
+	        int m = grid.length, n = grid[0].length;
+	        int[][] dp = new int[n][n];
+	        int res = 0;
+	        for(int i = 0;i < m;i++) {
+	            for(int j = 0;j < n;j++) {
+	                if(grid[i][j] != 1) continue;
+	                for(int k = j+1;k < n;k++) {
+	                    if(grid[i][k] == 1) {
+	                        res += dp[j][k];
+	                        dp[j][k]++;
+	                    }
+	                }
+	            }
+	        }
+	        return res;
+	    }
+	}
+	//dp solution
 
+//=================================================================================================================
+LC 769: Max Chunks To Make Sorted
 
+solution:
+	class Solution {
+	    public int maxChunksToSorted(int[] arr) {
+	        int chuckNum = 0, pointer = 0, boundary = 0;
+	        while (pointer < arr.length) {
+	            boundary = Math.max(boundary, arr[pointer ++]);
+	            if (pointer > boundary) chuckNum ++;
+	        }
+	        return chuckNum;
+	    }
+	}
+//=================================================================================================================
+LC 773: Sliding Puzzle
 
+solution:
+	class Solution {
+	    public int slidingPuzzle(int[][] board) {
+	        int[] direcs = {-1, 1, -3, 3};
+	        String target = "123450";
+	        char[] state = new char[6];
+	        for (int i = 0; i < 6; i ++) {
+	            state[i] = (char) ('0' + board[i / 3][i % 3]);
+	        }
+	        if (target.equals(String.valueOf(state))) return 0;
+	        
+	        Queue<String> qu = new LinkedList<>();
+	        Set<String> visited = new HashSet<>();
+	        
+	        qu.offer(String.valueOf(state));
+	        visited.add(String.valueOf(state));
+	        int step = 0;
+	        
+	        while (!qu.isEmpty()) {
+	            step ++;
+	            int size = qu.size();
+	            for (int i = 0; i < size; i ++) {
+	                String tmp = qu.poll();
+	                state = tmp.toCharArray();
+	                int zero = 0;
+	                while (state[zero] != '0') zero ++;
+	                for (int dire : direcs) {
+	                    state = tmp.toCharArray();
+	                    int index = zero + dire;
+	                    if (index < 0 || index > 5 || index == 3 && zero == 2 || zero == 3 && index == 2) continue;
+	                    state[zero] = state[index];
+	                    state[index] = '0';
+	                    String res = String.valueOf(state);
+	                    if (visited.contains(res)) continue;
+	                    // System.out.print(res + ", ");
+	                    
+	                    if (res.equals(target)) return step;
+	                    qu.offer(res);
+	                    visited.add(res);
+	                }
+	                
+	            }
+	            // System.out.println();
+	            // System.out.println();
+	        }
+	        
+	        return -1;
+	    }
+	}
+//=================================================================================================================
+LC 815:
 
+class Solution {
+    public int numBusesToDestination(int[][] routes, int S, int T) {
+        if (routes == null || routes.length == 0 || routes[0].length == 0) return -1;
+        if (S == T) return 0;
+        
+        Map<Integer, Set<Integer>> stops = new HashMap<>();
+        for (int i = 0; i < routes.length; i ++) {
+            for (int j = 0; j < routes[i].length; j ++) {
+                int stop = routes[i][j];
+                if (stops.containsKey(stop)) {
+                    stops.get(stop).add(i);
+                } else {
+                    Set<Integer> buses = new HashSet<>();
+                    buses.add(i);
+                    stops.put(stop, buses);
+                }
+            }
+        }
+        
+        if (!stops.containsKey(S) || !stops.containsKey(T)) return -1;
+        
+        boolean[] visited = new boolean[routes.length];
+        Queue<Integer> next = new LinkedList<>();
+        next.offer(S);
+        int level = 0;
+        
+        while (!next.isEmpty()) {
+            int size = next.size();
+            level ++;
+            for (int i = 0; i < size; i ++) {
+                int stop = next.poll();
+                Set<Integer> routesOfStop = stops.get(stop);
+                for (Integer route : routesOfStop) {
+                    if (visited[route]) continue;
+                    for (int j = 0; j < routes[route].length; j ++) {
+                        if (routes[route][j] == T) return level;
+                        next.offer(routes[route][j]);
+                    }
+                    visited[route] = true;
+                }
+            }
+        }
+        
+        return -1;
+    }
+}
+//=================================================================================================================
+LC 222: Count Complete Tree Nodes
 
+solution:
+	class Solution {
+	    public int countNodes(TreeNode root) {
+	        if (root == null) return 0;
+	        if (root.left == null) return 1;
+	        int height = 0, nodesum = 0;
+	        TreeNode curr = root;
+	        while (curr.left != null) {
+	            nodesum += (1 << height);
+	            height ++;
+	            curr = curr.left;
+	        }
+	        return nodesum + helper(root, height);
+	    }
+	    
+	    private int helper(TreeNode root, int height) {
+	        
+	        if (height == 1 && root.right != null) return 2;
+	        else if (height == 1 && root.left != null) return 1;
+	        else if (height == 1) return 0;
+	        
+	        TreeNode curr = root.left;
+	        int counter = 1;
+	        while (counter < height) {
+	            curr = curr.right;
+	            counter ++;
+	        }
+	        if (curr == null) return helper(root.left, height - 1);
+	        else return (1<<(height-1)) + helper(root.right, height - 1);
+	    }
+	}
+//=================================================================================================================
+LC 274:
 
+solution:
+	class Solution {
+	    public int hIndex(int[] citations) {
+	        Arrays.sort(citations);
+	        int hIndex = 0;
+	        for (int i = 0; i < citations.length; i ++) {
+	            if (citations[citations.length - 1 - i] > i) {
+	                hIndex = i + 1;
+	            }
+	        }
+	        return hIndex;
+	    }
+	}
+//=================================================================================================================
+LC 269:
+
+solution:
+	class Solution {
+	    public String alienOrder(String[] words) {
+	        boolean[][] adj = new boolean[26][26];
+	        int[] indegree = new int[26];
+	        int[] counter = new int[1];
+	        Arrays.fill(indegree, -1);
+	        buildAdj(adj, words, indegree, counter);
+	        
+	        boolean[] visited = new boolean[26];
+	        Queue<Character> qu = new LinkedList<>();
+	        StringBuilder sb = new StringBuilder();
+	        
+	        while (counter[0] > 0) {
+	            for (int i = 0; i < 26; i ++) {
+	                if (indegree[i] == 0 && !visited[i]) {
+	                    qu.offer((char)(i + 'a'));
+	                    visited[i] = true;
+	                }
+	            }
+	            if (qu.isEmpty() && counter[0] > 0) return "";
+	            int size = qu.size();
+	            for (int i = 0; i < size; i ++) {
+	                char tmp = qu.poll();
+	                sb.append(tmp);
+	                counter[0] --;
+	                for (int j = 0; j < 26; j ++) {
+	                    if (adj[tmp - 'a'][j]) {
+	                        indegree[j] --;
+	                    }
+	                }
+	            }
+	        }
+	        return sb.toString();
+	    }
+	    
+	    private void buildAdj(boolean[][] adj, String[] words, int[] indegree, int[] counter) {
+	        for (int i = 0; i < words.length; i ++) {
+	            for (char k : words[i].toCharArray()) {
+	                if (indegree[k - 'a'] == -1) {
+	                    indegree[k - 'a'] = 0;
+	                    counter[0] ++;
+	                }
+	            }
+	            if (i > 0) {
+	                int len = Math.min(words[i - 1].length(), words[i].length());
+	                for (int j = 0; j < len; j ++) {
+	                    char a = words[i - 1].charAt(j);
+	                    char b = words[i].charAt(j);
+	                    if (a != b) {
+	                        if (!adj[a - 'a'][b - 'a']) indegree[b - 'a'] ++;
+	                        adj[a - 'a'][b - 'a'] = true;
+	                        break;
+	                    }
+	                }
+	            }
+	        }
+	    }
+	}
+//=================================================================================================================
+LC 270: Closest Binary Search Tree Value
+
+solution:
+	class Solution {
+	    
+	    private int record;
+	    
+	    public int closestValue(TreeNode root, double target) {
+	        record = root.val;
+	        helper(root, target);
+	        return record;
+	    }
+	    
+	    private void helper(TreeNode root, double target) {
+	        if (root == null) return;
+	        if (root.val == target) {
+	            record = root.val;
+	            return;
+	        }
+	        else if (root.val < target) {
+	            if (Math.abs(record - target) > Math.abs(root.val - target)) record = root.val;
+	            helper(root.right, target);
+	        } else {
+	            if (Math.abs(record - target) > Math.abs(root.val - target)) record = root.val;
+	            helper(root.left, target);
+	        }
+	    }
+	}
+//=================================================================================================================
+LC 297: Serialize and Deserialize Binary Tree
+
+solution:
+	public class Codec {
+	    
+	    // Encodes a tree to a single string.
+	    public String serialize(TreeNode root) {
+	        StringBuilder sb = new StringBuilder();
+	        buildTree(root, sb);
+	        return sb.toString();
+	    }
+	    
+	    private void buildTree(TreeNode root, StringBuilder sb) {
+	        if (root == null) {
+	            sb.append("null").append(",");
+	            return;
+	        }
+	        sb.append(root.val + "").append(",");
+	        buildTree(root.left, sb);
+	        buildTree(root.right, sb);
+	    }
+
+	    // Decodes your encoded data to tree.
+	    public TreeNode deserialize(String data) {
+	        Queue<String> qu = new LinkedList<>();
+	        qu.addAll(Arrays.asList(data.split(",")));
+	        return construct(qu);
+	    }
+	    
+	    private TreeNode construct(Queue<String> qu) {
+	        String tmp = qu.poll();
+	        if (tmp.equals("null")) return null;
+	        TreeNode root = new TreeNode(Integer.parseInt(tmp));
+	        TreeNode left = construct(qu);
+	        TreeNode right = construct(qu);
+	        root.left = left;
+	        root.right = right;
+	        return root;
+	    }
+	    
+	}
 
 
 
